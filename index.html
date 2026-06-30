@@ -129,6 +129,9 @@ body{padding-bottom:104px}
 .bubble.ok{align-self:flex-start;background:rgba(16,185,129,.16);color:#7ff0c8;border-bottom-left-radius:4px}
 .bubble .lk{color:#7fb4ff;text-decoration:underline;word-break:break-all}
 .bubble .ttl{font-weight:700;display:block;margin-bottom:2px}
+.bk-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.bkmode{padding:6px 9px;font-size:.7rem;border-radius:7px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
+.bkmode.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
 </style>
 </head>
 <body>
@@ -224,8 +227,12 @@ body{padding-bottom:104px}
         <div class="lbl">🤝 Close the deal <span class="muted" style="text-transform:none;letter-spacing:0">· lock it in before you hang up</span></div>
         <div class="close-grid">
           <div class="close-col">
-            <div class="ct">📅 Book the appointment</div>
-            <div class="offer">Auto-invites Renee <b>+ her partner</b> (from BANT).</div>
+            <div class="ct">📅 Book the 3B call</div>
+            <div class="bk-modes" id="bkModes">
+              <button class="bkmode sel" data-m="closed">✅ Closed → 3B onboarding</button>
+              <button class="bkmode" data-m="open">🔁 Not closed → 3B + closer</button>
+            </div>
+            <div class="offer" id="bkDesc"></div>
             <div class="slots" id="slots">
               <button class="slot">Thu 2:00pm</button>
               <button class="slot">Thu 4:30pm</button>
@@ -258,7 +265,7 @@ body{padding-bottom:104px}
       </div></div>
     </div>
   </div>
-  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.0.5</span></div>
+  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.0.6</span></div>
 </div>
 
 <div id="chatbar">
@@ -474,12 +481,27 @@ setTimeout(()=>{ try{ $('chatInput').focus({preventScroll:true}); }catch(e){} },
 
 /* ===== Close the deal: book + charge (simulated) ===== */
 function setPay(t,cls){ $('payStatus').className='cstatus '+(cls||''); $('payStatus').innerHTML=t; }
+var bkMode='closed';
+function setBkMode(m){
+  bkMode=m;
+  document.querySelectorAll('.bkmode').forEach(b=>b.classList.toggle('sel',b.dataset.m===m));
+  $('bkDesc').innerHTML = m==='closed'
+    ? 'Client Success · 15 min — guide Renee to pull her <b>MyFICO 3-bureau (3B) report</b> together, then onboard her to the EPIC LIFE member portal.'
+    : 'Client Success pulls Renee’s <b>MyFICO 3B report</b> on the call, then brings in a <b>senior closer</b> to close on the demo Zoom (Renee + her partner).';
+}
+document.querySelectorAll('.bkmode').forEach(b=>b.onclick=()=>setBkMode(b.dataset.m));
+setBkMode('closed');
 document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{
   document.querySelectorAll('.slot').forEach(x=>x.classList.remove('sel')); s.classList.add('sel');
   $('bookStatus').className='cstatus ok';
-  $('bookStatus').innerHTML='✅ Invite sent to Renee + her partner for <b>'+s.textContent+'</b>';
-  toast('Booked — '+s.textContent);
-  phMsg('<span class="ttl">Team Life Academy</span>📅 Invite: EPIC LIFE strategy call — <b>'+s.textContent+'</b>. You + your partner are invited.','pay');
+  if(bkMode==='closed'){
+    $('bookStatus').innerHTML='✅ 3B onboarding booked — Renee + Client Success · <b>'+s.textContent+'</b>';
+    phMsg('<span class="ttl">Team Life Academy</span>📅 Your <b>3B onboarding call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and set up your EPIC LIFE portal.','pay');
+  } else {
+    $('bookStatus').innerHTML='✅ 3B + closer call booked — Renee + partner + Client Success + closer · <b>'+s.textContent+'</b>';
+    phMsg('<span class="ttl">Team Life Academy</span>📅 Your <b>3B strategy call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and walk you + your partner through the full plan.','pay');
+  }
+  toast('Booked 3B — '+s.textContent);
 });
 $('payBtn').onclick=async()=>{
   $('payBtn').disabled=true;
@@ -489,6 +511,7 @@ $('payBtn').onclick=async()=>{
   await wait(2000); setPay('✅ Paid — $500 setup today, $300/mo started','ok');
   phMsg('<span class="ttl">Team Life Academy</span>✅ Payment received — welcome to EPIC LIFE! $500 setup + $300/mo started.','ok');
   toast('Payment received 🎉'); bump('s-book');
+  try{ setBkMode('closed'); }catch(e){}
 };
 
 /* ===== timezone / quiet-hours guard + caller-ID + daily mission ===== */
@@ -526,7 +549,7 @@ function phCall(html,cls){ const c=$('phCall'); if(!c)return;
   else { c.className='ph-call'+(cls?(' '+cls):''); c.innerHTML=html; } }
 
 /* ===== Update detection: poll version.json, prompt to reload on a new build ===== */
-const APP_VERSION='1.0.5';
+const APP_VERSION='1.0.6';
 function showUpdateBar(v){
   if(document.getElementById('updbar'))return;
   const b=document.createElement('div'); b.id='updbar';
