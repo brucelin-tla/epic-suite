@@ -20,8 +20,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .stats{display:flex;gap:6px}
 .stat{text-align:center;padding:4px 11px;background:var(--surface);border-radius:var(--radius-sm)}
 .stat b{font-size:1.05rem;display:block;line-height:1.1}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
-.cockpit{display:grid;grid-template-columns:230px 1fr;gap:14px;align-items:start}
-@media(max-width:760px){.cockpit{grid-template-columns:1fr}}
+.cockpit{display:grid;grid-template-columns:185px minmax(0,1fr) 250px;gap:14px;align-items:start}
+@media(max-width:980px){.cockpit{grid-template-columns:1fr}}
 .qhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:.82rem}.qhead .m{color:var(--text2);font-size:.72rem}
 .qcard{display:flex;gap:9px;align-items:center;padding:9px 11px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);margin-bottom:7px}
 .qcard.active{background:var(--surface2);border-color:var(--accent)}
@@ -114,6 +114,21 @@ body{padding-bottom:104px}
 .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
 .callinfo{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:var(--text2);margin-top:9px;border-top:1px solid var(--border);padding-top:9px}
 .qok{color:var(--accent);font-weight:600}.qmid{color:var(--gold);font-weight:600}.qbad{color:var(--red);font-weight:600}
+.phonecol{position:sticky;top:14px}
+.phone{background:#000;border-radius:26px;padding:9px 7px;border:1px solid #333;max-width:240px;margin:0 auto}
+.screen{background:#0d1117;border-radius:18px;min-height:430px;max-height:520px;overflow:hidden;display:flex;flex-direction:column}
+.ph-call{padding:11px;text-align:center;font-size:.78rem;font-weight:700;background:rgba(16,185,129,.16);color:#7ff0c8}
+.ph-call.ring{background:rgba(59,130,246,.18);color:#bcd4ff}
+.ph-appbar{padding:8px 12px;font-size:.72rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border)}
+.ph-msgs{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
+.ph-empty{color:var(--muted);font-size:.72rem;text-align:center;margin:auto;padding:20px}
+.bubble{max-width:88%;padding:8px 11px;border-radius:14px;font-size:.74rem;line-height:1.45}
+.bubble.them{align-self:flex-start;background:var(--surface2);border-bottom-left-radius:4px}
+.bubble.sys{align-self:center;background:transparent;color:var(--muted);font-size:.68rem}
+.bubble.pay{align-self:flex-start;background:rgba(59,130,246,.16);color:#bcd4ff;border-bottom-left-radius:4px}
+.bubble.ok{align-self:flex-start;background:rgba(16,185,129,.16);color:#7ff0c8;border-bottom-left-radius:4px}
+.bubble .lk{color:#7fb4ff;text-decoration:underline;word-break:break-all}
+.bubble .ttl{font-weight:700;display:block;margin-bottom:2px}
 </style>
 </head>
 <body>
@@ -233,8 +248,17 @@ body{padding-bottom:104px}
       </div>
 
     </div>
+
+    <div class="phonecol">
+      <div class="lbl" style="margin-bottom:8px">📱 Renee's phone <span class="muted" style="text-transform:none;letter-spacing:0">· prospect's view</span></div>
+      <div class="phone"><div class="screen">
+        <div id="phCall" class="ph-call hidden"></div>
+        <div class="ph-appbar">Messages · Team Life Academy</div>
+        <div id="phMsgs" class="ph-msgs"><div class="ph-empty">Nothing yet — start a call.</div></div>
+      </div></div>
+    </div>
   </div>
-  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.0.4</span></div>
+  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.0.5</span></div>
 </div>
 
 <div id="chatbar">
@@ -353,8 +377,10 @@ async function applyEffects(s){
 async function runCall(){
   $('status').className='pill live'; $('status').innerHTML='● connecting…';
   $('callBtn').className='btn end'; $('callBtn').innerHTML='⛔ End'; $('callBtn').disabled=false;
+  phCall('📲 Incoming call…','ring');
   await wait(900);
   $('status').innerHTML='● connected';
+  phCall('📞 On call · (305) 555-0142');
   if($('tzStatus').classList.contains('qbad')) toast('⛔ Quiet hours in FL — real cockpit blocks this; demo override');
   bump('s-dials'); bump('s-conn');
   showConsentChip();
@@ -368,6 +394,7 @@ async function runCall(){
     else { addTranscript('You',s.text); await applyEffects(s); await wait(1100); }
   }
   $('closer-hint').textContent='ready to close';
+  phCall(null); phMsg('Call ended','sys');
   toast('Call complete — log it and move on');
 }
 function bump(id){$(id).textContent=parseInt($(id).textContent)+1; try{updateMission();}catch(e){}}
@@ -430,7 +457,7 @@ async function sendChat(){
   $('chatInput').value=''; addTranscript('You',txt);
   convo.push({role:'user',content:txt});
   $('sendBtn').disabled=true; $('sendBtn').textContent='…';
-  if($('status').classList.contains('idle')){ $('status').className='pill live'; $('status').innerHTML='🎙️ listening'; }
+  if($('status').classList.contains('idle')){ $('status').className='pill live'; $('status').innerHTML='🎙️ listening'; phCall('📞 On call · (305) 555-0142'); }
   try{
     const d=await askRenee(key);
     convo.push({role:'assistant',content:JSON.stringify(d)});
@@ -452,12 +479,15 @@ document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{
   $('bookStatus').className='cstatus ok';
   $('bookStatus').innerHTML='✅ Invite sent to Renee + her partner for <b>'+s.textContent+'</b>';
   toast('Booked — '+s.textContent);
+  phMsg('<span class="ttl">Team Life Academy</span>📅 Invite: EPIC LIFE strategy call — <b>'+s.textContent+'</b>. You + your partner are invited.','pay');
 });
 $('payBtn').onclick=async()=>{
   $('payBtn').disabled=true;
   setPay('📲 Link sent to Renee’s phone…','');
+  phMsg('<span class="ttl">Team Life Academy</span>Your secure checkout for EPIC LIFE — $500 setup + $300/mo:<br><span class="lk">pay.tla.co/r/4f2a9</span>','pay');
   await wait(1600); setPay('👀 Renee opened the payment page…','');
   await wait(2000); setPay('✅ Paid — $500 setup today, $300/mo started','ok');
+  phMsg('<span class="ttl">Team Life Academy</span>✅ Payment received — welcome to EPIC LIFE! $500 setup + $300/mo started.','ok');
   toast('Payment received 🎉'); bump('s-book');
 };
 
@@ -488,8 +518,15 @@ function updateMission(){
 }
 updateTiming(); setInterval(updateTiming,30000); updateMission();
 
+/* ===== prospect's-phone view ===== */
+function phMsg(html,cls){ const m=$('phMsgs'); if(!m)return; const e=m.querySelector('.ph-empty'); if(e)e.remove();
+  const d=document.createElement('div'); d.className='bubble '+(cls||'them'); d.innerHTML=html; m.appendChild(d); m.scrollTop=m.scrollHeight; }
+function phCall(html,cls){ const c=$('phCall'); if(!c)return;
+  if(html===null){ c.className='ph-call hidden'; c.innerHTML=''; }
+  else { c.className='ph-call'+(cls?(' '+cls):''); c.innerHTML=html; } }
+
 /* ===== Update detection: poll version.json, prompt to reload on a new build ===== */
-const APP_VERSION='1.0.4';
+const APP_VERSION='1.0.5';
 function showUpdateBar(v){
   if(document.getElementById('updbar'))return;
   const b=document.createElement('div'); b.id='updbar';
