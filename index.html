@@ -102,7 +102,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
   <div class="cockpit">
     <div>
       <div class="qhead"><b>Queue</b><span class="m">AI-ranked</span></div>
-      <div class="qcard active"><span class="qrank">1</span><div class="qbody"><div class="qname">Marcus Webb</div><div class="qreason">Callback promised today</div></div><span class="qscore hi">94</span></div>
+      <div class="qcard active"><span class="qrank">1</span><div class="qbody"><div class="qname">Renee Webb</div><div class="qreason">Callback promised today</div></div><span class="qscore hi">94</span></div>
       <div class="qcard"><span class="qrank">2</span><div class="qbody"><div class="qname">Dana Liu</div><div class="qreason">Opened proposal 2×</div></div><span class="qscore mid">88</span></div>
       <div class="qcard"><span class="qrank">3</span><div class="qbody"><div class="qname">Reggie Park</div><div class="qreason">Quote expires Fri</div></div><span class="qscore mid">81</span></div>
       <div style="text-align:center;font-size:.74rem;color:var(--text2);padding:5px">+ 38 more</div>
@@ -111,8 +111,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
     <div>
       <div class="panel">
         <div class="pd-head">
-          <div class="avatar">MW</div>
-          <div style="flex:1"><div class="nm">Marcus Webb</div><div class="sub">Webb Logistics · Owner · EPIC LIFE membership · 📍 Florida</div></div>
+          <div class="avatar">RW</div>
+          <div style="flex:1"><div class="nm">Renee Webb</div><div class="sub">Webb Logistics · Owner · EPIC LIFE membership · 📍 Florida</div></div>
           <button id="callBtn" class="btn call" disabled>📞 Call</button>
         </div>
       </div>
@@ -166,23 +166,35 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 
 <script>
 const $=id=>document.getElementById(id);
-let muted=false, voice=null, started=false;
+let muted=false, voice=null, started=false, curAudio=null;
 
-/* pick a voice for the AI prospect */
 function pickVoice(){
-  const vs=speechSynthesis.getVoices();
-  voice=vs.find(v=>/en-US/i.test(v.lang)&&/male|david|mark|guy/i.test(v.name))||vs.find(v=>/en/i.test(v.lang))||vs[0];
+  const vs=(window.speechSynthesis?speechSynthesis.getVoices():[])||[];
+  voice=vs.find(v=>/en/i.test(v.lang)&&/natural|google|samantha|aria|jenny/i.test(v.name))
+      ||vs.find(v=>/en-US/i.test(v.lang))||vs.find(v=>/en/i.test(v.lang))||vs[0];
 }
 if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged=pickVoice; pickVoice(); }
 
-function speak(text){
+/* fallback robotic voice if an audio clip fails to load */
+function speakFallback(text){
   return new Promise(res=>{
-    if(muted||!('speechSynthesis' in window)){ return setTimeout(res, Math.min(4200, 700+text.length*42)); }
-    const u=new SpeechSynthesisUtterance(text);
-    u.rate=1; u.pitch=.9; if(voice) u.voice=voice;
-    const to=setTimeout(res, 9000);
-    u.onend=()=>{clearTimeout(to);res()}; u.onerror=()=>{clearTimeout(to);res()};
+    if(!('speechSynthesis' in window)){ return setTimeout(res, Math.min(4200,700+text.length*42)); }
+    const u=new SpeechSynthesisUtterance(text); u.rate=1; u.pitch=1; if(voice)u.voice=voice;
+    const to=setTimeout(res,9000); u.onend=()=>{clearTimeout(to);res()}; u.onerror=()=>{clearTimeout(to);res()};
     speechSynthesis.speak(u);
+  });
+}
+/* primary: play the pre-baked realistic clip */
+function play(src,text){
+  return new Promise(res=>{
+    if(muted){ return setTimeout(res, Math.min(3500,500+text.length*38)); }
+    if(!src){ return speakFallback(text).then(res); }
+    let done=false; const fin=()=>{ if(done)return; done=true; res(); };
+    const a=new Audio(src); curAudio=a;
+    a.onended=fin;
+    a.onerror=()=>{ if(done)return; done=true; speakFallback(text).then(res); };
+    const pr=a.play();
+    if(pr&&pr.catch) pr.catch(()=>{ if(done)return; done=true; speakFallback(text).then(res); });
   });
 }
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
@@ -190,7 +202,7 @@ function toast(t){const e=$('toast');e.textContent=t;e.classList.add('show');set
 
 function addTranscript(who,txt){
   const t=$('transcript'); if(t.querySelector('.muted')) t.innerHTML='';
-  const d=document.createElement('div'); d.className='tline '+(who==='Marcus'?'them':'you');
+  const d=document.createElement('div'); d.className='tline '+(who==='Renee'?'them':'you');
   d.innerHTML='<span class="who">'+who+':</span> '+txt; t.appendChild(d); t.scrollTop=t.scrollHeight;
 }
 function setBant(cell,val,cls){const el=$(cell);el.className='bcell '+cls;el.querySelector('.v').textContent=val;}
@@ -223,23 +235,23 @@ function showConsentChip(){
   c.appendChild(s);
 }
 
-/* the scripted call */
+/* the scripted call — prospect lines have a pre-baked audio clip */
 const script=[
-  {who:'Marcus',say:"Hey, yeah — you said you'd call me back today.",closer:['Clarify','got it — clarify why he\'s here']},
+  {who:'Renee',aud:'audio/p0.mp3',say:"Hey, yeah — you said you'd call me back today.",closer:['Clarify','clarify why she\'s here']},
   {who:'You',text:"I did, appreciate you picking up. Quick one — how's business right now?"},
-  {who:'Marcus',say:"Three trucks, trying to grow, but honestly I worry about protecting what I've built.",
+  {who:'Renee',aud:'audio/p1.mp3',say:"Three trucks, trying to grow, but honestly I worry about protecting what I've built.",
     bant:['b-need','Growth + protect','ok'], chip:['High intent','pos',false], closer:['Label','label the problem']},
   {who:'You',text:"That gap is exactly what this closes — growth and downside protection in one."},
-  {who:'Marcus',say:"Okay. What's it run me?"},
+  {who:'Renee',aud:'audio/p2.mp3',say:"Okay. So what's it run me?"},
   {who:'You',text:"Five hundred to set up, then three hundred a month."},
-  {who:'Marcus',say:"Yeah, I can swing that, that's fine.", bant:['b-budget','$500 + $300 ok','ok'], note:"Comfortable with $500 setup + $300/mo", closer:['Overview','overview past pain']},
-  {who:'Marcus',say:"I'll tell you though, the whole industry feels rigged against small guys like me.",
-    chip:['Blamer / victim','soft',true], flag:['Blamer / victim',"the whole industry feels rigged against small guys like me"], closer:['Sell','sell the outcome']},
+  {who:'Renee',aud:'audio/p3.mp3',say:"Yeah, I can swing that, that's fine.", bant:['b-budget','$500 + $300 ok','ok'], note:"Comfortable with $500 setup + $300/mo", closer:['Overview','overview past pain']},
+  {who:'Renee',aud:'audio/p4.mp3',say:"I'll tell you though, the whole industry feels rigged against small operators like me.",
+    chip:['Blamer / victim','soft',true], flag:['Blamer / victim',"the whole industry feels rigged against small operators like me"], closer:['Sell','sell the outcome']},
   {who:'You',text:"I hear you — and that's the point, this puts the leverage back on your side."},
-  {who:'Marcus',say:"I'd want to run it past my business partner first, though.",
+  {who:'Renee',aud:'audio/p5.mp3',say:"I'd want to run it past my business partner first, though.",
     bant:['b-auth','+ partner?','warn'], obj:true, note:"Decision-maker with a business partner — needs alignment", closer:['Explain','handle the partner concern']},
   {who:'You',text:"[Agree → reframe with the Dana story]"},
-  {who:'Marcus',say:"You know what — yeah, set up a call with both of us this week.",
+  {who:'Renee',aud:'audio/p6.mp3',say:"You know what — yeah, set up a call with both of us this week.",
     bant:['b-time','This month','ok'], outcome:'booked', closer:['Reinforce','reinforce the decision']},
   {who:'You',text:"Done. I'll send a couple times for you and your partner this week."}
 ];
@@ -267,7 +279,7 @@ async function runCall(){
   setCloser('Clarify','listening…');
   await wait(500);
   for(const s of script){
-    if(s.who==='Marcus'){ addTranscript('Marcus',s.say); await applyEffects(s); await speak(s.say); await wait(350); }
+    if(s.who==='Renee'){ addTranscript('Renee',s.say); await applyEffects(s); await play(s.aud,s.say); await wait(350); }
     else { addTranscript('You',s.text); await applyEffects(s); await wait(1100); }
   }
   $('closer-hint').textContent='ready to close';
@@ -276,9 +288,10 @@ async function runCall(){
 function bump(id){$(id).textContent=parseInt($(id).textContent)+1;}
 
 $('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; runCall(); };
-$('muteBtn').onclick=()=>{ muted=!muted; $('muteBtn').textContent=muted?'🔇 Voice off':'🔊 Voice on'; if(muted&&'speechSynthesis'in window)speechSynthesis.cancel(); };
+$('muteBtn').onclick=()=>{ muted=!muted; $('muteBtn').textContent=muted?'🔇 Voice off':'🔊 Voice on';
+  if(muted){ if('speechSynthesis'in window)speechSynthesis.cancel(); if(curAudio){try{curAudio.pause()}catch(e){}} } };
 document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');});
-$('nextBtn').onclick=()=>{ if($('#disp .opt.sel')||document.querySelector('.opt.sel')){ if(document.querySelector('.opt.sel[data-o="booked"]'))bump('s-book'); } toast('Logged ✓ — advancing to next prospect'); };
+$('nextBtn').onclick=()=>{ if(document.querySelector('.opt.sel[data-o="booked"]'))bump('s-book'); toast('Logged ✓ — advancing to next prospect'); };
 </script>
 </body>
 </html>
