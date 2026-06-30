@@ -77,6 +77,9 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .toast.show{opacity:1}
 .flag-alert{display:flex;align-items:flex-start;gap:8px;padding:8px 11px;background:rgba(245,158,11,.12);border-radius:var(--radius-sm);margin-top:9px;font-size:.76rem;color:#ffd58a;line-height:1.45}
 .muted{color:var(--text2)}
+#updbar{position:fixed;top:0;left:0;right:0;z-index:999;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 14px;font-size:.85rem;font-weight:600;box-shadow:0 2px 12px rgba(0,0,0,.45)}
+#updbar button{background:#fff;color:var(--blue);border:none;border-radius:6px;padding:6px 14px;font-weight:800;cursor:pointer}
+#updbar .x{cursor:pointer;opacity:.75;font-weight:400;font-size:1.1rem}
 </style>
 </head>
 <body>
@@ -170,7 +173,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
       </div>
     </div>
   </div>
-  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI.</div>
+  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.0.1</span></div>
 </div>
 <div id="toast" class="toast"></div>
 
@@ -368,6 +371,29 @@ async function sendChat(){
 $('sendBtn').onclick=sendChat;
 $('chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendChat(); } });
 setAiStatus();
+
+/* ===== Update detection: poll version.json, prompt to reload on a new build ===== */
+const APP_VERSION='1.0.1';
+function showUpdateBar(v){
+  if(document.getElementById('updbar'))return;
+  const b=document.createElement('div'); b.id='updbar';
+  b.innerHTML='🔄 A new version is available.'+
+    ' <button id="updNow">Update now</button>'+
+    ' <span class="x" id="updX" title="dismiss">✕</span>';
+  document.body.appendChild(b); document.body.style.paddingTop='52px';
+  document.getElementById('updNow').onclick=()=>{ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
+  document.getElementById('updX').onclick=()=>{ b.remove(); document.body.style.paddingTop=''; };
+}
+async function checkUpdate(){
+  try{
+    const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});
+    if(!r.ok)return; const j=await r.json();
+    if(j&&j.v&&j.v!==APP_VERSION) showUpdateBar(j.v);
+  }catch(e){}
+}
+checkUpdate();
+setInterval(checkUpdate,60000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) checkUpdate(); });
 </script>
 </body>
 </html>
