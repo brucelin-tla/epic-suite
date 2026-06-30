@@ -90,6 +90,7 @@ body{padding-bottom:104px}
 #chatbar #sendBtn:disabled{opacity:.5;cursor:not-allowed}
 #chatbar .kb{padding:14px 15px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);cursor:pointer;font-size:1.05rem}
 #chatbar .kb:hover{border-color:var(--accent)}
+#chatbar .kb.on{background:rgba(239,68,68,.22);border-color:var(--red);color:#fff}
 @media(max-width:600px){#chatbar #sendBtn{padding:14px 16px}}
 .close-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:640px){.close-grid{grid-template-columns:1fr}}
@@ -265,14 +266,15 @@ body{padding-bottom:104px}
       </div></div>
     </div>
   </div>
-  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.0.6</span></div>
+  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.0.7</span></div>
 </div>
 
 <div id="chatbar">
   <div id="aiStatus" class="muted"></div>
   <div class="inner">
     <button id="keyBtn" class="kb" title="Connect AI prospect">🔑</button>
-    <input id="chatInput" type="text" placeholder="💬 Type to talk to Renee — press Enter to send" autocomplete="off">
+    <button id="micBtn" class="kb" title="Talk to Renee with your mic">🎤</button>
+    <input id="chatInput" type="text" placeholder="💬 Type, or tap 🎤 to talk to Renee" autocomplete="off">
     <button id="sendBtn">Send ▸</button>
   </div>
 </div>
@@ -417,7 +419,7 @@ function esc(s){return String(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;
 function getKey(){return localStorage.getItem('anthropic_key')||'';}
 function setAiStatus(){ const k=getKey();
   $('aiStatus').innerHTML = k
-    ? '🟢 AI prospect connected — type below and Renee answers in character (and the cockpit updates from what she says).'
+    ? '🟢 AI prospect connected — type, or tap 🎤 to TALK, and Renee answers in character while the cockpit updates live.'
     : '⚪ Not connected. Click “Connect AI prospect” and paste your Anthropic API key (kept only in this browser). The scripted ▶ Start call works without it.';
 }
 $('keyBtn').onclick=()=>{ const cur=getKey();
@@ -457,11 +459,11 @@ function applyAI(d){
   if(d.note) addNote(d.note);
   if(d.closer) setCloser(d.closer,'live');
 }
-async function sendChat(){
-  const txt=$('chatInput').value.trim(); if(!txt) return;
+async function sendText(txt){
+  txt=(txt||'').trim(); if(!txt) return;
   const key=getKey();
   if(!key){ toast('Connect your Anthropic key to chat live'); $('keyBtn').click(); return; }
-  $('chatInput').value=''; addTranscript('You',txt);
+  addTranscript('You',txt);
   convo.push({role:'user',content:txt});
   $('sendBtn').disabled=true; $('sendBtn').textContent='…';
   if($('status').classList.contains('idle')){ $('status').className='pill live'; $('status').innerHTML='🎙️ listening'; phCall('📞 On call · (305) 555-0142'); }
@@ -470,12 +472,46 @@ async function sendChat(){
     convo.push({role:'assistant',content:JSON.stringify(d)});
     if(d.reply){ addTranscript('Renee',d.reply); }
     applyAI(d);
-    if(d.reply){ await play(ttsUrl(d.reply), d.reply); }
+    if(d.reply){ micPause(true); await play(ttsUrl(d.reply), d.reply); micPause(false); }
   }catch(e){ toast('AI error — check your key'); addTranscript('Renee','(couldn’t reach the AI: '+esc(e.message)+')'); }
   $('sendBtn').disabled=false; $('sendBtn').textContent='Send ▸';
 }
+async function sendChat(){ const t=$('chatInput').value; $('chatInput').value=''; sendText(t); }
 $('sendBtn').onclick=sendChat;
 $('chatInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendChat(); } });
+
+/* ===== mic: talk to Renee (Web Speech API speech-to-text) ===== */
+let recog=null, micOn=false, micPaused=false;
+function micPause(state){ if(!recog||!micOn)return; micPaused=state; try{ state?recog.stop():recog.start(); }catch(e){} }
+function initMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR) return null;
+  const r=new SR(); r.lang='en-US'; r.continuous=true; r.interimResults=true;
+  r.onresult=(e)=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const res=e.results[i];
+      if(res.isFinal){ const t=(res[0].transcript||'').trim(); if(t){ $('chatInput').value=''; sendText(t); } }
+      else interim+=res[0].transcript;
+    }
+    if(interim) $('chatInput').value=interim;
+  };
+  r.onerror=(e)=>{ if(e.error!=='no-speech'&&e.error!=='aborted') toast('Mic: '+e.error); };
+  r.onend=()=>{ if(micOn&&!micPaused){ try{r.start();}catch(e){} } };
+  return r;
+}
+function toggleMic(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast('Speech-to-text needs Chrome or Edge'); return; }
+  if(!getKey()){ toast('Connect your Anthropic key first'); $('keyBtn').click(); return; }
+  if(!recog) recog=initMic();
+  micOn=!micOn;
+  const b=$('micBtn');
+  if(micOn){ micPaused=false; try{recog.start();}catch(e){} b.classList.add('on'); b.textContent='🔴';
+    $('status').className='pill live'; $('status').innerHTML='🎙️ listening (mic)'; phCall('📞 On call · (305) 555-0142'); toast('Mic on — talk to Renee'); }
+  else { try{recog.stop();}catch(e){} b.classList.remove('on'); b.textContent='🎤'; toast('Mic off'); }
+}
+$('micBtn').onclick=toggleMic;
 setAiStatus();
 setTimeout(()=>{ try{ $('chatInput').focus({preventScroll:true}); }catch(e){} },300);
 
@@ -549,7 +585,7 @@ function phCall(html,cls){ const c=$('phCall'); if(!c)return;
   else { c.className='ph-call'+(cls?(' '+cls):''); c.innerHTML=html; } }
 
 /* ===== Update detection: poll version.json, prompt to reload on a new build ===== */
-const APP_VERSION='1.0.6';
+const APP_VERSION='1.0.7';
 function showUpdateBar(v){
   if(document.getElementById('updbar'))return;
   const b=document.createElement('div'); b.id='updbar';
