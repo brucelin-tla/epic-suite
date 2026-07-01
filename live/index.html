@@ -154,7 +154,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .rz:hover{border-color:var(--red)}
 .rz.pre{border-style:dashed;border-color:rgba(245,158,11,.6);color:#ffd58a}
 .rz.sel{background:rgba(239,68,68,.18);border-color:var(--red);color:#ffb1b1}
-.hidden{display:none}
+.hidden{display:none!important}
 /* ===== What's new / changelog ===== */
 #ver{cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
 .cl-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
@@ -791,7 +791,8 @@ $('ver').textContent='v'+APP_VERSION+" · what's new";
 $('ver').onclick=openChangelog;
 $('clClose').onclick=closeChangelog;
 $('clModal').onclick=(e)=>{ if(e.target===$('clModal')) closeChangelog(); };
-try{ if(localStorage.getItem('cockpit_seen_v')!==APP_VERSION){ openChangelog(); localStorage.setItem('cockpit_seen_v',APP_VERSION); } }catch(e){}
+/* hotfix: don't auto-open the changelog over the cockpit — users tap the version link to view it */
+try{ localStorage.setItem('cockpit_seen_v',APP_VERSION); }catch(e){}
 </script>
 </body>
 </html>
