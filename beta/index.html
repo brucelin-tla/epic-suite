@@ -20,7 +20,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .stats{display:flex;gap:6px}
 .stat{text-align:center;padding:4px 11px;background:var(--surface);border-radius:var(--radius-sm)}
 .stat b{font-size:1.05rem;display:block;line-height:1.1}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
-.cockpit{display:grid;grid-template-columns:185px minmax(0,1fr) 250px;gap:14px;align-items:start}
+.cockpit{display:grid;grid-template-columns:232px minmax(0,1fr) 250px;gap:14px;align-items:start}
 @media(max-width:980px){.cockpit{grid-template-columns:1fr}}
 .qhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:.82rem}.qhead .m{color:var(--text2);font-size:.72rem}
 .qcard{display:flex;gap:9px;align-items:center;padding:9px 11px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);margin-bottom:7px}
@@ -104,10 +104,10 @@ body{padding-bottom:104px}
 .cstatus{font-size:.76rem;color:var(--text2)}
 .cstatus.ok{color:#7ff0c8;font-weight:600}
 .offer{font-size:.74rem;color:var(--text2);margin-bottom:8px}
-.mission{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:14px}
+.mission{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:11px}
 .mhead{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;font-weight:700;margin-bottom:9px}
 .streak{font-size:.76rem;color:var(--gold);font-weight:700}
-.goals{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.goals{display:grid;grid-template-columns:1fr;gap:8px}
 @media(max-width:600px){.goals{grid-template-columns:1fr}}
 .goal .glabel{font-size:.74rem;color:var(--text2);margin-bottom:5px;display:flex;justify-content:space-between}
 .goal.done .glabel{color:#7ff0c8}
@@ -191,6 +191,19 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 #closer-stage{cursor:pointer}
 .note-input{width:100%;margin-top:9px;padding:8px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.82rem}
 .note-input:focus{outline:none;border-color:var(--accent)}
+/* ===== v1.3.0: focus-driven worklist (left rail) ===== */
+.mission .mhead{font-size:.8rem;margin-bottom:8px}
+.streak{font-size:.68rem}
+.goal .glabel{font-size:.72rem}
+.focusbar{margin:1px 0 11px}
+.focus-lbl{font-size:.64rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:6px;font-weight:700}
+.focus-chips{display:flex;gap:5px;flex-wrap:wrap}
+.focus-chip{font-size:.71rem;font-weight:600;padding:5px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:.12s}
+.focus-chip:hover{border-color:var(--accent);color:var(--text)}
+.focus-chip.on{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
+.qhead .m{cursor:default}
+.qscore.low{color:var(--text2)}
+.qcard{cursor:pointer}
 </style>
 </head>
 <body>
@@ -207,15 +220,6 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
     </div>
   </header>
 
-  <div class="mission">
-    <div class="mhead"><span>🎯 Today's mission</span><span class="streak">🔥 4-day streak · 1,840 pts</span></div>
-    <div class="goals">
-      <div class="goal" id="goalDials"><div class="glabel"><span>Dials</span><span id="gd">0/40</span></div><div class="bar"><i id="bd"></i></div></div>
-      <div class="goal" id="goalConn"><div class="glabel"><span>Connects</span><span id="gc">0/10</span></div><div class="bar"><i id="bc"></i></div></div>
-      <div class="goal" id="goalBook"><div class="glabel"><span>Booked</span><span id="gb">0/3</span></div><div class="bar"><i id="bb"></i></div></div>
-    </div>
-  </div>
-
   <div class="controls">
     <button id="startBtn" class="btn call">▶ Start call &nbsp;<span class="muted" style="font-weight:600">(AI plays the prospect)</span></button>
     <button id="muteBtn" class="btn ghost">🔊 Voice on</button>
@@ -224,12 +228,21 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
   </div>
 
   <div class="cockpit">
-    <div>
-      <div class="qhead"><b>Queue</b><span class="m">AI-ranked</span></div>
-      <div class="qcard active"><span class="qrank">1</span><div class="qbody"><div class="qname">Renee Webb</div><div class="qreason">Callback promised today</div></div><span class="qscore hi">94</span></div>
-      <div class="qcard"><span class="qrank">2</span><div class="qbody"><div class="qname">Dana Liu</div><div class="qreason">Opened proposal 2×</div></div><span class="qscore mid">88</span></div>
-      <div class="qcard"><span class="qrank">3</span><div class="qbody"><div class="qname">Reggie Park</div><div class="qreason">Quote expires Fri</div></div><span class="qscore mid">81</span></div>
-      <div style="text-align:center;font-size:.74rem;color:var(--text2);padding:5px">+ 38 more</div>
+    <div class="leftcol">
+      <div class="mission">
+        <div class="mhead"><span>🎯 Today</span><span class="streak">🔥 4-day · 1,840 pts</span></div>
+        <div class="goals">
+          <div class="goal" id="goalDials"><div class="glabel"><span>Dials</span><span id="gd">0/40</span></div><div class="bar"><i id="bd"></i></div></div>
+          <div class="goal" id="goalConn"><div class="glabel"><span>Connects</span><span id="gc">0/10</span></div><div class="bar"><i id="bc"></i></div></div>
+          <div class="goal" id="goalBook"><div class="glabel"><span>Booked</span><span id="gb">0/3</span></div><div class="bar"><i id="bb"></i></div></div>
+        </div>
+      </div>
+      <div class="focusbar">
+        <div class="focus-lbl">🎯 Focus — sort the queue</div>
+        <div id="focusChips" class="focus-chips"></div>
+      </div>
+      <div class="qhead"><b>Queue</b><span class="m" id="qCount">—</span></div>
+      <div id="queueList"></div>
     </div>
 
     <div>
@@ -240,8 +253,8 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
           <button id="callBtn" class="btn call" disabled>📞 Call</button>
         </div>
         <div class="callinfo">
-          <span>📍 Florida · <span id="locTime">—</span> · <span id="tzStatus">—</span></span>
-          <span>📞 Caller ID <b>(305) 555-0142</b> · local presence ✓</span>
+          <span><span id="locLabel">📍 Florida</span> · <span id="locTime">—</span> · <span id="tzStatus">—</span></span>
+          <span>📞 Caller ID <b id="callerId">(305) 555-0142</b> · local presence ✓</span>
           <span id="histToggle" class="hist-toggle">🕐 History (0) ▾</span>
         </div>
         <div id="histBox" class="hist-box hidden"></div>
@@ -368,6 +381,12 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.3.0',d:'2026-06-30',n:[
+ "Work the queue by focus — the mission moved to the left rail, and above the queue you can now sort your list by 🔥 Hot, ✨ New leads, 📞 Callbacks, ✉️ Follow-ups, or ⏰ Expiring quotes. Pick a mode and work it top-down.",
+ "Log & Next auto-advances within your chosen focus, so a callback session stays on callbacks.",
+ "Every prospect carries their own location, local time, and caller ID — so the quiet-hours guard and local-presence number are right for each person.",
+ "Tap any prospect in the queue to load them into the cockpit.",
+]},
 {v:'1.2.0',d:'2026-06-30',n:[
  "Voicemail drop — one tap on a no-answer drops a pre-recorded VM and jumps you straight to the next prospect. The biggest volume multiplier on a big list.",
  "Pre-call history — a “🕐 History” line in the prospect header expands past touches (dispositions, objections, promises) so you walk in knowing the story.",
@@ -398,19 +417,48 @@ function openChangelog(){ renderChangelog(); $('clModal').classList.remove('hidd
   var v=$('ver'); if(v) v.classList.remove('ver-new'); }
 function closeChangelog(){ $('clModal').classList.add('hidden'); }
 let muted=false, voice=null, started=false, curAudio=null, runToken=0;
-let heardSignals=[], nqReason='', curProspect=0;
-const PROSPECTS=[
-  {ini:'RW',nm:'Renee Webb', sub:'Webb Logistics · Owner · EPIC LIFE membership · 📍 Florida', hist:[
-    {d:'Jun 24',t:'📞 Callback — promised to decide by today'},
-    {d:'Jun 18',t:'✅ Connected — raised price, wanted to talk to her partner'},
-    {d:'Jun 10',t:'👀 Opened proposal 2×'}]},
-  {ini:'DL',nm:'Dana Liu',   sub:'Liu Freight · Owner · Opened proposal 2× · 📍 Texas', hist:[
-    {d:'Jun 22',t:'👀 Opened proposal 2×'},
-    {d:'Jun 15',t:'✅ Connected — interested, timing concern (Q3)'}]},
-  {ini:'RP',nm:'Reggie Park', sub:'Park &amp; Co · Owner · Quote expires Fri · 📍 Nevada', hist:[
-    {d:'Jun 20',t:'📄 Quote sent — expires Fri'},
-    {d:'Jun 12',t:'📩 Voicemail dropped — no callback yet'}]}
+let heardSignals=[], nqReason='';
+let currentFocus='all', curId=null, curTz='America/New_York', curTzL='ET';
+
+/* the book of business — each prospect carries its segments + local time + caller ID */
+const QUEUE=[
+ {id:'renee', ini:'RW', nm:'Renee Webb', sub:'Webb Logistics · Owner · 📍 Florida', reason:'Callback promised today', score:94, seg:['hot','callback'], loc:'📍 Florida', tz:'America/New_York', tzL:'ET', caller:'(305) 555-0142', hist:[
+   {d:'Jun 24',t:'📞 Callback — promised to decide by today'},
+   {d:'Jun 18',t:'✅ Connected — raised price, wanted to talk to her partner'},
+   {d:'Jun 10',t:'👀 Opened proposal 2×'}]},
+ {id:'dana', ini:'DL', nm:'Dana Liu', sub:'Liu Freight · Owner · 📍 Texas', reason:'Opened proposal 2×', score:88, seg:['hot','followup'], loc:'📍 Texas', tz:'America/Chicago', tzL:'CT', caller:'(214) 555-0143', hist:[
+   {d:'Jun 22',t:'👀 Opened proposal 2×'},
+   {d:'Jun 15',t:'✅ Connected — interested, timing concern (Q3)'}]},
+ {id:'priya', ini:'PS', nm:'Priya Shah', sub:'Shah Dental · Owner · 📍 California', reason:'Callback — asked for 2pm', score:86, seg:['callback','hot'], loc:'📍 California', tz:'America/Los_Angeles', tzL:'PT', caller:'(415) 555-0188', hist:[
+   {d:'Jun 26',t:'📞 Asked me to call back at 2pm today'},
+   {d:'Jun 19',t:'✅ Connected — wants to lower her tax bill'}]},
+ {id:'alicia', ini:'AG', nm:'Alicia Grant', sub:'Grant Realty · Owner · 📍 Florida', reason:'Quote expires Fri', score:83, seg:['hot','expiring'], loc:'📍 Florida', tz:'America/New_York', tzL:'ET', caller:'(305) 555-0161', hist:[
+   {d:'Jun 21',t:'📄 Quote sent — expires Fri'},
+   {d:'Jun 17',t:'✅ Connected — very interested'}]},
+ {id:'reggie', ini:'RP', nm:'Reggie Park', sub:'Park &amp; Co · Owner · 📍 Nevada', reason:'Quote expires Fri', score:81, seg:['expiring'], loc:'📍 Nevada', tz:'America/Los_Angeles', tzL:'PT', caller:'(702) 555-0177', hist:[
+   {d:'Jun 20',t:'📄 Quote sent — expires Fri'},
+   {d:'Jun 12',t:'📩 Voicemail dropped — no callback yet'}]},
+ {id:'marcus', ini:'MB', nm:'Marcus Bell', sub:'Bell HVAC · Owner · 📍 Georgia', reason:'New lead — form fill 2h ago', score:78, seg:['new','hot'], loc:'📍 Georgia', tz:'America/New_York', tzL:'ET', caller:'(404) 555-0119', hist:[
+   {d:'Today',t:'✨ New lead — submitted the interest form 2h ago'}]},
+ {id:'tom', ini:'TN', nm:'Tom Nguyen', sub:'Nguyen Auto · Owner · 📍 Washington', reason:'Emailed — no reply (3d)', score:72, seg:['followup'], loc:'📍 Washington', tz:'America/Los_Angeles', tzL:'PT', caller:'(206) 555-0155', hist:[
+   {d:'Jun 25',t:'✉️ Emailed proposal — no reply yet'},
+   {d:'Jun 18',t:'✅ Connected — asked for pricing'}]},
+ {id:'sofia', ini:'SR', nm:'Sofia Reyes', sub:'Reyes Salon · Owner · 📍 Arizona', reason:'New lead — referral', score:70, seg:['new'], loc:'📍 Arizona', tz:'America/Phoenix', tzL:'MST', caller:'(602) 555-0132', hist:[
+   {d:'Today',t:'✨ New lead — referred by an EPIC LIFE member'}]},
+ {id:'derek', ini:'DC', nm:'Derek Cole', sub:'Cole Fitness · Owner · 📍 Ohio', reason:'DM sent — no reply', score:66, seg:['followup'], loc:'📍 Ohio', tz:'America/New_York', tzL:'ET', caller:'(614) 555-0124', hist:[
+   {d:'Jun 24',t:'✉️ DM sent on IG — seen, no reply'}]}
 ];
+const FOCUS=[
+ {k:'all', emoji:'📋', label:'All'},
+ {k:'hot', emoji:'🔥', label:'Hot list'},
+ {k:'new', emoji:'✨', label:'New leads'},
+ {k:'callback', emoji:'📞', label:'Callbacks'},
+ {k:'followup', emoji:'✉️', label:'Follow-ups'},
+ {k:'expiring', emoji:'⏰', label:'Expiring'}
+];
+function curProspectObj(){ return QUEUE.find(p=>p.id===curId)||QUEUE[0]; }
+function scoreCls(s){ return s>=85?'hi':(s>=75?'mid':'low'); }
+function filteredList(){ return QUEUE.filter(p=>currentFocus==='all'||p.seg.indexOf(currentFocus)>=0).slice().sort((a,b)=>b.score-a.score); }
 
 function pickVoice(){
   const vs=(window.speechSynthesis?speechSynthesis.getVoices():[])||[];
@@ -525,7 +573,7 @@ async function runCall(){
   phCall('📲 Incoming call…','ring');
   await wait(900); if(myToken!==runToken) return;
   $('status').innerHTML='● connected';
-  phCall('📞 On call · (305) 555-0142');
+  phCall('📞 On call · '+curProspectObj().caller);
   if($('tzStatus').classList.contains('qbad')) toast('⛔ Quiet hours in FL — the real tool blocks this; demo override');
   bump('s-dials'); bump('s-conn');
   showConsentChip();
@@ -582,20 +630,48 @@ function clearCallUI(){
   phCall(null); $('phMsgs').innerHTML='<div class="ph-empty">Nothing yet — start a call.</div>';
   convo=[]; heardSignals=[]; nqReason='';
 }
-function setProspect(i){
-  curProspect=((i%PROSPECTS.length)+PROSPECTS.length)%PROSPECTS.length;
-  const p=PROSPECTS[curProspect];
+/* select a prospect into the cockpit (fresh call surfaces) */
+function selectProspect(id, clear){
+  const p=QUEUE.find(x=>x.id===id)||QUEUE[0];
+  if(clear!==false) clearCallUI();
+  curId=p.id; curTz=p.tz; curTzL=p.tzL;
   $('pAvatar').textContent=p.ini; $('pName').textContent=p.nm; $('pSub').innerHTML=p.sub;
-  document.querySelectorAll('.qcard').forEach((c,idx)=>c.classList.toggle('active',idx===curProspect));
+  $('locLabel').innerHTML=p.loc; $('callerId').textContent=p.caller;
+  updateTiming();
   const h=p.hist||[];
   $('histBox').innerHTML=h.length? h.map(x=>'<div class="hist-item"><span class="hd">'+x.d+'</span><span>'+x.t+'</span></div>').join('') : '<div class="hist-item"><span class="muted">No prior touches.</span></div>';
   $('histBox').classList.add('hidden');
   $('histToggle').innerHTML='🕐 History ('+h.length+') ▾';
+  document.querySelectorAll('#queueList .qcard').forEach(c=>c.classList.toggle('active', c.getAttribute('data-id')===p.id));
+}
+/* render the queue from the current focus */
+function renderQueue(){
+  const list=filteredList();
+  $('queueList').innerHTML = list.length ? list.map((p,i)=>
+    '<div class="qcard'+(p.id===curId?' active':'')+'" data-id="'+p.id+'"><span class="qrank">'+(i+1)+'</span>'+
+    '<div class="qbody"><div class="qname">'+esc(p.nm)+'</div><div class="qreason">'+esc(p.reason)+'</div></div>'+
+    '<span class="qscore '+scoreCls(p.score)+'">'+p.score+'</span></div>').join('')
+    : '<div style="text-align:center;font-size:.74rem;color:var(--text2);padding:10px">No prospects in this focus.</div>';
+  document.querySelectorAll('#queueList .qcard').forEach(c=>c.onclick=()=>selectProspect(c.getAttribute('data-id'), true));
+  const f=FOCUS.find(x=>x.k===currentFocus);
+  $('qCount').textContent=(f?f.emoji+' '+f.label:'All')+' · '+list.length;
+}
+function renderFocusChips(){
+  $('focusChips').innerHTML=FOCUS.map(f=>'<span class="focus-chip'+(f.k===currentFocus?' on':'')+'" data-k="'+f.k+'">'+f.emoji+' '+f.label+'</span>').join('');
+  document.querySelectorAll('#focusChips .focus-chip').forEach(c=>c.onclick=()=>setFocus(c.getAttribute('data-k')));
+}
+function setFocus(k, silent){
+  currentFocus=k; renderFocusChips();
+  const list=filteredList();
+  const keep=list.some(p=>p.id===curId);
+  renderQueue();
+  if(!keep){ curId=list.length?list[0].id:null; if(curId) selectProspect(curId, true); else renderQueue(); }
+  if(!silent){ const f=FOCUS.find(x=>x.k===k); toast('Focus: '+(f?f.emoji+' '+f.label:'All')+' · '+list.length+' prospect'+(list.length===1?'':'s')); }
 }
 function resetDemo(){
-  clearCallUI(); setProspect(0);
   $('s-dials').textContent='22'; $('s-conn').textContent='7'; $('s-book').textContent='2'; $('s-queue').textContent='41';
   ['goalDials','goalConn','goalBook'].forEach(function(id){$(id).classList.remove('done')});
+  curId=null; setFocus('all', true);
   try{ updateMission(); }catch(e){}
   toast('Demo reset — ready to start again');
 }
@@ -627,10 +703,13 @@ function logAndNext(){
 }
 function advanceQueue(verb){
   verb=verb||'Logged ✓';
-  const nextName=PROSPECTS[(curProspect+1)%PROSPECTS.length].nm;
-  clearCallUI(); setProspect(curProspect+1);
+  const list=filteredList();
+  const idx=list.findIndex(p=>p.id===curId);
+  const next=list.length? list[(idx+1)%list.length] : null;
+  if(next) selectProspect(next.id, true); else clearCallUI();
+  renderQueue();
   const qn=$('s-queue'); qn.textContent=Math.max(0,parseInt(qn.textContent,10)-1);
-  toast(verb+' · now on '+nextName);
+  toast(verb+' · now on '+(next?next.nm:'—'));
 }
 $('nextBtn').onclick=logAndNext;
 
@@ -651,7 +730,7 @@ $('vmBtn').onclick=()=>{ bump('s-dials'); advanceQueue('📩 VM dropped'); };
 
 /* pre-call history timeline */
 $('histToggle').onclick=()=>{ const b=$('histBox'); const hidden=b.classList.toggle('hidden');
-  $('histToggle').innerHTML='🕐 History ('+(PROSPECTS[curProspect].hist||[]).length+') '+(hidden?'▾':'▴'); };
+  $('histToggle').innerHTML='🕐 History ('+(curProspectObj().hist||[]).length+') '+(hidden?'▾':'▴'); };
 
 /* clickable CLOSER stage — manual advance when the rep wants to drive it */
 const CLOSER_STAGES=['Clarify','Label','Overview','Sell','Explain','Reinforce'];
@@ -749,7 +828,7 @@ async function sendText(txt){
   addTranscript('You',txt);
   convo.push({role:'user',content:txt});
   $('sendBtn').disabled=true; $('sendBtn').textContent='…';
-  if($('status').classList.contains('idle')){ $('status').className='pill live'; $('status').innerHTML='🎙️ listening'; phCall('📞 On call · (305) 555-0142'); }
+  if($('status').classList.contains('idle')){ $('status').className='pill live'; $('status').innerHTML='🎙️ listening'; phCall('📞 On call · '+curProspectObj().caller); }
   try{
     const d=await askRenee(key);
     convo.push({role:'assistant',content:JSON.stringify(d)});
@@ -791,7 +870,7 @@ function toggleMic(){
   micOn=!micOn;
   const b=$('micBtn');
   if(micOn){ micPaused=false; try{recog.start();}catch(e){} b.classList.add('on'); b.textContent='🔴';
-    $('status').className='pill live'; $('status').innerHTML='🎙️ listening (mic)'; phCall('📞 On call · (305) 555-0142'); toast('Mic on — talk to Renee'); }
+    $('status').className='pill live'; $('status').innerHTML='🎙️ listening (mic)'; phCall('📞 On call · '+curProspectObj().caller); toast('Mic on — talk to Renee'); }
   else { try{recog.stop();}catch(e){} b.classList.remove('on'); b.textContent='🎤'; toast('Mic off'); }
 }
 $('micBtn').onclick=toggleMic;
@@ -839,9 +918,10 @@ $('payBtn').onclick=async()=>{
 function updateTiming(){
   try{
     const now=new Date();
-    const t=now.toLocaleTimeString('en-US',{timeZone:'America/New_York',hour:'numeric',minute:'2-digit'});
-    let hr=parseInt(now.toLocaleString('en-US',{timeZone:'America/New_York',hour:'numeric',hour12:false}),10); if(hr===24)hr=0;
-    $('locTime').textContent=t+' ET';
+    const tz=curTz||'America/New_York', tzL=curTzL||'ET';
+    const t=now.toLocaleTimeString('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit'});
+    let hr=parseInt(now.toLocaleString('en-US',{timeZone:tz,hour:'numeric',hour12:false}),10); if(hr===24)hr=0;
+    $('locTime').textContent=t+' '+tzL;
     let st,cls;
     if(hr<8||hr>=21){ st='⛔ Quiet hours — don’t call'; cls='qbad'; }
     else if(hr<9||hr>=19){ st='⚠️ Off-peak'; cls='qmid'; }
@@ -860,7 +940,7 @@ function updateMission(){
   gset('gc','bc','goalConn',parseInt($('s-conn').textContent,10),GOAL.conn);
   gset('gb','bb','goalBook',parseInt($('s-book').textContent,10),GOAL.book);
 }
-updateTiming(); setInterval(updateTiming,30000); updateMission(); setProspect(0);
+updateMission(); setFocus('all', true); setInterval(updateTiming,30000);
 
 /* ===== prospect's-phone view ===== */
 function phMsg(html,cls){ const m=$('phMsgs'); if(!m)return; const e=m.querySelector('.ph-empty'); if(e)e.remove();
