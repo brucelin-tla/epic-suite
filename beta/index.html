@@ -117,7 +117,7 @@ body{padding-bottom:104px}
 .qok{color:var(--accent);font-weight:600}.qmid{color:var(--gold);font-weight:600}.qbad{color:var(--red);font-weight:600}
 .phonecol{position:sticky;top:14px}
 .phone{background:#000;border-radius:26px;padding:9px 7px;border:1px solid #333;max-width:240px;margin:0 auto}
-.screen{background:#0d1117;border-radius:18px;min-height:430px;max-height:520px;overflow:hidden;display:flex;flex-direction:column}
+.screen{background:#0d1117;border-radius:18px;min-height:470px;max-height:580px;overflow:hidden;display:flex;flex-direction:column}
 .ph-call{padding:11px;text-align:center;font-size:.78rem;font-weight:700;background:rgba(16,185,129,.16);color:#7ff0c8}
 .ph-call.ring{background:rgba(59,130,246,.18);color:#bcd4ff}
 .ph-appbar{padding:8px 12px;font-size:.72rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border)}
@@ -130,6 +130,21 @@ body{padding-bottom:104px}
 .bubble.ok{align-self:flex-start;background:rgba(16,185,129,.16);color:#7ff0c8;border-bottom-left-radius:4px}
 .bubble .lk{color:#7fb4ff;text-decoration:underline;word-break:break-all}
 .bubble .ttl{font-weight:700;display:block;margin-bottom:2px}
+/* rep's phone: outgoing texts + quick-send dock + compose */
+.bubble.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.bubble.me .lk{color:#dbe9ff}
+.ph-quick{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px;border-top:1px solid var(--border);background:var(--bg2)}
+.ph-quick button{display:flex;align-items:center;justify-content:center;gap:4px;padding:7px 4px;font-size:.68rem;font-weight:700;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer}
+.ph-quick button:hover{border-color:var(--accent)}
+.ph-quick button:active{transform:scale(.96)}
+.ph-quick kbd{font-size:.55rem;padding:1px 4px}
+.ph-compose{display:flex;gap:5px;padding:8px;border-top:1px solid var(--border);background:var(--bg2)}
+.ph-compose input{flex:1;min-width:0;padding:8px 10px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:.74rem}
+.ph-compose input:focus{outline:none;border-color:var(--accent)}
+.ph-compose button{padding:8px 12px;border:none;border-radius:999px;background:var(--blue);color:#fff;font-weight:800;cursor:pointer}
+.ph-legend{font-size:.62rem;color:var(--muted);text-align:center;margin-top:8px;line-height:1.7}
+.ph-legend b{color:var(--text2)}
+#phTimer{font-variant-numeric:tabular-nums}
 .bk-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .bkmode{padding:6px 9px;font-size:.7rem;border-radius:7px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
 .bkmode.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
@@ -337,12 +352,23 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
     </div>
 
     <div class="phonecol">
-      <div class="lbl" style="margin-bottom:8px">📱 Renee's phone <span class="muted" style="text-transform:none;letter-spacing:0">· prospect's view</span></div>
+      <div class="lbl" style="margin-bottom:8px">📱 Your phone <span class="muted" style="text-transform:none;letter-spacing:0">· call &amp; text the prospect</span></div>
       <div class="phone"><div class="screen">
         <div id="phCall" class="ph-call hidden"></div>
-        <div class="ph-appbar">Messages · Team Life Academy</div>
-        <div id="phMsgs" class="ph-msgs"><div class="ph-empty">Nothing yet — start a call.</div></div>
+        <div class="ph-appbar">💬 <span id="phWho">Renee Webb</span></div>
+        <div id="phMsgs" class="ph-msgs"><div class="ph-empty">Your thread with the prospect — text or call.</div></div>
+        <div class="ph-quick" id="phQuick">
+          <button data-q="pay" title="Text the EPIC LIFE checkout link">💳 Pay link <kbd>P</kbd></button>
+          <button data-q="video" title="Text the how-it-works video">🎬 Video <kbd>V</kbd></button>
+          <button data-q="book" title="Text your booking link">📅 Booking <kbd>B</kbd></button>
+          <button data-q="zoom" title="Text the Zoom room">🔗 Zoom <kbd>Z</kbd></button>
+        </div>
+        <div class="ph-compose">
+          <input id="phInput" type="text" placeholder="Text the prospect…" autocomplete="off">
+          <button id="phSend" title="Send">➤</button>
+        </div>
       </div></div>
+      <div class="ph-legend"><b>Hotkeys</b> · <b>P</b> pay · <b>V</b> video · <b>B</b> booking · <b>Z</b> zoom · <b>T</b> text · <b>M</b> mute</div>
     </div>
   </div>
   <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.1.0</span></div>
@@ -381,6 +407,11 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.4.0',d:'2026-06-30',n:[
+ "The phone on the right is now YOUR phone — a working softphone. It shows a live call timer and a two-way text thread with the prospect (your texts on the right, theirs on the left).",
+ "Quick-send dock: one tap to text the prospect your 💳 payment link, 🎬 how-it-works video, 📅 booking link, or 🔗 Zoom room — plus a box to type any custom text.",
+ "New hotkeys while you work: P pay link · V video · B booking · Z zoom · T jump to the text box · M mute (alongside 1–4 outcome, ↵ log & next, Esc close).",
+]},
 {v:'1.3.0',d:'2026-06-30',n:[
  "Work the queue by focus — the mission moved to the left rail, and above the queue you can now sort your list by 🔥 Hot, ✨ New leads, 📞 Callbacks, ✉️ Follow-ups, or ⏰ Expiring quotes. Pick a mode and work it top-down.",
  "Log & Next auto-advances within your chosen focus, so a callback session stays on callbacks.",
@@ -573,7 +604,7 @@ async function runCall(){
   phCall('📲 Incoming call…','ring');
   await wait(900); if(myToken!==runToken) return;
   $('status').innerHTML='● connected';
-  phCall('📞 On call · '+curProspectObj().caller);
+  phOnCall();
   if($('tzStatus').classList.contains('qbad')) toast('⛔ Quiet hours in FL — the real tool blocks this; demo override');
   bump('s-dials'); bump('s-conn');
   showConsentChip();
@@ -594,7 +625,7 @@ async function runCall(){
   }
   if(myToken!==runToken) return;
   $('closer-hint').textContent='ready to close';
-  phCall(null); phMsg('Call ended','sys');
+  phEndCall(); phMsg('Call ended','sys');
   toast('Call complete — log it and move on');
 }
 function bump(id){$(id).textContent=parseInt($(id).textContent)+1; try{updateMission();}catch(e){}}
@@ -627,7 +658,7 @@ function clearCallUI(){
   document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('sel')});
   $('payStatus').className='cstatus'; $('payStatus').textContent='No link sent yet.'; $('payBtn').disabled=false;
   try{ setBkMode('closed'); }catch(e){}
-  phCall(null); $('phMsgs').innerHTML='<div class="ph-empty">Nothing yet — start a call.</div>';
+  phEndCall(); $('phMsgs').innerHTML='<div class="ph-empty">Your thread with the prospect — text or call.</div>';
   convo=[]; heardSignals=[]; nqReason='';
 }
 /* select a prospect into the cockpit (fresh call surfaces) */
@@ -637,6 +668,7 @@ function selectProspect(id, clear){
   curId=p.id; curTz=p.tz; curTzL=p.tzL;
   $('pAvatar').textContent=p.ini; $('pName').textContent=p.nm; $('pSub').innerHTML=p.sub;
   $('locLabel').innerHTML=p.loc; $('callerId').textContent=p.caller;
+  var pw=$('phWho'); if(pw) pw.textContent=p.nm;
   updateTiming();
   const h=p.hist||[];
   $('histBox').innerHTML=h.length? h.map(x=>'<div class="hist-item"><span class="hd">'+x.d+'</span><span>'+x.t+'</span></div>').join('') : '<div class="hist-item"><span class="muted">No prior touches.</span></div>';
@@ -720,8 +752,13 @@ document.addEventListener('keydown',e=>{
   if(el && (el.id==='chatInput' || el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.isContentEditable)) return;
   if(e.metaKey||e.ctrlKey||e.altKey) return;
   const map={'1':'booked','2':'callback','3':'connected','4':'nq'};
+  const qk={'p':'pay','v':'video','b':'book','z':'zoom'};
+  const lk=(e.key||'').toLowerCase();
   if(map[e.key]){ selectOutcome(map[e.key]); e.preventDefault(); }
   else if(e.key==='Enter'){ logAndNext(); e.preventDefault(); }
+  else if(qk[lk]){ firePhoneQuick(qk[lk]); e.preventDefault(); }
+  else if(lk==='t'){ var pi=$('phInput'); if(pi){ pi.focus(); e.preventDefault(); } }
+  else if(lk==='m'){ $('muteBtn').click(); e.preventDefault(); }
 });
 
 /* ===== v1.2.0: voicemail drop, history, clickable CLOSER, editable BANT, manual notes, objection bank ===== */
@@ -828,7 +865,7 @@ async function sendText(txt){
   addTranscript('You',txt);
   convo.push({role:'user',content:txt});
   $('sendBtn').disabled=true; $('sendBtn').textContent='…';
-  if($('status').classList.contains('idle')){ $('status').className='pill live'; $('status').innerHTML='🎙️ listening'; phCall('📞 On call · '+curProspectObj().caller); }
+  if($('status').classList.contains('idle')){ $('status').className='pill live'; $('status').innerHTML='🎙️ listening'; phOnCall(); }
   try{
     const d=await askRenee(key);
     convo.push({role:'assistant',content:JSON.stringify(d)});
@@ -870,7 +907,7 @@ function toggleMic(){
   micOn=!micOn;
   const b=$('micBtn');
   if(micOn){ micPaused=false; try{recog.start();}catch(e){} b.classList.add('on'); b.textContent='🔴';
-    $('status').className='pill live'; $('status').innerHTML='🎙️ listening (mic)'; phCall('📞 On call · '+curProspectObj().caller); toast('Mic on — talk to Renee'); }
+    $('status').className='pill live'; $('status').innerHTML='🎙️ listening (mic)'; phOnCall(); toast('Mic on — talk to Renee'); }
   else { try{recog.stop();}catch(e){} b.classList.remove('on'); b.textContent='🎤'; toast('Mic off'); }
 }
 $('micBtn').onclick=toggleMic;
@@ -895,24 +932,47 @@ document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{
   document.querySelectorAll('.slot').forEach(x=>x.classList.remove('sel')); s.classList.add('sel');
   $('bookStatus').className='cstatus ok';
   if(bkMode==='closed'){
-    $('bookStatus').innerHTML='✅ 3B onboarding booked — Renee + Client Success · <b>'+s.textContent+'</b>';
-    phMsg('<span class="ttl">Team Life Academy</span>📅 Your <b>3B onboarding call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and set up your EPIC LIFE portal.','pay');
+    $('bookStatus').innerHTML='✅ 3B onboarding booked — '+curProspectObj().nm+' + Client Success · <b>'+s.textContent+'</b>';
+    phMsg('📅 Booked your <b>3B onboarding call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and set up your EPIC LIFE portal.','me');
   } else {
-    $('bookStatus').innerHTML='✅ 3B + closer call booked — Renee + partner + Client Success + closer · <b>'+s.textContent+'</b>';
-    phMsg('<span class="ttl">Team Life Academy</span>📅 Your <b>3B strategy call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and walk you + your partner through the full plan.','pay');
+    $('bookStatus').innerHTML='✅ 3B + closer call booked — '+curProspectObj().nm+' + partner + Client Success + closer · <b>'+s.textContent+'</b>';
+    phMsg('📅 Booked your <b>3B strategy call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and walk you + your partner through the full plan.','me');
   }
   toast('Booked 3B — '+s.textContent);
 });
-$('payBtn').onclick=async()=>{
+async function sendPaymentLink(){
+  if($('payBtn').disabled){ toast('Payment link already sent'); return; }
   $('payBtn').disabled=true;
-  setPay('📲 Link sent to Renee’s phone…','');
-  phMsg('<span class="ttl">Team Life Academy</span>Your secure checkout for EPIC LIFE — $500 setup + $300/mo:<br><span class="lk">pay.tla.co/r/4f2a9</span>','pay');
-  await wait(1600); setPay('👀 Renee opened the payment page…','');
+  const nm=curProspectObj().nm;
+  setPay('📲 Link sent to '+nm+'…','');
+  phMsg('💳 Your secure checkout for EPIC LIFE — $500 setup + $300/mo:<br><span class="lk">pay.tla.co/r/4f2a9</span>','me');
+  await wait(1600); setPay('👀 '+nm+' opened the payment page…','');
   await wait(2000); setPay('✅ Paid — $500 setup today, $300/mo started','ok');
-  phMsg('<span class="ttl">Team Life Academy</span>✅ Payment received — welcome to EPIC LIFE! $500 setup + $300/mo started.','ok');
+  phMsg('<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE — $500 setup + $300/mo started.','ok');
   toast('Payment received 🎉'); bump('s-book');
   try{ setBkMode('closed'); }catch(e){}
-};
+}
+$('payBtn').onclick=sendPaymentLink;
+
+/* ===== Rep phone: call timer + text thread + quick-send dock ===== */
+let callTimerId=null, callSecs=0;
+function fmtT(s){ const m=Math.floor(s/60), ss=s%60; return (m<10?'0':'')+m+':'+(ss<10?'0':'')+ss; }
+function startCallTimer(){ stopCallTimer(); callSecs=0; const t=$('phTimer'); if(t)t.textContent='00:00';
+  callTimerId=setInterval(()=>{ callSecs++; const el=$('phTimer'); if(el)el.textContent=fmtT(callSecs); },1000); }
+function stopCallTimer(){ if(callTimerId){ clearInterval(callTimerId); callTimerId=null; } }
+function phOnCall(){ phCall('📞 '+curProspectObj().nm+' · <span id="phTimer">00:00</span>',''); startCallTimer(); }
+function phEndCall(){ stopCallTimer(); phCall(null); }
+function phSendRep(html){ phMsg(html,'me'); toast('Text sent 📤'); }
+function firePhoneQuick(q){
+  if(q==='pay'){ sendPaymentLink(); return; }
+  if(q==='video') phSendRep('🎬 Quick 2-min on how EPIC LIFE works — worth a watch before we talk:<br><span class="lk">tla.co/v/epic-intro</span>');
+  else if(q==='book') phSendRep('📅 Grab a time that works for you here:<br><span class="lk">tla.co/book/'+curId+'</span>');
+  else if(q==='zoom') phSendRep('🔗 Here’s our Zoom room for the strategy call:<br><span class="lk">zoom.us/j/855-epic-life</span>');
+}
+document.querySelectorAll('#phQuick button').forEach(b=>b.onclick=()=>firePhoneQuick(b.getAttribute('data-q')));
+function phComposeSend(){ const t=$('phInput').value.trim(); if(!t) return; phMsg('💬 '+esc(t),'me'); $('phInput').value=''; }
+$('phSend').onclick=phComposeSend;
+$('phInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); phComposeSend(); } });
 
 /* ===== timezone / quiet-hours guard + caller-ID + daily mission ===== */
 function updateTiming(){
