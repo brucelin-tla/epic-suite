@@ -124,6 +124,11 @@ body{padding-bottom:104px}
 .ph-callbtn{font-size:.7rem;font-weight:800;padding:5px 13px;border-radius:999px;background:var(--accent);color:#fff;border:none;cursor:pointer}
 .ph-callbtn:hover{filter:brightness(1.1)}
 .ph-callbtn.end{background:var(--red)}
+.ph-who{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.ph-callctl{display:flex;align-items:center;gap:4px;flex:0 0 auto}
+.ph-ctl{font-size:.82rem;padding:4px 6px;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;line-height:1}
+.ph-ctl:hover{border-color:var(--accent)}
+.ph-ctl.on{background:rgba(239,68,68,.22);border-color:var(--red)}
 .ph-msgs{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
 .ph-empty{color:var(--muted);font-size:.72rem;text-align:center;margin:auto;padding:20px}
 .bubble{max-width:88%;padding:8px 11px;border-radius:14px;font-size:.74rem;line-height:1.45}
@@ -281,11 +286,11 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
     </div>
   </header>
 
-  <div class="controls">
-    <button id="startBtn" class="btn call" style="display:none">▶ Start call</button>
+  <!-- call controls now live on the phone; these stay for wiring only -->
+  <div class="controls" style="display:none">
+    <button id="startBtn" class="btn call">▶ Start call</button>
     <button id="muteBtn" class="btn ghost">🔊 Voice on</button>
-    <button id="vmBtn" class="btn vm" title="No answer → drop a pre-recorded voicemail and jump to the next prospect">📩 No answer · drop VM</button>
-    <span class="muted" style="font-size:.78rem">📱 Call &amp; end from the phone → · a synthetic prospect talks; EPIC Closer reacts live.</span>
+    <button id="vmBtn" class="btn vm">📩 No answer · drop VM</button>
   </div>
 
   <div class="cockpit">
@@ -380,7 +385,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
       <div class="lbl" style="margin-bottom:8px">📱 Your phone <span class="muted" style="text-transform:none;letter-spacing:0">· call &amp; text the prospect</span></div>
       <div class="phone"><div class="screen">
         <div id="phCall" class="ph-call hidden"></div>
-        <div class="ph-appbar"><span>💬 <span id="phWho">Renee Webb</span></span><button id="phCallBtn" class="ph-callbtn">📞 Call</button></div>
+        <div class="ph-appbar"><span class="ph-who">💬 <span id="phWho">Renee Webb</span></span><span class="ph-callctl"><button id="phMute" class="ph-ctl" title="Mute the prospect's voice (M)">🔊</button><button id="phVm" class="ph-ctl" title="No answer → drop a voicemail &amp; go next">📩</button><button id="phCallBtn" class="ph-callbtn">📞 Call</button></span></div>
         <div id="phMsgs" class="ph-msgs"><div class="ph-empty">Your thread with the prospect — text or call.</div></div>
         <div class="ph-quick" id="phQuick">
           <button data-q="pay" title="Payment — pick a price point, then send">💳 Pay link <kbd>P</kbd></button>
@@ -509,6 +514,10 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.11.0',d:'2026-06-30',n:[
+ "Mute and No-answer / drop-VM moved onto the phone (next to Call) — the old Voice-on / No-answer button row is gone.",
+ "CLOSER co-pilot: type what the prospect said into the live-note box and the AI suggests your exact next line and advances the CLOSER stage for you (needs the 🔑 AI connection).",
+]},
 {v:'1.10.0',d:'2026-06-30',n:[
  "The phone dock is now 4 buttons: 💳 Pay link (3 price points), 📅 Booking (2-week calendar, now shown as two rows of 7 days), 📎 Content (pick what to text — explainer video, one-pager, case study, and more), and 🎥 Zoom (Zoom or Microsoft Teams).",
  "Every send now asks you to confirm first — on desktop too, not just mobile — so a stray tap can never text the prospect blind.",
@@ -771,8 +780,12 @@ async function runCall(){
 function bump(id){$(id).textContent=parseInt($(id).textContent)+1; try{updateMission();}catch(e){}}
 
 $('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; setPhCallBtn(); runCall(); };
-$('muteBtn').onclick=()=>{ muted=!muted; $('muteBtn').textContent=muted?'🔇 Voice off':'🔊 Voice on';
-  if(muted){ if('speechSynthesis'in window)speechSynthesis.cancel(); if(curAudio){try{curAudio.pause()}catch(e){}} } };
+function syncMute(){ $('muteBtn').textContent=muted?'🔇 Voice off':'🔊 Voice on'; var pm=$('phMute'); if(pm){ pm.textContent=muted?'🔇':'🔊'; pm.classList.toggle('on',muted); } }
+function toggleMute(){ muted=!muted; if(muted){ if('speechSynthesis'in window)speechSynthesis.cancel(); if(curAudio){try{curAudio.pause()}catch(e){}} } syncMute(); }
+$('muteBtn').onclick=toggleMute;
+$('phMute').onclick=toggleMute;
+$('phVm').onclick=()=>$('vmBtn').click();
+syncMute();
 
 /* ===== End / reset — stop everything and allow a fresh run ===== */
 function stopAudio(){ if('speechSynthesis'in window){try{speechSynthesis.cancel()}catch(e){}} if(curAudio){try{curAudio.pause()}catch(e){}} }
@@ -943,7 +956,31 @@ document.addEventListener('click',()=>{ var m=$('bantMenu'); if(m && !m.classLis
 window.addEventListener('scroll',closeBantMenu,true);
 
 /* type-while-talking notes */
-$('noteInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const t=$('noteInput').value.trim(); if(t){ addNote(t); $('noteInput').value=''; } } });
+$('noteInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const t=$('noteInput').value.trim(); if(t){ addNote(t); $('noteInput').value=''; closerCoach(t); } } });
+
+/* CLOSER co-pilot: a note you type → next line to say + advance the CLOSER stage (needs the AI 🔑) */
+let _coachHinted=false;
+async function closerCoach(note){
+  const key=getKey();
+  if(!key){ if(!_coachHinted){ _coachHinted=true; toast('Connect the AI (🔑) to get next-line coaching from your notes'); } return; }
+  const p=curProspectObj(), stage=$('closer-stage').textContent, co=((p.sub||'').split('·')[0]||'').trim();
+  const bant=['b-budget','b-auth','b-need','b-time'].map(id=>$(id).querySelector('.v').textContent).filter(v=>v&&v!=='—').join(' · ')||'nothing yet';
+  const hintEl=$('closer-hint'), prevHint=hintEl?hintEl.textContent:''; if(hintEl) hintEl.textContent='coaching…';
+  const sys="You are a live sales-call co-pilot running the CLOSER framework (Clarify → Label → Overview → Sell → Explain → Reinforce). The rep is selling an EPIC LIFE membership: $500 setup + $300/month, a business-growth + financial-protection program built on the MyFICO 3-bureau '3B' credit report / FinFit strategy. Current CLOSER stage: "+stage+". Prospect: "+p.nm+" ("+co+"). Qualified so far: "+bant+". The rep just noted what the prospect said. Return ONLY a raw JSON object (no markdown): {\"coach\":\"the exact next line the rep should say — 1 to 2 sentences, in the rep's voice\",\"stage\":\"the CLOSER stage the rep should be in now (advance past the current stage if the note shows it's handled)\",\"why\":\"3-6 word reason\"}.";
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{ method:'POST',
+      headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:220,system:sys,messages:[{role:'user',content:note}]}) });
+    if(!r.ok) throw new Error(r.status+'');
+    const j=await r.json(); let txt=((j.content&&j.content[0]&&j.content[0].text)||'{}').replace(/```json/gi,'').replace(/```/g,'').trim();
+    var a=txt.indexOf('{'),b=txt.lastIndexOf('}'); if(a>=0&&b>=0) txt=txt.slice(a,b+1);
+    const d=JSON.parse(txt);
+    if(d.coach) setSay('<span class="qmark">“</span>'+esc(d.coach)+'<span class="qmark">”</span>', true);
+    var st=d.stage && CLOSER_STAGES.find(s=>s.toLowerCase()===String(d.stage).toLowerCase().trim());
+    if(st){ setCloser(st, d.why||'from your note'); if(st!==stage) toast('CLOSER → '+st); }
+    else if(hintEl) hintEl.textContent=prevHint;
+  }catch(e){ if(hintEl) hintEl.textContent=prevHint; toast('Coach unavailable — check the 🔑 key'); }
+}
 
 /* ===== searchable objection bank ===== */
 const OBJ_BANK=[
