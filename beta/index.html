@@ -290,6 +290,24 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .cta-primary{flex:1 1 100%;padding:12px 16px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-weight:800;font-size:.92rem;cursor:pointer}
 .cta-primary.pay{background:var(--blue)}
 .cta-primary.walk{background:var(--red)}
+/* contact-card email + email popup */
+.email-link{cursor:pointer;color:var(--blue);font-weight:600}
+.email-link:hover{text-decoration:underline}
+.em-templates{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.em-tpl{padding:7px 11px;font-size:.76rem;font-weight:700;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
+.em-tpl.sel{background:rgba(59,130,246,.18);border-color:var(--blue);color:#bcd4ff}
+.em-input,.em-body{width:100%;padding:9px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.84rem;font-family:inherit;margin-bottom:8px}
+.em-input:focus,.em-body:focus{outline:none;border-color:var(--accent)}
+.em-body{line-height:1.5;resize:vertical}
+/* BANK personality read (close-the-deal card) */
+.bank-types{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.bank-t{padding:9px 10px;font-size:.8rem;font-weight:700;border-radius:9px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left}
+.bank-t:hover{border-color:var(--accent)}
+.bank-t.sel{background:var(--surface2);border-color:var(--accent)}
+.bank-read{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 13px}
+.bank-name{font-weight:800;font-size:1rem;margin-bottom:6px}
+.bank-drive,.bank-pitch{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:5px}
+.bank-drive b,.bank-pitch b{color:var(--text)}
 .mini-cta:hover{border-color:var(--accent)}
 .vid-choices{display:flex;gap:9px}
 .vidbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 10px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700;font-size:.92rem}
@@ -350,6 +368,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
         <div class="callinfo">
           <span><span id="locLabel">📍 Florida</span> · <span id="locTime">—</span> · <span id="tzStatus">—</span></span>
           <span>📞 Caller ID <b id="callerId">(305) 555-0142</b> · local presence ✓</span>
+          <span id="emailLink" class="email-link" title="Draft an email — proposal, event invite, or game">✉️ —</span>
           <span id="histToggle" class="hist-toggle">🕐 History (0) ▾</span>
         </div>
         <div id="histBox" class="hist-box hidden"></div>
@@ -380,15 +399,14 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 
       <!-- Close the deal — controls open as pop-ups (from here or the phone dock) -->
       <div class="panel" id="closePanel">
-        <div class="lbl">🤝 Close the deal <span class="muted" style="text-transform:none;letter-spacing:0">· recommended for this prospect</span></div>
-        <div class="close-rec" id="closeRec"></div>
-        <div class="close-ready" id="closeReady"></div>
-        <div class="close-line" id="closeLine"></div>
-        <div class="close-cta">
-          <button class="cta-primary" id="ctaPrimary">…</button>
-          <button class="mini-cta" onclick="openPop('bookPop')">📅 Booking</button>
-          <button class="mini-cta" onclick="openPop('videoPop')">📹 Video</button>
+        <div class="lbl">🧠 Close the deal <span class="muted" style="text-transform:none;letter-spacing:0">· read their BANK personality, then tailor the close</span></div>
+        <div class="bank-types" id="bankTypes">
+          <button class="bank-t" data-b="B">🔵 Blueprint</button>
+          <button class="bank-t" data-b="A">🔴 Action</button>
+          <button class="bank-t" data-b="N">🟢 Nurturing</button>
+          <button class="bank-t" data-b="K">🟡 Knowledge</button>
         </div>
+        <div class="bank-read" id="bankRead"><span class="muted" style="font-size:.8rem">Tap the prospect's dominant type to tailor your close.</span></div>
       </div>
 
       <!-- End-of-call action bar — at the end of the page -->
@@ -544,6 +562,24 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 </div>
 
 <!-- BANT quick-prequalify dropdown (positioned under the tapped cell) -->
+<!-- ✉️ Email — draft with a template, then send -->
+<div id="emailPop" class="cl-modal hidden">
+  <div class="cl-box pop-md">
+    <div class="cl-head"><b>✉️ Email <span id="emTo" class="muted" style="font-weight:400;font-size:.8rem">—</span></b><span class="cl-x" data-pop-close title="close">✕</span></div>
+    <div class="cl-body">
+      <div class="em-templates" id="emTemplates">
+        <button class="em-tpl sel" data-t="proposal">📄 Proposal</button>
+        <button class="em-tpl" data-t="event">📅 Event invite</button>
+        <button class="em-tpl" data-t="game">🎮 Play the game</button>
+      </div>
+      <input id="emSubject" class="em-input" placeholder="Subject" autocomplete="off">
+      <textarea id="emBody" class="em-body" rows="8"></textarea>
+      <button id="emSend" class="paybtn">Send email</button>
+      <div id="emStatus" class="cstatus">Draft ready — tweak it, then send.</div>
+    </div>
+  </div>
+</div>
+
 <div id="bantMenu" class="bant-menu hidden"></div>
 
 <div id="toast" class="toast"></div>
@@ -554,6 +590,10 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.15.0',d:'2026-06-30',n:[
+ "Email the prospect from the contact card — tap the ✉️ address to open a draft with one-tap templates: 📄 Proposal (auto-filled with their recommended plan), 📅 Event invite (EPIC Saturday), and 🎮 Play the Entrepreneur Paradise game. Tweak, then send (confirm first).",
+ "Close-the-deal is now a BANK personality read — tap the prospect's dominant type (🔵 Blueprint · 🔴 Action · 🟢 Nurturing · 🟡 Knowledge) to see what drives them, how to close them, and a tailored closing line. Removed the duplicate action buttons (they live on the phone).",
+]},
 {v:'1.14.0',d:'2026-06-30',n:[
  "Removed the bottom chat bar and pinned a floating BANT card there instead — Budget / Authority / Need / Timeline stay visible while you scroll, and you can tap any to prequalify (the dropdown opens upward).",
  "The AI 🔑 connect and 🎤 mic moved onto the phone's message row, next to the text box.",
@@ -876,6 +916,7 @@ function selectProspect(id, clear){
   $('pAvatar').textContent=p.ini; $('pName').textContent=p.nm; $('pSub').innerHTML=p.sub;
   $('locLabel').innerHTML=p.loc; $('callerId').textContent=p.caller;
   var pw=$('phWho'); if(pw) pw.textContent=p.nm;
+  var el=$('emailLink'); if(el) el.textContent='✉️ '+prospectEmail(p);
   updateTiming();
   const h=p.hist||[];
   $('histBox').innerHTML=h.length? h.map(x=>'<div class="hist-item"><span class="hd">'+x.d+'</span><span>'+x.t+'</span></div>').join('') : '<div class="hist-item"><span class="muted">No prior touches.</span></div>';
@@ -1327,7 +1368,7 @@ function phEndCall(){ stopCallTimer(); phCall(null); }
 function phSendRep(html){ phMsg(html,'me'); toast('Text sent 📤'); }
 /* dock actions open a pop-up (pick a tier / time / platform) instead of firing blind */
 function openPop(id){ closePops(); const el=$(id); if(el) el.classList.remove('hidden'); }
-function closePops(){ ['payPop','bookPop','videoPop','contentPop'].forEach(id=>{ const el=$(id); if(el) el.classList.add('hidden'); }); }
+function closePops(){ ['payPop','bookPop','videoPop','contentPop','emailPop'].forEach(id=>{ const el=$(id); if(el) el.classList.add('hidden'); }); }
 function firePhoneQuick(q){
   if(q==='pay') openPayPop();
   else if(q==='book') openPop('bookPop');
@@ -1374,9 +1415,48 @@ function renderContent(){
 }
 renderContent();
 
+/* ===== BANK personality read (close-the-deal card) ===== */
+const BANK={
+ B:{ic:'🔵',name:'Blueprint',drive:'Structure, systems, security, consistency — wants proof and a plan.',pitch:'Lead with the step-by-step process, the track record, the guarantees. Show the exact roadmap. Don’t rush them.',close:'“Here’s exactly how it works, step by step — and the proof it delivers. Shall we lock in the plan?”'},
+ A:{ic:'🔴',name:'Action',drive:'Speed, fun, results now, big opportunity — hates boredom and fine print.',pitch:'Keep it fast and exciting. Big-picture wins, act-now urgency, make it easy to say yes today.',close:'“You’re ready — let’s just get you started today and hit the ground running. Sending the link now.”'},
+ N:{ic:'🟢',name:'Nurturing',drive:'Relationships, people, helping, authenticity — buys from people they trust.',pitch:'Connect first, sell second. Emphasize the community, the assigned coach, how it protects their family. Be real.',close:'“I really want to see you and your family win with this. Let’s get you in — I’ll personally make sure you’re taken care of.”'},
+ K:{ic:'🟡',name:'Knowledge',drive:'Data, facts, expertise, competence — wants to be the expert in the room.',pitch:'Bring the numbers. Details, credentials, exactly how the 3B / FinFit strategy works, the ROI. Let them feel smart.',close:'“You’ve seen the numbers and how the strategy works — it’s the logical move. Ready to put it to work?”'}
+};
+function pickBank(b){
+  document.querySelectorAll('#bankTypes .bank-t').forEach(x=>x.classList.toggle('sel',x.getAttribute('data-b')===b));
+  var d=BANK[b]; if(!d) return;
+  $('bankRead').innerHTML='<div class="bank-name">'+d.ic+' '+d.name+'</div>'+
+    '<div class="bank-drive"><b>Driven by:</b> '+esc(d.drive)+'</div>'+
+    '<div class="bank-pitch"><b>How to close them:</b> '+esc(d.pitch)+'</div>'+
+    '<div class="cl-say" style="margin-top:8px">'+esc(d.close)+'</div>';
+}
+document.querySelectorAll('#bankTypes .bank-t').forEach(b=>b.onclick=()=>pickBank(b.getAttribute('data-b')));
+
+/* ===== Email the prospect — templated draft + send ===== */
+function prospectEmail(p){ if(p.email) return p.email; var first=(p.nm||'').split(' ')[0].toLowerCase(); var co=((p.sub||'').split('·')[0]||'').trim().toLowerCase().replace(/[^a-z0-9]+/g,''); return first+'@'+(co||'business')+'.com'; }
+var emTpl='proposal';
+function emailContent(t){
+  var p=curProspectObj(), nm=(p.nm||'').split(' ')[0], pl=PLANS[recommendTier()];
+  if(t==='event') return {s:'You’re invited: EPIC Saturday workshop',
+    b:'Hi '+nm+',\n\nWe run a live members workshop — EPIC Saturday — where we walk through the exact credit + capital playbook. I’d love for you to sit in as my guest.\n\nWhen: this Saturday, 10:00am\nWhere: Zoom (I’ll send the link)\n\nWant me to save you a seat?\n\n— Your name, Team Life Academy'};
+  if(t==='game') return {s:'Try this — a 36-month entrepreneur simulation',
+    b:'Hi '+nm+',\n\nWhile you’re thinking it over, play this — a quick browser game that simulates 36 months of building a business (good debt → credit → cash flow → passive income). It’s the exact strategy EPIC LIFE is built on, and it’s a little addictive.\n\nPlay free: https://brucelin-tla.github.io/entrepreneur-paradise/\n\nText me your net-worth score when you finish 😉\n\n— Your name, Team Life Academy'};
+  return {s:'Your EPIC LIFE proposal, '+nm,
+    b:'Hi '+nm+',\n\nGreat talking today. Based on what you shared, here’s your EPIC LIFE '+pl.label+' plan — '+pl.short+'.\n\nWhat you get:\n• '+pl.incl.filter(function(x){return !/everything in/i.test(x);}).slice(0,5).join('\n• ')+'\n\nReady when you are — reply here or grab a time and we’ll pull your 3B report together.\n\n— Your name, Team Life Academy'};
+}
+function fillEmail(t){ emTpl=t; document.querySelectorAll('#emTemplates .em-tpl').forEach(b=>b.classList.toggle('sel',b.getAttribute('data-t')===t));
+  var c=emailContent(t); $('emSubject').value=c.s; $('emBody').value=c.b; }
+function openEmailPop(){ var em=prospectEmail(curProspectObj()); $('emTo').textContent='to '+em; fillEmail('proposal');
+  $('emStatus').className='cstatus'; $('emStatus').textContent='Draft ready — tweak it, then send.'; $('emSend').disabled=false; openPop('emailPop'); }
+document.querySelectorAll('#emTemplates .em-tpl').forEach(b=>b.onclick=()=>fillEmail(b.getAttribute('data-t')));
+$('emailLink').onclick=openEmailPop;
+$('emSend').onclick=function(){ var em=prospectEmail(curProspectObj()), nm=curProspectObj().nm, subj=$('emSubject').value;
+  maybeConfirm(function(){ $('emSend').disabled=true; $('emStatus').className='cstatus ok'; $('emStatus').textContent='✅ Sent to '+em; toast('📧 Email sent — '+subj); },
+    'Send email','Email <b>'+esc(nm)+'</b> ('+esc(em)+') — <b>'+esc(subj)+'</b>?','Send'); };
+
 /* pop-up dismiss: ✕ button or a tap on the backdrop */
 document.querySelectorAll('[data-pop-close]').forEach(x=>x.onclick=closePops);
-['payPop','bookPop','videoPop','contentPop'].forEach(id=>{ const el=$(id); if(el) el.onclick=(e)=>{ if(e.target===el) closePops(); }; });
+['payPop','bookPop','videoPop','contentPop','emailPop'].forEach(id=>{ const el=$(id); if(el) el.onclick=(e)=>{ if(e.target===el) closePops(); }; });
 
 /* text the prospect + get a live AI reply (DM sales) */
 function smsSys(){
