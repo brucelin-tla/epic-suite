@@ -427,12 +427,14 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 
       <!-- End-of-call action bar — at the end of the page -->
       <div class="panel actionbar">
-        <div class="lbl">Outcome <span class="muted" style="text-transform:none;letter-spacing:0">· press 1–4 to pick, ↵ to log &amp; jump to the next prospect</span></div>
+        <div class="lbl">Outcome <span class="muted" style="text-transform:none;letter-spacing:0">· auto-reads from the call · press 1–6 to change, ↵ to log &amp; jump to the next prospect</span></div>
         <div class="disp" id="disp">
-          <div class="opt" data-o="booked"><kbd>1</kbd> 📅 Booked</div>
-          <div class="opt" data-o="callback"><kbd>2</kbd> 🔁 Callback</div>
-          <div class="opt" data-o="connected"><kbd>3</kbd> ✅ Connected</div>
-          <div class="opt" data-o="nq"><kbd>4</kbd> 🚫 Not qualified ▾</div>
+          <div class="opt" data-o="won"><kbd>1</kbd> 🏆 Won</div>
+          <div class="opt" data-o="booked"><kbd>2</kbd> 📅 Booked</div>
+          <div class="opt" data-o="callback"><kbd>3</kbd> 🔁 Callback</div>
+          <div class="opt" data-o="connected"><kbd>4</kbd> ✅ Connected</div>
+          <div class="opt" data-o="notint"><kbd>5</kbd> 🙅 Not interested</div>
+          <div class="opt" data-o="nq"><kbd>6</kbd> 🚫 Not qualified ▾</div>
           <button id="nextBtn" class="btn primary" style="margin-left:auto">Log &amp; Next<kbd>↵</kbd></button>
         </div>
         <div id="nqReasons" class="nq-reasons hidden"></div>
@@ -612,6 +614,10 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.18.0',d:'2026-06-30',n:[
+ "The outcome now auto-selects from the call — it reads the conversation and sets 🏆 Won (on payment) / 📅 Booked (on a booking) / 🔁 Callback / ✅ Connected / 🙅 Not interested / 🚫 Not qualified (hard flag or can't-afford). Tap 1–6 anytime to override.",
+ "Two new outcomes: 🏆 Won (paid deal, distinct from a booked appointment) and 🙅 Not interested (they qualify but declined, distinct from Not qualified).",
+]},
 {v:'1.17.0',d:'2026-06-30',n:[
  "The BANK personality on the Close-the-deal card now auto-reads from the conversation — as the prospect talks, it detects whether they're 🔵 Blueprint / 🔴 Action / 🟢 Nurturing / 🟡 Knowledge and highlights it (AI-refined when your 🔑 key is connected). You can still tap any type to override.",
 ]},
@@ -797,9 +803,9 @@ function addTranscript(who,txt){
   const t=$('transcript'); if(t.querySelector('.muted')) t.innerHTML='';
   const d=document.createElement('div'); d.className='tline '+(who==='Renee'?'them':'you');
   d.innerHTML='<span class="who">'+who+':</span> '+txt; t.appendChild(d); t.scrollTop=t.scrollHeight;
-  try{autoBank()}catch(e){}
+  try{autoBank()}catch(e){} try{autoOutcome()}catch(e){}
 }
-function setBant(cell,val,cls){const el=$(cell);el.className='bcell '+cls;el.querySelector('.v').textContent=val; try{renderClose()}catch(e){}}
+function setBant(cell,val,cls){const el=$(cell);el.className='bcell '+cls;el.querySelector('.v').textContent=val; try{renderClose()}catch(e){} try{autoOutcome()}catch(e){}}
 function setCloser(stage,hint){$('closer-stage').textContent=stage; if(hint)$('closer-hint').textContent=hint;}
 /* SAY THIS hero — the line the rep should say now */
 function setSay(html,cue){ const el=$('sayLine'); el.className='say'+(cue?' cue':''); el.innerHTML=html; }
@@ -808,7 +814,7 @@ function setSayFromScript(text){
   if(/^\s*\[/.test(text)) setSay('<span class="qmark">👉</span> Use the rebuttal below — agree, then tell the story.', true);
   else setSay('<span class="qmark">“</span>'+esc(text)+'<span class="qmark">”</span>', true);
 }
-function addNote(txt){const n=$('notes'); if(n.querySelector('.muted'))n.innerHTML=''; const d=document.createElement('div');d.className='n';d.textContent='• '+txt;n.appendChild(d); try{renderClose()}catch(e){} try{autoBank()}catch(e){}}
+function addNote(txt){const n=$('notes'); if(n.querySelector('.muted'))n.innerHTML=''; const d=document.createElement('div');d.className='n';d.textContent='• '+txt;n.appendChild(d); try{renderClose()}catch(e){} try{autoBank()}catch(e){} try{autoOutcome()}catch(e){}}
 function addChip(label,cls,isNew){
   const c=$('chips'); if(c.querySelector('.muted'))c.innerHTML='';
   const s=document.createElement('span'); s.className='chip '+cls;
@@ -816,7 +822,7 @@ function addChip(label,cls,isNew){
   c.appendChild(s);
   if(cls!=='pos' && heardSignals.indexOf(label)<0) heardSignals.push(label);
   if(isNew) setTimeout(()=>{const nw=s.querySelector('.new'); if(nw)nw.remove();},2600);
-  try{renderClose()}catch(e){}
+  try{renderClose()}catch(e){} try{autoBank()}catch(e){} try{autoOutcome()}catch(e){}
 }
 function flagAlert(tag,quote){
   $('flagAlert').innerHTML='<div class="flag-alert">⚑ <div><b>Signal — '+tag+'.</b> Heard: “'+quote+'.” Added to profile (soft flag). <span style="color:#ffd58a;cursor:pointer">undo</span></div></div>';
@@ -867,7 +873,7 @@ async function applyEffects(s){
   if(s.bank && !bankManual) pickBank(s.bank, true);
   if(s.obj) showObjection();
   if(s.closer) setCloser(s.closer[0],s.closer[1]);
-  if(s.outcome){ document.querySelectorAll('.opt').forEach(o=>{if(o.dataset.o===s.outcome)o.classList.add('sel');}); toast('Co-pilot suggests: Booked'); }
+  if(s.outcome && !outcomeManual){ selectOutcome(s.outcome, true); toast('Co-pilot suggests: '+s.outcome); }
 }
 
 async function runCall(){
@@ -930,6 +936,7 @@ function clearCallUI(){
   $('objBox').innerHTML='';
   $('notes').innerHTML='<span class="muted" style="font-size:.76rem">…</span>';
   document.querySelectorAll('.opt').forEach(function(o){o.classList.remove('sel')});
+  outcomeManual=false; dealPaid=false;
   $('nqReasons').className='nq-reasons hidden'; $('nqReasons').innerHTML='';
   $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a day in the next 2 weeks, then a time.';
   try{ renderCalDates(); }catch(e){}
@@ -995,24 +1002,37 @@ function resetDemo(){
 $('callBtn').onclick=resetDemo;
 
 /* ===== Outcome selection + the sacred log→next loop ===== */
-function selectOutcome(o){
+var outcomeManual=false, dealPaid=false;
+function selectOutcome(o, auto){
+  if(!auto) outcomeManual=true;
   document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x.dataset.o===o));
   if(o==='nq') showNqReasons(); else { $('nqReasons').classList.add('hidden'); nqReason=''; }
 }
 document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>selectOutcome(o.dataset.o));
+/* auto-read the outcome from the call; a rep tap overrides + locks it */
+function deriveOutcome(){
+  if(dealPaid) return 'won';
+  if(document.querySelectorAll('#chips .chip.hard').length || $('b-budget').classList.contains('bad')) return 'nq';
+  var ctx=($('transcript').textContent+' '+$('notes').textContent).toLowerCase();
+  if(/not interested|no thanks|not for me|pass on this|don.?t want|we.?re good|no need/.test(ctx)) return 'notint';
+  if(/call me back|call back|callback|reach me|try me|bad time|later this week|next week|another time/.test(ctx)) return 'callback';
+  if($('transcript').querySelector('.tline')) return 'connected';
+  return null;
+}
+function autoOutcome(){ if(outcomeManual) return; var o=deriveOutcome(); if(o) selectOutcome(o, true); }
 /* disqualify reasons — pre-fill from the signals actually heard on this call */
 function showNqReasons(){
   const box=$('nqReasons'); box.classList.remove('hidden');
   const items=[], seen={};
   heardSignals.forEach(l=>{ if(!seen[l]){seen[l]=1; items.push({l,pre:true});} });
-  if($('b-budget').classList.contains('warn')){ const l="Can't afford base ($500 + $300/mo)"; if(!seen[l]){seen[l]=1; items.push({l,pre:true});} }
+  if($('b-budget').classList.contains('warn')||$('b-budget').classList.contains('bad')){ const l="Can't afford base ($800 to start · $300/mo)"; if(!seen[l]){seen[l]=1; items.push({l,pre:true});} }
   ['Uncoachable / know-it-all','Integrity / cuts corners','Get-rich-quick','Not a fit'].forEach(l=>{ if(!seen[l]){seen[l]=1; items.push({l,pre:false});} });
   box.innerHTML=items.map(it=>'<span class="rz'+(it.pre?' pre':'')+'" data-r="'+esc(it.l)+'">'+(it.pre?'• ':'')+esc(it.l)+'</span>').join('');
   box.querySelectorAll('.rz').forEach(r=>r.onclick=()=>{ box.querySelectorAll('.rz').forEach(x=>x.classList.remove('sel')); r.classList.add('sel'); nqReason=r.dataset.r; });
 }
 function logAndNext(){
   const sel=document.querySelector('.opt.sel');
-  if(!sel){ toast('Pick an outcome first (1–4)'); return; }
+  if(!sel){ toast('Pick an outcome first (1–6)'); return; }
   const o=sel.dataset.o;
   if(o==='nq' && !nqReason){ toast('Pick a disqualify reason'); return; }
   if(o==='booked') bump('s-book');
@@ -1036,7 +1056,7 @@ document.addEventListener('keydown',e=>{
   const el=document.activeElement;
   if(el && (el.id==='chatInput' || el.tagName==='INPUT' || el.tagName==='TEXTAREA' || el.isContentEditable)) return;
   if(e.metaKey||e.ctrlKey||e.altKey) return;
-  const map={'1':'booked','2':'callback','3':'connected','4':'nq'};
+  const map={'1':'won','2':'booked','3':'callback','4':'connected','5':'notint','6':'nq'};
   const qk={'p':'pay','b':'book','c':'content','z':'zoom','v':'zoom'};
   const lk=(e.key||'').toLowerCase();
   if(map[e.key]){ selectOutcome(map[e.key]); e.preventDefault(); }
@@ -1311,10 +1331,12 @@ function confirmBooking(){
   } else if(bkMode==='closed'){
     $('bookStatus').innerHTML='✅ 3B onboarding booked — '+nm+' + Client Success · <b>'+when+'</b>';
     phMsg('📅 Booked your <b>3B onboarding call</b> — '+when+'. We’ll pull your MyFICO 3-bureau report together and set up your EPIC LIFE portal.','me');
+    try{ selectOutcome('booked'); }catch(e){}
     toast('Booked 3B — '+when);
   } else {
     $('bookStatus').innerHTML='✅ 3B + closer call booked — '+nm+' + partner + Client Success + closer · <b>'+when+'</b>';
     phMsg('📅 Booked your <b>3B strategy call</b> — '+when+'. We’ll pull your MyFICO 3-bureau report together and walk you + your partner through the full plan.','me');
+    try{ selectOutcome('booked'); }catch(e){}
     toast('Booked 3B — '+when);
   }
 }
@@ -1405,6 +1427,7 @@ async function sendPaymentLink(){
   phMsg('<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE '+pl.label+' — '+pl.short+'.','ok');
   toast('Payment received 🎉'); bump('s-book');
   $('s-closed').textContent=parseInt($('s-closed').textContent,10)+1; revenue+=pl.collect; updateRev();
+  dealPaid=true; try{ selectOutcome('won'); }catch(e){}
   try{ setBkMode('closed'); }catch(e){}
 }
 $('payBtn').onclick=()=>{ if($('payBtn').disabled){ toast('Payment link already sent'); return; } var pl=PLANS[curPlan], nm=curProspectObj().nm; maybeConfirm(sendPaymentLink,'Send payment link','Text <b>'+esc(nm)+'</b> the <b>'+pl.label+'</b> checkout link — '+pl.short+'?','Send link'); };
