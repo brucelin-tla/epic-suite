@@ -120,7 +120,10 @@ body{padding-bottom:104px}
 .screen{background:#0d1117;border-radius:18px;min-height:470px;max-height:580px;overflow:hidden;display:flex;flex-direction:column}
 .ph-call{padding:11px;text-align:center;font-size:.78rem;font-weight:700;background:rgba(16,185,129,.16);color:#7ff0c8}
 .ph-call.ring{background:rgba(59,130,246,.18);color:#bcd4ff}
-.ph-appbar{padding:8px 12px;font-size:.72rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border)}
+.ph-appbar{padding:7px 10px;font-size:.72rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ph-callbtn{font-size:.7rem;font-weight:800;padding:5px 13px;border-radius:999px;background:var(--accent);color:#fff;border:none;cursor:pointer}
+.ph-callbtn:hover{filter:brightness(1.1)}
+.ph-callbtn.end{background:var(--red)}
 .ph-msgs{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
 .ph-empty{color:var(--muted);font-size:.72rem;text-align:center;margin:auto;padding:20px}
 .bubble{max-width:88%;padding:8px 11px;border-radius:14px;font-size:.74rem;line-height:1.45}
@@ -355,7 +358,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
       <div class="lbl" style="margin-bottom:8px">📱 Your phone <span class="muted" style="text-transform:none;letter-spacing:0">· call &amp; text the prospect</span></div>
       <div class="phone"><div class="screen">
         <div id="phCall" class="ph-call hidden"></div>
-        <div class="ph-appbar">💬 <span id="phWho">Renee Webb</span></div>
+        <div class="ph-appbar"><span>💬 <span id="phWho">Renee Webb</span></span><button id="phCallBtn" class="ph-callbtn">📞 Call</button></div>
         <div id="phMsgs" class="ph-msgs"><div class="ph-empty">Your thread with the prospect — text or call.</div></div>
         <div class="ph-quick" id="phQuick">
           <button data-q="pay" title="Text the EPIC LIFE checkout link">💳 Pay link <kbd>P</kbd></button>
@@ -407,6 +410,11 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.5.0',d:'2026-06-30',n:[
+ "The prospect now texts back in real time — connect the AI (🔑) and your phone thread becomes a live two-way conversation, so you can run DM sales over text.",
+ "Renamed the ⏰ focus from Expiring to Overdue — prospects you're past due to touch (a missed callback or an aging follow-up).",
+ "Added Call / End right on the phone, so you can start and end the call from the device itself (handy on mobile).",
+]},
 {v:'1.4.0',d:'2026-06-30',n:[
  "The phone on the right is now YOUR phone — a working softphone. It shows a live call timer and a two-way text thread with the prospect (your texts on the right, theirs on the left).",
  "Quick-send dock: one tap to text the prospect your 💳 payment link, 🎬 how-it-works video, 📅 booking link, or 🔗 Zoom room — plus a box to type any custom text.",
@@ -463,20 +471,20 @@ const QUEUE=[
  {id:'priya', ini:'PS', nm:'Priya Shah', sub:'Shah Dental · Owner · 📍 California', reason:'Callback — asked for 2pm', score:86, seg:['callback','hot'], loc:'📍 California', tz:'America/Los_Angeles', tzL:'PT', caller:'(415) 555-0188', hist:[
    {d:'Jun 26',t:'📞 Asked me to call back at 2pm today'},
    {d:'Jun 19',t:'✅ Connected — wants to lower her tax bill'}]},
- {id:'alicia', ini:'AG', nm:'Alicia Grant', sub:'Grant Realty · Owner · 📍 Florida', reason:'Quote expires Fri', score:83, seg:['hot','expiring'], loc:'📍 Florida', tz:'America/New_York', tzL:'ET', caller:'(305) 555-0161', hist:[
-   {d:'Jun 21',t:'📄 Quote sent — expires Fri'},
+ {id:'alicia', ini:'AG', nm:'Alicia Grant', sub:'Grant Realty · Owner · 📍 Florida', reason:'Very interested — deciding this wk', score:83, seg:['hot'], loc:'📍 Florida', tz:'America/New_York', tzL:'ET', caller:'(305) 555-0161', hist:[
+   {d:'Jun 21',t:'📄 Quote sent'},
    {d:'Jun 17',t:'✅ Connected — very interested'}]},
- {id:'reggie', ini:'RP', nm:'Reggie Park', sub:'Park &amp; Co · Owner · 📍 Nevada', reason:'Quote expires Fri', score:81, seg:['expiring'], loc:'📍 Nevada', tz:'America/Los_Angeles', tzL:'PT', caller:'(702) 555-0177', hist:[
-   {d:'Jun 20',t:'📄 Quote sent — expires Fri'},
+ {id:'reggie', ini:'RP', nm:'Reggie Park', sub:'Park &amp; Co · Owner · 📍 Nevada', reason:'Callback missed · 2d overdue', score:81, seg:['overdue'], loc:'📍 Nevada', tz:'America/Los_Angeles', tzL:'PT', caller:'(702) 555-0177', hist:[
+   {d:'Jun 24',t:'📞 Promised callback — I missed it (2d ago)'},
    {d:'Jun 12',t:'📩 Voicemail dropped — no callback yet'}]},
  {id:'marcus', ini:'MB', nm:'Marcus Bell', sub:'Bell HVAC · Owner · 📍 Georgia', reason:'New lead — form fill 2h ago', score:78, seg:['new','hot'], loc:'📍 Georgia', tz:'America/New_York', tzL:'ET', caller:'(404) 555-0119', hist:[
    {d:'Today',t:'✨ New lead — submitted the interest form 2h ago'}]},
- {id:'tom', ini:'TN', nm:'Tom Nguyen', sub:'Nguyen Auto · Owner · 📍 Washington', reason:'Emailed — no reply (3d)', score:72, seg:['followup'], loc:'📍 Washington', tz:'America/Los_Angeles', tzL:'PT', caller:'(206) 555-0155', hist:[
+ {id:'tom', ini:'TN', nm:'Tom Nguyen', sub:'Nguyen Auto · Owner · 📍 Washington', reason:'Emailed 3d ago · follow-up overdue', score:72, seg:['followup','overdue'], loc:'📍 Washington', tz:'America/Los_Angeles', tzL:'PT', caller:'(206) 555-0155', hist:[
    {d:'Jun 25',t:'✉️ Emailed proposal — no reply yet'},
    {d:'Jun 18',t:'✅ Connected — asked for pricing'}]},
  {id:'sofia', ini:'SR', nm:'Sofia Reyes', sub:'Reyes Salon · Owner · 📍 Arizona', reason:'New lead — referral', score:70, seg:['new'], loc:'📍 Arizona', tz:'America/Phoenix', tzL:'MST', caller:'(602) 555-0132', hist:[
    {d:'Today',t:'✨ New lead — referred by an EPIC LIFE member'}]},
- {id:'derek', ini:'DC', nm:'Derek Cole', sub:'Cole Fitness · Owner · 📍 Ohio', reason:'DM sent — no reply', score:66, seg:['followup'], loc:'📍 Ohio', tz:'America/New_York', tzL:'ET', caller:'(614) 555-0124', hist:[
+ {id:'derek', ini:'DC', nm:'Derek Cole', sub:'Cole Fitness · Owner · 📍 Ohio', reason:'DM sent 4d ago · overdue', score:66, seg:['followup','overdue'], loc:'📍 Ohio', tz:'America/New_York', tzL:'ET', caller:'(614) 555-0124', hist:[
    {d:'Jun 24',t:'✉️ DM sent on IG — seen, no reply'}]}
 ];
 const FOCUS=[
@@ -485,7 +493,7 @@ const FOCUS=[
  {k:'new', emoji:'✨', label:'New leads'},
  {k:'callback', emoji:'📞', label:'Callbacks'},
  {k:'followup', emoji:'✉️', label:'Follow-ups'},
- {k:'expiring', emoji:'⏰', label:'Expiring'}
+ {k:'overdue', emoji:'⏰', label:'Overdue'}
 ];
 function curProspectObj(){ return QUEUE.find(p=>p.id===curId)||QUEUE[0]; }
 function scoreCls(s){ return s>=85?'hi':(s>=75?'mid':'low'); }
@@ -630,7 +638,7 @@ async function runCall(){
 }
 function bump(id){$(id).textContent=parseInt($(id).textContent)+1; try{updateMission();}catch(e){}}
 
-$('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; runCall(); };
+$('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; setPhCallBtn(); runCall(); };
 $('muteBtn').onclick=()=>{ muted=!muted; $('muteBtn').textContent=muted?'🔇 Voice off':'🔊 Voice on';
   if(muted){ if('speechSynthesis'in window)speechSynthesis.cancel(); if(curAudio){try{curAudio.pause()}catch(e){}} } };
 
@@ -659,7 +667,8 @@ function clearCallUI(){
   $('payStatus').className='cstatus'; $('payStatus').textContent='No link sent yet.'; $('payBtn').disabled=false;
   try{ setBkMode('closed'); }catch(e){}
   phEndCall(); $('phMsgs').innerHTML='<div class="ph-empty">Your thread with the prospect — text or call.</div>';
-  convo=[]; heardSignals=[]; nqReason='';
+  convo=[]; smsConvo=[]; heardSignals=[]; nqReason='';
+  setPhCallBtn();
 }
 /* select a prospect into the cockpit (fresh call surfaces) */
 function selectProspect(id, clear){
@@ -827,6 +836,7 @@ $('keyBtn').onclick=()=>{ const cur=getKey();
 function ttsUrl(t){ return 'https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q='+encodeURIComponent(String(t).slice(0,190)); }
 
 let convo=[];
+let smsConvo=[], smsHinted=false;
 const RENEE_SYS = "You are Renee Webb, owner of Webb Logistics (3 trucks), on a live sales call. A rep is selling you an EPIC LIFE membership: $500 setup + $300/month (business growth + financial protection). Stay fully in character: realistic, busy, a little guarded; ask normal questions; raise natural objections (price, needing to talk to your partner, skepticism); warm up if the rep handles you well. Keep every reply to 1-2 short sentences, under 30 words — it will be spoken aloud. You are ALSO the rep's silent sales co-pilot analyzing the call. Reply with ONLY a raw JSON object (no markdown, no backticks): {\"reply\":\"what Renee says out loud\",\"bant\":{\"budget\":\"\",\"authority\":\"\",\"need\":\"\",\"timeline\":\"\"},\"signal\":null,\"objection\":null,\"note\":\"\",\"closer\":\"\",\"coach\":\"\"}. Only fill bant fields you can infer so far; leave the rest empty. Set \"coach\" to ONE short line (under 20 words) the rep should say next to move the sale forward. Set \"signal\" to {\"tag\":\"...\",\"severity\":\"pos|soft|hard\",\"evidence\":\"quote\"} ONLY when she shows a real green/red signal (e.g. coachable, high intent, blamer/victim, can't afford, uncoachable). Set \"objection\" to {\"text\":\"...\",\"agree\":\"...\",\"reframe\":\"...\"} ONLY when she actually objects. Set \"closer\" to the current CLOSER stage (Clarify|Label|Overview|Sell|Explain|Reinforce) or empty.";
 
 async function askRenee(key){
@@ -970,9 +980,41 @@ function firePhoneQuick(q){
   else if(q==='zoom') phSendRep('🔗 Here’s our Zoom room for the strategy call:<br><span class="lk">zoom.us/j/855-epic-life</span>');
 }
 document.querySelectorAll('#phQuick button').forEach(b=>b.onclick=()=>firePhoneQuick(b.getAttribute('data-q')));
-function phComposeSend(){ const t=$('phInput').value.trim(); if(!t) return; phMsg('💬 '+esc(t),'me'); $('phInput').value=''; }
+
+/* text the prospect + get a live AI reply (DM sales) */
+function smsSys(){
+  const p=curProspectObj(); const co=((p.sub||'').split('·')[0]||'a small business').trim();
+  return "You are "+p.nm+", owner of "+co+", a small business owner. A sales rep from Team Life Academy is TEXTING you about an EPIC LIFE membership ($500 setup + $300/month — business growth + financial protection). Reply exactly as "+p.nm+" would over text: short, casual, realistic, a bit busy and guarded at first; ask normal questions; raise natural objections (price, timing, \"let me think about it\", needing to check with your partner); warm up if the rep handles you well. Keep replies to 1-2 short sentences like a real text. Reply with ONLY your text back — no name labels, no quotes.";
+}
+async function prospectTextReply(){
+  const key=getKey(); if(!key) return;
+  const typing=document.createElement('div'); typing.className='bubble them'; typing.textContent='…';
+  $('phMsgs').appendChild(typing); $('phMsgs').scrollTop=$('phMsgs').scrollHeight;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{ method:'POST',
+      headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:120,system:smsSys(),messages:smsConvo}) });
+    if(typing.parentNode) typing.remove();
+    if(!r.ok){ throw new Error(r.status+''); }
+    const j=await r.json();
+    let txt=((j.content&&j.content[0]&&j.content[0].text)||'').trim().replace(/^["']+|["']+$/g,'');
+    if(txt){ smsConvo.push({role:'assistant',content:txt}); phMsg(esc(txt),'them'); }
+  }catch(e){ if(typing.parentNode) typing.remove(); phMsg('<span class="muted">(couldn’t reach the AI — check the 🔑 key)</span>','sys'); }
+}
+function repTexted(text){
+  phMsg('💬 '+esc(text),'me');
+  if(!getKey()){ if(!smsHinted){ smsHinted=true; phMsg('Tap 🔑 below to connect the AI prospect and get live text replies.','sys'); } return; }
+  smsConvo.push({role:'user',content:text});
+  prospectTextReply();
+}
+function phComposeSend(){ const t=$('phInput').value.trim(); if(!t) return; $('phInput').value=''; repTexted(t); }
 $('phSend').onclick=phComposeSend;
 $('phInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); phComposeSend(); } });
+
+/* Call / End button on the phone itself */
+function setPhCallBtn(){ var b=$('phCallBtn'); if(!b)return; b.className='ph-callbtn'+(started?' end':''); b.textContent=started?'⛔ End':'📞 Call'; }
+$('phCallBtn').onclick=()=>{ if(started){ resetDemo(); } else { $('startBtn').click(); setPhCallBtn(); } };
+setPhCallBtn();
 
 /* ===== timezone / quiet-hours guard + caller-ID + daily mission ===== */
 function updateTiming(){
