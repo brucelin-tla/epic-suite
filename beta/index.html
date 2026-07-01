@@ -222,6 +222,20 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .qhead .m{cursor:default}
 .qscore.low{color:var(--text2)}
 .qcard{cursor:pointer}
+/* v1.6.0: Hawaii toggle, calendar picker, payment tiers */
+.hi-toggle{display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--text2);cursor:pointer;margin-top:9px}
+.hi-toggle input{accent-color:var(--accent);width:15px;height:15px}
+.cal-dates{display:flex;gap:5px;overflow-x:auto;padding-bottom:5px;margin-bottom:8px}
+.cal-date{flex:0 0 auto;text-align:center;padding:5px 9px;font-size:.66rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer;line-height:1.35}
+.cal-date .dow{display:block;font-weight:800;color:var(--text)}
+.cal-date.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
+.cal-date.sel .dow{color:#7ff0c8}
+.cal-times{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.cal-time{padding:6px 10px;font-size:.74rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer}
+.cal-time.sel{background:rgba(16,185,129,.18);border-color:var(--accent);color:#7ff0c8}
+.plan-chips{display:flex;gap:5px;margin-bottom:8px}
+.plan{flex:1;padding:7px 4px;font-size:.72rem;font-weight:700;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
+.plan.sel{background:rgba(59,130,246,.18);border-color:var(--blue);color:#bcd4ff}
 </style>
 </head>
 <body>
@@ -239,10 +253,10 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
   </header>
 
   <div class="controls">
-    <button id="startBtn" class="btn call">▶ Start call &nbsp;<span class="muted" style="font-weight:600">(AI plays the prospect)</span></button>
+    <button id="startBtn" class="btn call" style="display:none">▶ Start call</button>
     <button id="muteBtn" class="btn ghost">🔊 Voice on</button>
     <button id="vmBtn" class="btn vm" title="No answer → drop a pre-recorded voicemail and jump to the next prospect">📩 No answer · drop VM</button>
-    <span class="muted" style="font-size:.78rem">Demo: a synthetic prospect talks; EPIC Closer reacts live — nothing is really dialed.</span>
+    <span class="muted" style="font-size:.78rem">📱 Call &amp; end from the phone → · a synthetic prospect talks; EPIC Closer reacts live.</span>
   </div>
 
   <div class="cockpit">
@@ -258,6 +272,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
       <div class="focusbar">
         <div class="focus-lbl">🎯 Focus — sort the queue</div>
         <div id="focusChips" class="focus-chips"></div>
+        <label class="hi-toggle"><input type="checkbox" id="hiToggle"> 🌺 Hawaii only <span class="muted" style="font-size:.64rem">· 1-party consent</span></label>
       </div>
       <div class="qhead"><b>Queue</b><span class="m" id="qCount">—</span></div>
       <div id="queueList"></div>
@@ -268,7 +283,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
         <div class="pd-head">
           <div class="avatar" id="pAvatar">RW</div>
           <div style="flex:1"><div class="nm" id="pName">Renee Webb</div><div class="sub" id="pSub">Webb Logistics · Owner · EPIC LIFE membership · 📍 Florida</div></div>
-          <button id="callBtn" class="btn call" disabled>📞 Call</button>
+          <button id="callBtn" class="btn call" style="display:none" disabled>📞 Call</button>
         </div>
         <div class="callinfo">
           <span><span id="locLabel">📍 Florida</span> · <span id="locTime">—</span> · <span id="tzStatus">—</span></span>
@@ -278,18 +293,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
         <div id="histBox" class="hist-box hidden"></div>
       </div>
 
-      <!-- SAY THIS — the loudest surface: what to say now + objection rebuttal -->
-      <div class="panel hero">
-        <div class="hero-top">
-          <span class="closer-badge">🤖 CLOSER · <span id="closer-stage" class="stage" title="tap to advance stage">Clarify</span></span>
-          <button id="objBankBtn" class="mini-btn" title="Search the objection rebuttal bank">📚 Objections</button>
-          <span class="muted" id="closer-hint" style="margin-left:auto">listening…</span>
-        </div>
-        <div id="sayLine" class="say"><span class="muted" style="font-size:.82rem">Your suggested line appears here as the call moves — glance, say it, keep talking.</span></div>
-        <div id="objBox"></div>
-      </div>
-
-      <!-- Qualify strip — signals + BANT in one always-visible band -->
+      <!-- Signals & flags + BANT — above the closer -->
       <div class="panel">
         <div class="lbl">🏷️ Signals &amp; flags · ✅ BANT <span class="muted" style="text-transform:none;letter-spacing:0">· live from the call · tap BANT to edit · consent shows here too</span></div>
         <div id="chips" class="chips"><span class="muted" style="font-size:.76rem">Signals appear here as the AI hears them…</span></div>
@@ -302,25 +306,27 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
         </div>
       </div>
 
+      <!-- Live transcript — below signals & flags -->
       <div class="panel">
-        <div class="lbl">📝 Live notes <span class="muted" style="text-transform:none;letter-spacing:0">· auto-captured · type your own while you talk</span></div>
+        <div class="lbl">🎙️ Live transcript <span class="muted" style="text-transform:none;letter-spacing:0">· what the AI is hearing</span></div>
+        <div id="transcript" class="transcript"><span class="muted">—</span></div>
+      </div>
+
+      <!-- SAY THIS closer + live notes -->
+      <div class="panel hero">
+        <div class="hero-top">
+          <span class="closer-badge">🤖 CLOSER · <span id="closer-stage" class="stage" title="tap to advance stage">Clarify</span></span>
+          <button id="objBankBtn" class="mini-btn" title="Search the objection rebuttal bank">📚 Objections</button>
+          <span class="muted" id="closer-hint" style="margin-left:auto">listening…</span>
+        </div>
+        <div id="sayLine" class="say"><span class="muted" style="font-size:.82rem">Your suggested line appears here as the call moves — glance, say it, keep talking.</span></div>
+        <div id="objBox"></div>
+        <div class="lbl" style="margin-top:12px">📝 Live notes <span class="muted" style="text-transform:none;letter-spacing:0">· auto-captured · type your own while you talk</span></div>
         <div id="notes" class="notes"><span class="muted" style="font-size:.76rem">…</span></div>
         <input id="noteInput" class="note-input" placeholder="+ add a note…" autocomplete="off">
       </div>
 
-      <!-- End-of-call action bar — the sacred loop, keyboard-first -->
-      <div class="panel actionbar">
-        <div class="lbl">Outcome <span class="muted" style="text-transform:none;letter-spacing:0">· press 1–4 to pick, ↵ to log &amp; jump to the next prospect</span></div>
-        <div class="disp" id="disp">
-          <div class="opt" data-o="booked"><kbd>1</kbd> 📅 Booked</div>
-          <div class="opt" data-o="callback"><kbd>2</kbd> 🔁 Callback</div>
-          <div class="opt" data-o="connected"><kbd>3</kbd> ✅ Connected</div>
-          <div class="opt" data-o="nq"><kbd>4</kbd> 🚫 Not qualified ▾</div>
-          <button id="nextBtn" class="btn primary" style="margin-left:auto">Log &amp; Next<kbd>↵</kbd></button>
-        </div>
-        <div id="nqReasons" class="nq-reasons hidden"></div>
-      </div>
-
+      <!-- Close the deal — moved up, above the outcome -->
       <div class="panel" id="closePanel">
         <div class="lbl">🤝 Close the deal <span class="muted" style="text-transform:none;letter-spacing:0">· lock it in before you hang up</span></div>
         <div class="close-grid">
@@ -331,25 +337,35 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
               <button class="bkmode" data-m="open">🔁 Not closed → 3B + closer</button>
             </div>
             <div class="offer" id="bkDesc"></div>
-            <div class="slots" id="slots">
-              <button class="slot">Thu 2:00pm</button>
-              <button class="slot">Thu 4:30pm</button>
-              <button class="slot">Fri 11:00am</button>
-            </div>
-            <div id="bookStatus" class="cstatus">Pick a time to send the invite.</div>
+            <div class="cal-dates" id="calDates"></div>
+            <div class="cal-times" id="calTimes"></div>
+            <div id="bookStatus" class="cstatus">Pick a day in the next 2 weeks, then a time.</div>
           </div>
           <div class="close-col">
             <div class="ct">💳 Collect payment</div>
-            <div class="offer">EPIC LIFE membership · <b>$500 setup + $300/mo</b></div>
+            <div class="plan-chips" id="planChips">
+              <button class="plan sel" data-p="monthly">Monthly</button>
+              <button class="plan" data-p="annual">Annual</button>
+              <button class="plan" data-p="pro">Pro</button>
+            </div>
+            <div class="offer" id="planDesc">EPIC LIFE · <b>$500 setup + $300/mo</b></div>
             <button id="payBtn" class="paybtn">Send payment link via SMS</button>
             <div id="payStatus" class="cstatus">No link sent yet.</div>
           </div>
         </div>
       </div>
 
-      <div class="panel">
-        <div class="lbl">🎙️ Live transcript <span class="muted" style="text-transform:none;letter-spacing:0">· what the AI is hearing</span></div>
-        <div id="transcript" class="transcript"><span class="muted">—</span></div>
+      <!-- End-of-call action bar — at the end of the page -->
+      <div class="panel actionbar">
+        <div class="lbl">Outcome <span class="muted" style="text-transform:none;letter-spacing:0">· press 1–4 to pick, ↵ to log &amp; jump to the next prospect</span></div>
+        <div class="disp" id="disp">
+          <div class="opt" data-o="booked"><kbd>1</kbd> 📅 Booked</div>
+          <div class="opt" data-o="callback"><kbd>2</kbd> 🔁 Callback</div>
+          <div class="opt" data-o="connected"><kbd>3</kbd> ✅ Connected</div>
+          <div class="opt" data-o="nq"><kbd>4</kbd> 🚫 Not qualified ▾</div>
+          <button id="nextBtn" class="btn primary" style="margin-left:auto">Log &amp; Next<kbd>↵</kbd></button>
+        </div>
+        <div id="nqReasons" class="nq-reasons hidden"></div>
       </div>
 
     </div>
@@ -410,6 +426,13 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.6.0',d:'2026-06-30',n:[
+ "Cockpit reflow: signals & flags and the live transcript now sit above the CLOSER box, your live-note field moved inside the CLOSER, Close-the-deal moved up, and the outcome buttons are at the very bottom.",
+ "Book from a real calendar — pick any weekday in the next 2 weeks, then a time, for either 3B booking path.",
+ "Pick the payment tier before sending the link: Monthly ($500 + $300/mo), Annual ($500 + $3,000/yr), or Pro ($9,700/yr).",
+ "🌺 Hawaii-only toggle on the sort — work just your one-party-consent local list.",
+ "Call & End now live on the phone only — removed the duplicate call buttons elsewhere.",
+]},
 {v:'1.5.0',d:'2026-06-30',n:[
  "The prospect now texts back in real time — connect the AI (🔑) and your phone thread becomes a live two-way conversation, so you can run DM sales over text.",
  "Renamed the ⏰ focus from Expiring to Overdue — prospects you're past due to touch (a missed callback or an aging follow-up).",
@@ -457,7 +480,7 @@ function openChangelog(){ renderChangelog(); $('clModal').classList.remove('hidd
 function closeChangelog(){ $('clModal').classList.add('hidden'); }
 let muted=false, voice=null, started=false, curAudio=null, runToken=0;
 let heardSignals=[], nqReason='';
-let currentFocus='all', curId=null, curTz='America/New_York', curTzL='ET';
+let currentFocus='all', curId=null, curTz='America/New_York', curTzL='ET', hawaiiOnly=false;
 
 /* the book of business — each prospect carries its segments + local time + caller ID */
 const QUEUE=[
@@ -485,7 +508,12 @@ const QUEUE=[
  {id:'sofia', ini:'SR', nm:'Sofia Reyes', sub:'Reyes Salon · Owner · 📍 Arizona', reason:'New lead — referral', score:70, seg:['new'], loc:'📍 Arizona', tz:'America/Phoenix', tzL:'MST', caller:'(602) 555-0132', hist:[
    {d:'Today',t:'✨ New lead — referred by an EPIC LIFE member'}]},
  {id:'derek', ini:'DC', nm:'Derek Cole', sub:'Cole Fitness · Owner · 📍 Ohio', reason:'DM sent 4d ago · overdue', score:66, seg:['followup','overdue'], loc:'📍 Ohio', tz:'America/New_York', tzL:'ET', caller:'(614) 555-0124', hist:[
-   {d:'Jun 24',t:'✉️ DM sent on IG — seen, no reply'}]}
+   {d:'Jun 24',t:'✉️ DM sent on IG — seen, no reply'}]},
+ {id:'keoni', ini:'KM', nm:'Keoni Mahoe', sub:'Mahoe Landscaping · Owner · 📍 Hawaii', reason:'Callback promised today', score:90, seg:['hot','callback'], loc:'📍 Hawaii', tz:'Pacific/Honolulu', tzL:'HST', caller:'(808) 555-0143', hist:[
+   {d:'Jun 25',t:'📞 Callback — said call me back today'},
+   {d:'Jun 19',t:'✅ Connected — wants to protect the business'}]},
+ {id:'leilani', ini:'LK', nm:'Leilani Kane', sub:'Kane Bakery · Owner · 📍 Hawaii', reason:'New lead — member referral', score:75, seg:['new'], loc:'📍 Hawaii', tz:'Pacific/Honolulu', tzL:'HST', caller:'(808) 555-0177', hist:[
+   {d:'Today',t:'✨ New lead — referred by an EPIC LIFE member'}]}
 ];
 const FOCUS=[
  {k:'all', emoji:'📋', label:'All'},
@@ -497,7 +525,7 @@ const FOCUS=[
 ];
 function curProspectObj(){ return QUEUE.find(p=>p.id===curId)||QUEUE[0]; }
 function scoreCls(s){ return s>=85?'hi':(s>=75?'mid':'low'); }
-function filteredList(){ return QUEUE.filter(p=>currentFocus==='all'||p.seg.indexOf(currentFocus)>=0).slice().sort((a,b)=>b.score-a.score); }
+function filteredList(){ return QUEUE.filter(p=>(currentFocus==='all'||p.seg.indexOf(currentFocus)>=0) && (!hawaiiOnly || /Hawaii/.test(p.loc))).slice().sort((a,b)=>b.score-a.score); }
 
 function pickVoice(){
   const vs=(window.speechSynthesis?speechSynthesis.getVoices():[])||[];
@@ -662,10 +690,10 @@ function clearCallUI(){
   $('notes').innerHTML='<span class="muted" style="font-size:.76rem">…</span>';
   document.querySelectorAll('.opt').forEach(function(o){o.classList.remove('sel')});
   $('nqReasons').className='nq-reasons hidden'; $('nqReasons').innerHTML='';
-  $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a time to send the invite.';
-  document.querySelectorAll('.slot').forEach(function(x){x.classList.remove('sel')});
+  $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a day in the next 2 weeks, then a time.';
+  try{ renderCalDates(); }catch(e){}
   $('payStatus').className='cstatus'; $('payStatus').textContent='No link sent yet.'; $('payBtn').disabled=false;
-  try{ setBkMode('closed'); }catch(e){}
+  try{ setBkMode('closed'); setPlan('monthly'); }catch(e){}
   phEndCall(); $('phMsgs').innerHTML='<div class="ph-empty">Your thread with the prospect — text or call.</div>';
   convo=[]; smsConvo=[]; heardSignals=[]; nqReason='';
   setPhCallBtn();
@@ -709,6 +737,8 @@ function setFocus(k, silent){
   if(!keep){ curId=list.length?list[0].id:null; if(curId) selectProspect(curId, true); else renderQueue(); }
   if(!silent){ const f=FOCUS.find(x=>x.k===k); toast('Focus: '+(f?f.emoji+' '+f.label:'All')+' · '+list.length+' prospect'+(list.length===1?'':'s')); }
 }
+$('hiToggle').onchange=()=>{ hawaiiOnly=$('hiToggle').checked; curId=null; setFocus(currentFocus, true);
+  toast(hawaiiOnly?'🌺 Hawaii only — one-party consent, no disclosure needed':'Showing all states'); };
 function resetDemo(){
   $('s-dials').textContent='22'; $('s-conn').textContent='7'; $('s-book').textContent='2'; $('s-queue').textContent='41';
   ['goalDials','goalConn','goalBook'].forEach(function(id){$(id).classList.remove('done')});
@@ -932,33 +962,67 @@ var bkMode='closed';
 function setBkMode(m){
   bkMode=m;
   document.querySelectorAll('.bkmode').forEach(b=>b.classList.toggle('sel',b.dataset.m===m));
+  const nm=curProspectObj().nm;
   $('bkDesc').innerHTML = m==='closed'
-    ? 'Client Success · 15 min — guide Renee to pull her <b>MyFICO 3-bureau (3B) report</b> together, then onboard her to the EPIC LIFE member portal.'
-    : 'Client Success pulls Renee’s <b>MyFICO 3B report</b> on the call, then brings in a <b>senior closer</b> to close on the demo Zoom (Renee + her partner).';
+    ? 'Client Success · 15 min — guide '+nm+' to pull the <b>MyFICO 3-bureau (3B) report</b> together, then onboard to the EPIC LIFE portal.'
+    : 'Client Success pulls '+nm+'’s <b>MyFICO 3B report</b> on the call, then brings in a <b>senior closer</b> to close on the demo Zoom ('+nm+' + partner).';
 }
 document.querySelectorAll('.bkmode').forEach(b=>b.onclick=()=>setBkMode(b.dataset.m));
 setBkMode('closed');
-document.querySelectorAll('.slot').forEach(s=>s.onclick=()=>{
-  document.querySelectorAll('.slot').forEach(x=>x.classList.remove('sel')); s.classList.add('sel');
+
+/* calendar — pick a weekday in the next 2 weeks + a time (for both booking modes) */
+const CAL_TIMES=['9:00 am','10:30 am','1:00 pm','2:30 pm','4:00 pm'];
+let calDate=null, calTime=null;
+function renderCalDates(){
+  const box=$('calDates'); if(!box) return;
+  const dows=['Sun','Mon','Tue','Wed','Thu','Fri','Sat']; const base=new Date(); let html='';
+  for(let i=0;i<14;i++){ const d=new Date(base.getTime()+i*86400000); const g=d.getDay();
+    if(g===0||g===6) continue; // weekdays only
+    const md=(d.getMonth()+1)+'/'+d.getDate(); const lbl=dows[g]+' '+md;
+    html+='<button class="cal-date" data-lbl="'+lbl+'"><span class="dow">'+dows[g]+'</span>'+md+'</button>';
+  }
+  box.innerHTML=html; calDate=null; calTime=null; renderCalTimes();
+  box.querySelectorAll('.cal-date').forEach(b=>b.onclick=()=>{ box.querySelectorAll('.cal-date').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); calDate=b.getAttribute('data-lbl'); calTime=null; renderCalTimes(); });
+}
+function renderCalTimes(){
+  const box=$('calTimes'); if(!box) return;
+  box.innerHTML=calDate? CAL_TIMES.map(t=>'<button class="cal-time" data-t="'+t+'">'+t+'</button>').join('') : '';
+  box.querySelectorAll('.cal-time').forEach(b=>b.onclick=()=>{ box.querySelectorAll('.cal-time').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); calTime=b.getAttribute('data-t'); confirmBooking(); });
+}
+function confirmBooking(){
+  if(!calDate||!calTime) return; const when=calDate+' · '+calTime, nm=curProspectObj().nm;
   $('bookStatus').className='cstatus ok';
   if(bkMode==='closed'){
-    $('bookStatus').innerHTML='✅ 3B onboarding booked — '+curProspectObj().nm+' + Client Success · <b>'+s.textContent+'</b>';
-    phMsg('📅 Booked your <b>3B onboarding call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and set up your EPIC LIFE portal.','me');
+    $('bookStatus').innerHTML='✅ 3B onboarding booked — '+nm+' + Client Success · <b>'+when+'</b>';
+    phMsg('📅 Booked your <b>3B onboarding call</b> — '+when+'. We’ll pull your MyFICO 3-bureau report together and set up your EPIC LIFE portal.','me');
   } else {
-    $('bookStatus').innerHTML='✅ 3B + closer call booked — '+curProspectObj().nm+' + partner + Client Success + closer · <b>'+s.textContent+'</b>';
-    phMsg('📅 Booked your <b>3B strategy call</b> — '+s.textContent+'. We’ll pull your MyFICO 3-bureau report together and walk you + your partner through the full plan.','me');
+    $('bookStatus').innerHTML='✅ 3B + closer call booked — '+nm+' + partner + Client Success + closer · <b>'+when+'</b>';
+    phMsg('📅 Booked your <b>3B strategy call</b> — '+when+'. We’ll pull your MyFICO 3-bureau report together and walk you + your partner through the full plan.','me');
   }
-  toast('Booked 3B — '+s.textContent);
-});
+  toast('Booked 3B — '+when);
+}
+renderCalDates();
+
+/* payment plans — rep picks the tier before sending the link */
+const PLANS={
+  monthly:{label:'Monthly', desc:'EPIC LIFE · <b>$500 setup + $300/mo</b>', short:'$500 setup + $300/mo', link:'pay.tla.co/r/epic-mo'},
+  annual:{label:'Annual', desc:'EPIC LIFE Annual · <b>$500 setup + $3,000/yr</b>', short:'$500 setup + $3,000/yr', link:'pay.tla.co/r/epic-yr'},
+  pro:{label:'Pro', desc:'EPIC LIFE Pro · <b>$9,700/yr</b>', short:'$9,700/yr', link:'pay.tla.co/r/epic-pro'}
+};
+let curPlan='monthly';
+function setPlan(p){ curPlan=p; document.querySelectorAll('#planChips .plan').forEach(b=>b.classList.toggle('sel',b.dataset.p===p)); $('planDesc').innerHTML=PLANS[p].desc; }
+document.querySelectorAll('#planChips .plan').forEach(b=>b.onclick=()=>setPlan(b.dataset.p));
+setPlan('monthly');
+
 async function sendPaymentLink(){
   if($('payBtn').disabled){ toast('Payment link already sent'); return; }
   $('payBtn').disabled=true;
-  const nm=curProspectObj().nm;
-  setPay('📲 Link sent to '+nm+'…','');
-  phMsg('💳 Your secure checkout for EPIC LIFE — $500 setup + $300/mo:<br><span class="lk">pay.tla.co/r/4f2a9</span>','me');
+  const nm=curProspectObj().nm, pl=PLANS[curPlan];
+  setPay('📲 '+pl.label+' link sent to '+nm+'…','');
+  phMsg('💳 Your secure checkout for EPIC LIFE '+pl.label+' — '+pl.short+':<br><span class="lk">'+pl.link+'</span>','me');
   await wait(1600); setPay('👀 '+nm+' opened the payment page…','');
-  await wait(2000); setPay('✅ Paid — $500 setup today, $300/mo started','ok');
-  phMsg('<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE — $500 setup + $300/mo started.','ok');
+  await wait(2000); setPay('✅ Paid — '+pl.short+' ('+pl.label+')','ok');
+  phMsg('<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE '+pl.label+' — '+pl.short+'.','ok');
   toast('Payment received 🎉'); bump('s-book');
   try{ setBkMode('closed'); }catch(e){}
 }
