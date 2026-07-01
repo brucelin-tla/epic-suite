@@ -322,6 +322,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .bank-name{font-weight:800;font-size:1rem;margin-bottom:6px}
 .bank-drive,.bank-pitch{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:5px}
 .bank-drive b,.bank-pitch b{color:var(--text)}
+.bank-auto{font-size:.72rem;font-weight:700;color:#7ff0c8;background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.35);border-radius:7px;padding:5px 9px;margin-bottom:8px}
 .mini-cta:hover{border-color:var(--accent)}
 .vid-choices{display:flex;gap:9px}
 .vidbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 10px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700;font-size:.92rem}
@@ -611,6 +612,9 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.17.0',d:'2026-06-30',n:[
+ "The BANK personality on the Close-the-deal card now auto-reads from the conversation — as the prospect talks, it detects whether they're 🔵 Blueprint / 🔴 Action / 🟢 Nurturing / 🟡 Knowledge and highlights it (AI-refined when your 🔑 key is connected). You can still tap any type to override.",
+]},
 {v:'1.16.0',d:'2026-06-30',n:[
  "The version / “what's new” badge moved up to the header (next to the title) so it's easy to spot.",
  "You can move the floating BANT card now — tap ⬅ to dock it to the left side or ⬇ back to the bottom, and ▾ (or the BANT label) to collapse it out of the way. Your choice is remembered.",
@@ -793,6 +797,7 @@ function addTranscript(who,txt){
   const t=$('transcript'); if(t.querySelector('.muted')) t.innerHTML='';
   const d=document.createElement('div'); d.className='tline '+(who==='Renee'?'them':'you');
   d.innerHTML='<span class="who">'+who+':</span> '+txt; t.appendChild(d); t.scrollTop=t.scrollHeight;
+  try{autoBank()}catch(e){}
 }
 function setBant(cell,val,cls){const el=$(cell);el.className='bcell '+cls;el.querySelector('.v').textContent=val; try{renderClose()}catch(e){}}
 function setCloser(stage,hint){$('closer-stage').textContent=stage; if(hint)$('closer-hint').textContent=hint;}
@@ -803,7 +808,7 @@ function setSayFromScript(text){
   if(/^\s*\[/.test(text)) setSay('<span class="qmark">👉</span> Use the rebuttal below — agree, then tell the story.', true);
   else setSay('<span class="qmark">“</span>'+esc(text)+'<span class="qmark">”</span>', true);
 }
-function addNote(txt){const n=$('notes'); if(n.querySelector('.muted'))n.innerHTML=''; const d=document.createElement('div');d.className='n';d.textContent='• '+txt;n.appendChild(d); try{renderClose()}catch(e){}}
+function addNote(txt){const n=$('notes'); if(n.querySelector('.muted'))n.innerHTML=''; const d=document.createElement('div');d.className='n';d.textContent='• '+txt;n.appendChild(d); try{renderClose()}catch(e){} try{autoBank()}catch(e){}}
 function addChip(label,cls,isNew){
   const c=$('chips'); if(c.querySelector('.muted'))c.innerHTML='';
   const s=document.createElement('span'); s.className='chip '+cls;
@@ -838,7 +843,7 @@ const script=[
   {who:'Renee',aud:'audio/p0.mp3',say:"Hey, yeah — you said you'd call me back today.",closer:['Clarify','clarify why she\'s here']},
   {who:'You',text:"I did, appreciate you picking up. Quick one — how's business right now?"},
   {who:'Renee',aud:'audio/p1.mp3',say:"Three trucks, trying to grow, but honestly I worry about protecting what I've built.",
-    bant:['b-need','Growth + protect','ok'], chip:['High intent','pos',false], closer:['Label','label the problem']},
+    bant:['b-need','Growth + protect','ok'], chip:['High intent','pos',false], bank:'B', closer:['Label','label the problem']},
   {who:'You',text:"That gap is exactly what this closes — growth and downside protection in one."},
   {who:'Renee',aud:'audio/p2.mp3',say:"Okay. So what's it run me?"},
   {who:'You',text:"Eight hundred to get started, then three hundred a month."},
@@ -859,6 +864,7 @@ async function applyEffects(s){
   if(s.chip) addChip(s.chip[0],s.chip[1],s.chip[2]);
   if(s.flag) flagAlert(s.flag[0],s.flag[1]);
   if(s.note) addNote(s.note);
+  if(s.bank && !bankManual) pickBank(s.bank, true);
   if(s.obj) showObjection();
   if(s.closer) setCloser(s.closer[0],s.closer[1]);
   if(s.outcome){ document.querySelectorAll('.opt').forEach(o=>{if(o.dataset.o===s.outcome)o.classList.add('sel');}); toast('Co-pilot suggests: Booked'); }
@@ -931,6 +937,8 @@ function clearCallUI(){
   try{ setBkMode('closed'); setPlan('monthly'); }catch(e){}
   phEndCall(); $('phMsgs').innerHTML='<div class="ph-empty">Your thread with the prospect — text or call.</div>';
   convo=[]; smsConvo=[]; heardSignals=[]; nqReason='';
+  bankManual=false; document.querySelectorAll('#bankTypes .bank-t').forEach(function(x){x.classList.remove('sel')});
+  var br=$('bankRead'); if(br) br.innerHTML='<span class="muted" style="font-size:.8rem">Tap the prospect’s dominant type — or it auto-reads from the call.</span>';
   setPhCallBtn(); try{renderClose()}catch(e){}
 }
 /* select a prospect into the cockpit (fresh call surfaces) */
@@ -1106,7 +1114,7 @@ async function closerCoach(note){
   const p=curProspectObj(), stage=$('closer-stage').textContent, co=((p.sub||'').split('·')[0]||'').trim();
   const bant=['b-budget','b-auth','b-need','b-time'].map(id=>$(id).querySelector('.v').textContent).filter(v=>v&&v!=='—').join(' · ')||'nothing yet';
   const hintEl=$('closer-hint'), prevHint=hintEl?hintEl.textContent:''; if(hintEl) hintEl.textContent='coaching…';
-  const sys="You are a live sales-call co-pilot running the CLOSER framework (Clarify → Label → Overview → Sell → Explain → Reinforce). The rep is selling an EPIC LIFE membership (business-growth + financial-protection, built on the MyFICO 3-bureau '3B' credit report / FinFit strategy). Tiers: MONTHLY $800 to start then $300/mo — Capital Access & Debt Protection (Credit Audit, Credit Builder, Personal Debt Exit, Family Income Protection), Commercial Benefits (EPIC LIFE Portal + assigned Coach, Banking Relationship Coaching, Liability Holding Company structuring, Business Insurance Review), live member events. ANNUAL $3,500 to start then $3,000/yr (best value) — adds Personal Credit & Cashflow Management, Personal Debt Paydown, Access to Capital (Personal LOCs & HELOCs). PRO $9,700/yr (premium) — adds full business build-out (agency website, business credit/D-U-N-S/Nav, bookkeeping, tax review) and Real Estate (custom strategy, turnkey & off-market property access, lending vendors). Affordability floor: can they cover ~$300/mo. Current CLOSER stage: "+stage+". Prospect: "+p.nm+" ("+co+"). Qualified so far: "+bant+". The rep just noted what the prospect said. Return ONLY a raw JSON object (no markdown): {\"coach\":\"the exact next line the rep should say — 1 to 2 sentences, in the rep's voice\",\"stage\":\"the CLOSER stage the rep should be in now (advance past the current stage if the note shows it's handled)\",\"why\":\"3-6 word reason\"}.";
+  const sys="You are a live sales-call co-pilot running the CLOSER framework (Clarify → Label → Overview → Sell → Explain → Reinforce). The rep is selling an EPIC LIFE membership (business-growth + financial-protection, built on the MyFICO 3-bureau '3B' credit report / FinFit strategy). Tiers: MONTHLY $800 to start then $300/mo — Capital Access & Debt Protection (Credit Audit, Credit Builder, Personal Debt Exit, Family Income Protection), Commercial Benefits (EPIC LIFE Portal + assigned Coach, Banking Relationship Coaching, Liability Holding Company structuring, Business Insurance Review), live member events. ANNUAL $3,500 to start then $3,000/yr (best value) — adds Personal Credit & Cashflow Management, Personal Debt Paydown, Access to Capital (Personal LOCs & HELOCs). PRO $9,700/yr (premium) — adds full business build-out (agency website, business credit/D-U-N-S/Nav, bookkeeping, tax review) and Real Estate (custom strategy, turnkey & off-market property access, lending vendors). Affordability floor: can they cover ~$300/mo. Current CLOSER stage: "+stage+". Prospect: "+p.nm+" ("+co+"). Qualified so far: "+bant+". The rep just noted what the prospect said. Return ONLY a raw JSON object (no markdown): {\"coach\":\"the exact next line the rep should say — 1 to 2 sentences, in the rep's voice\",\"stage\":\"the CLOSER stage the rep should be in now (advance past the current stage if the note shows it's handled)\",\"why\":\"3-6 word reason\",\"bank\":\"the prospect's likely BANK personality from how they talk — one letter: B (Blueprint: security/structure/proof), A (Action: fast/results-now), N (Nurturing: relationships/family/trust), or K (Knowledge: data/facts/expertise)\"}.";
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{ method:'POST',
       headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -1118,6 +1126,7 @@ async function closerCoach(note){
     if(d.coach) setSay('<span class="qmark">“</span>'+esc(d.coach)+'<span class="qmark">”</span>', true);
     var st=d.stage && CLOSER_STAGES.find(s=>s.toLowerCase()===String(d.stage).toLowerCase().trim());
     if(st){ setCloser(st, d.why||'from your note'); if(st!==stage) toast('CLOSER → '+st); }
+    if(d.bank && !bankManual){ var bk=String(d.bank).toUpperCase().charAt(0); if(BANK[bk]) pickBank(bk,true); }
     else if(hintEl) hintEl.textContent=prevHint;
   }catch(e){ if(hintEl) hintEl.textContent=prevHint; toast('Coach unavailable — check the 🔑 key'); }
 }
@@ -1465,10 +1474,24 @@ const BANK={
  N:{ic:'🟢',name:'Nurturing',drive:'Relationships, people, helping, authenticity — buys from people they trust.',pitch:'Connect first, sell second. Emphasize the community, the assigned coach, how it protects their family. Be real.',close:'“I really want to see you and your family win with this. Let’s get you in — I’ll personally make sure you’re taken care of.”'},
  K:{ic:'🟡',name:'Knowledge',drive:'Data, facts, expertise, competence — wants to be the expert in the room.',pitch:'Bring the numbers. Details, credentials, exactly how the 3B / FinFit strategy works, the ROI. Let them feel smart.',close:'“You’ve seen the numbers and how the strategy works — it’s the logical move. Ready to put it to work?”'}
 };
-function pickBank(b){
+let bankManual=false;
+/* auto-read the prospect's BANK type from how they talk (keyword heuristic; AI refines it when a key is connected) */
+const BANK_KW={
+ B:['process','step','how does it','how it works','proof','guarantee','safe','risk','detail','exactly','structure','plan','cautious','system','secure','protect','careful','make sure','consistent','stable'],
+ A:["let's go",'let’s go','fast','right now','today','excit','opportunit','results','quick','just do it','go for it','jump in','asap','make it happen'],
+ N:['family','team','help','people','trust','relationship','together','care','kids','wife','husband','partner','community','feel','loyal'],
+ K:['data','number','research','compare','expert','roi','study','facts','prove','understand','learn','analy','breakdown','stats','evidence','how much']
+};
+function scoreBank(txt){ txt=(txt||'').toLowerCase(); var s={B:0,A:0,N:0,K:0}; Object.keys(BANK_KW).forEach(function(k){ BANK_KW[k].forEach(function(w){ if(txt.indexOf(w)>=0) s[k]++; }); }); return s; }
+function detectBank(){ var txt=$('transcript').textContent+' '+$('notes').textContent+' '+[].map.call(document.querySelectorAll('#chips .chip'),function(c){return c.textContent;}).join(' ');
+  var s=scoreBank(txt), best=null, bv=0; ['N','B','K','A'].forEach(function(k){ if(s[k]>bv){bv=s[k];best=k;} }); return bv>0?best:null; }
+function autoBank(){ if(bankManual) return; var b=detectBank(); if(b) pickBank(b,true); }
+function pickBank(b, auto){
+  if(!auto) bankManual=true;
   document.querySelectorAll('#bankTypes .bank-t').forEach(x=>x.classList.toggle('sel',x.getAttribute('data-b')===b));
   var d=BANK[b]; if(!d) return;
-  $('bankRead').innerHTML='<div class="bank-name">'+d.ic+' '+d.name+'</div>'+
+  $('bankRead').innerHTML=(auto?'<div class="bank-auto">🔮 Auto-read from the call — tap a type to confirm or change</div>':'')+
+    '<div class="bank-name">'+d.ic+' '+d.name+'</div>'+
     '<div class="bank-drive"><b>Driven by:</b> '+esc(d.drive)+'</div>'+
     '<div class="bank-pitch"><b>How to close them:</b> '+esc(d.pitch)+'</div>'+
     '<div class="cl-say" style="margin-top:8px">'+esc(d.close)+'</div>';
