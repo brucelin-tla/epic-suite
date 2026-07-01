@@ -253,6 +253,10 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .plan-chips{display:flex;gap:5px;margin-bottom:8px}
 .plan{flex:1;padding:7px 4px;font-size:.72rem;font-weight:700;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
 .plan.sel{background:rgba(59,130,246,.18);border-color:var(--blue);color:#bcd4ff}
+.plan-rec{font-size:.76rem;color:#ffd58a;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:7px 10px;margin-bottom:9px}
+.plan-price{font-weight:800;font-size:.98rem;margin-bottom:7px;color:var(--text)}
+.plan-incl{margin:0 0 4px;padding-left:17px;max-height:230px;overflow:auto}
+.plan-incl li{font-size:.77rem;color:var(--text2);margin-bottom:4px;line-height:1.4}
 /* v1.8.0: dock actions open pop-ups (pay tier / booking / video-call platform) */
 .cl-modal.pop-top{z-index:1100}
 .confirm-actions{display:flex;gap:9px;margin-top:15px}
@@ -431,16 +435,17 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 
 <!-- 💳 Collect payment — pops up from the phone dock / close-the-deal -->
 <div id="payPop" class="cl-modal hidden">
-  <div class="cl-box pop-sm">
-    <div class="cl-head"><b>💳 Collect payment</b><span class="cl-x" data-pop-close title="close">✕</span></div>
+  <div class="cl-box pop-md">
+    <div class="cl-head"><b>💳 EPIC LIFE — pick a plan</b><span class="cl-x" data-pop-close title="close">✕</span></div>
     <div class="cl-body">
+      <div id="planRec" class="plan-rec"></div>
       <div class="plan-chips" id="planChips">
         <button class="plan sel" data-p="monthly">Monthly</button>
-        <button class="plan" data-p="annual">Annual</button>
+        <button class="plan" data-p="annual">Annual ★</button>
         <button class="plan" data-p="pro">Pro</button>
       </div>
-      <div class="offer" id="planDesc">EPIC LIFE · <b>$500 setup + $300/mo</b></div>
-      <button id="payBtn" class="paybtn">Send payment link via SMS</button>
+      <div class="offer" id="planDesc"></div>
+      <button id="payBtn" class="paybtn">Text the checkout link</button>
       <div id="payStatus" class="cstatus">No link sent yet.</div>
     </div>
   </div>
@@ -514,6 +519,11 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.12.0',d:'2026-06-30',n:[
+ "Real EPIC LIFE plans + inclusions everywhere. The Pay-link popup is now a mini pitch deck: Monthly ($800 to start, then $300/mo), Annual ($3,500 to start, then $3,000/yr — best value), Pro ($9,700/yr — premium), each with its real what's-included list.",
+ "It suggests the most relevant tier for the prospect — budget-tight → Monthly, real-estate / business build-out cues → Pro, otherwise Annual (best value).",
+ "The CLOSER co-pilot, the AI prospect (voice + text), and the Content picker now all use the real offer — coaching, objections, and content are grounded in the actual product.",
+]},
 {v:'1.11.0',d:'2026-06-30',n:[
  "Mute and No-answer / drop-VM moved onto the phone (next to Call) — the old Voice-on / No-answer button row is gone.",
  "CLOSER co-pilot: type what the prospect said into the live-note box and the AI suggests your exact next line and advances the CLOSER stage for you (needs the 🔑 AI connection).",
@@ -723,8 +733,8 @@ const script=[
     bant:['b-need','Growth + protect','ok'], chip:['High intent','pos',false], closer:['Label','label the problem']},
   {who:'You',text:"That gap is exactly what this closes — growth and downside protection in one."},
   {who:'Renee',aud:'audio/p2.mp3',say:"Okay. So what's it run me?"},
-  {who:'You',text:"Five hundred to set up, then three hundred a month."},
-  {who:'Renee',aud:'audio/p3.mp3',say:"Yeah, I can swing that, that's fine.", bant:['b-budget','$500 + $300 ok','ok'], note:"Comfortable with $500 setup + $300/mo", closer:['Overview','overview past pain']},
+  {who:'You',text:"Eight hundred to get started, then three hundred a month."},
+  {who:'Renee',aud:'audio/p3.mp3',say:"Yeah, I can swing that, that's fine.", bant:['b-budget','$800 to start · $300/mo','ok'], note:"Comfortable with $800 to start + $300/mo", closer:['Overview','overview past pain']},
   {who:'Renee',aud:'audio/p4.mp3',say:"I'll tell you though, the whole industry feels rigged against small operators like me.",
     chip:['Blamer / victim','soft',true], flag:['Blamer / victim',"the whole industry feels rigged against small operators like me"], closer:['Sell','sell the outcome']},
   {who:'You',text:"I hear you — and that's the point, this puts the leverage back on your side."},
@@ -966,7 +976,7 @@ async function closerCoach(note){
   const p=curProspectObj(), stage=$('closer-stage').textContent, co=((p.sub||'').split('·')[0]||'').trim();
   const bant=['b-budget','b-auth','b-need','b-time'].map(id=>$(id).querySelector('.v').textContent).filter(v=>v&&v!=='—').join(' · ')||'nothing yet';
   const hintEl=$('closer-hint'), prevHint=hintEl?hintEl.textContent:''; if(hintEl) hintEl.textContent='coaching…';
-  const sys="You are a live sales-call co-pilot running the CLOSER framework (Clarify → Label → Overview → Sell → Explain → Reinforce). The rep is selling an EPIC LIFE membership: $500 setup + $300/month, a business-growth + financial-protection program built on the MyFICO 3-bureau '3B' credit report / FinFit strategy. Current CLOSER stage: "+stage+". Prospect: "+p.nm+" ("+co+"). Qualified so far: "+bant+". The rep just noted what the prospect said. Return ONLY a raw JSON object (no markdown): {\"coach\":\"the exact next line the rep should say — 1 to 2 sentences, in the rep's voice\",\"stage\":\"the CLOSER stage the rep should be in now (advance past the current stage if the note shows it's handled)\",\"why\":\"3-6 word reason\"}.";
+  const sys="You are a live sales-call co-pilot running the CLOSER framework (Clarify → Label → Overview → Sell → Explain → Reinforce). The rep is selling an EPIC LIFE membership (business-growth + financial-protection, built on the MyFICO 3-bureau '3B' credit report / FinFit strategy). Tiers: MONTHLY $800 to start then $300/mo — Capital Access & Debt Protection (Credit Audit, Credit Builder, Personal Debt Exit, Family Income Protection), Commercial Benefits (EPIC LIFE Portal + assigned Coach, Banking Relationship Coaching, Liability Holding Company structuring, Business Insurance Review), live member events. ANNUAL $3,500 to start then $3,000/yr (best value) — adds Personal Credit & Cashflow Management, Personal Debt Paydown, Access to Capital (Personal LOCs & HELOCs). PRO $9,700/yr (premium) — adds full business build-out (agency website, business credit/D-U-N-S/Nav, bookkeeping, tax review) and Real Estate (custom strategy, turnkey & off-market property access, lending vendors). Affordability floor: can they cover ~$300/mo. Current CLOSER stage: "+stage+". Prospect: "+p.nm+" ("+co+"). Qualified so far: "+bant+". The rep just noted what the prospect said. Return ONLY a raw JSON object (no markdown): {\"coach\":\"the exact next line the rep should say — 1 to 2 sentences, in the rep's voice\",\"stage\":\"the CLOSER stage the rep should be in now (advance past the current stage if the note shows it's handled)\",\"why\":\"3-6 word reason\"}.";
   try{
     const r=await fetch('https://api.anthropic.com/v1/messages',{ method:'POST',
       headers:{'content-type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
@@ -1023,7 +1033,7 @@ function ttsUrl(t){ return 'https://translate.google.com/translate_tts?ie=UTF-8&
 
 let convo=[];
 let smsConvo=[], smsHinted=false;
-const RENEE_SYS = "You are Renee Webb, owner of Webb Logistics (3 trucks), on a live sales call. A rep is selling you an EPIC LIFE membership: $500 setup + $300/month (business growth + financial protection). Stay fully in character: realistic, busy, a little guarded; ask normal questions; raise natural objections (price, needing to talk to your partner, skepticism); warm up if the rep handles you well. Keep every reply to 1-2 short sentences, under 30 words — it will be spoken aloud. You are ALSO the rep's silent sales co-pilot analyzing the call. Reply with ONLY a raw JSON object (no markdown, no backticks): {\"reply\":\"what Renee says out loud\",\"bant\":{\"budget\":\"\",\"authority\":\"\",\"need\":\"\",\"timeline\":\"\"},\"signal\":null,\"objection\":null,\"note\":\"\",\"closer\":\"\",\"coach\":\"\"}. Only fill bant fields you can infer so far; leave the rest empty. Set \"coach\" to ONE short line (under 20 words) the rep should say next to move the sale forward. Set \"signal\" to {\"tag\":\"...\",\"severity\":\"pos|soft|hard\",\"evidence\":\"quote\"} ONLY when she shows a real green/red signal (e.g. coachable, high intent, blamer/victim, can't afford, uncoachable). Set \"objection\" to {\"text\":\"...\",\"agree\":\"...\",\"reframe\":\"...\"} ONLY when she actually objects. Set \"closer\" to the current CLOSER stage (Clarify|Label|Overview|Sell|Explain|Reinforce) or empty.";
+const RENEE_SYS = "You are Renee Webb, owner of Webb Logistics (3 trucks), on a live sales call. A rep is selling you an EPIC LIFE membership ($800 to start, then $300/month; business growth + financial protection — credit building, debt payoff, access to capital). Stay fully in character: realistic, busy, a little guarded; ask normal questions; raise natural objections (price, needing to talk to your partner, skepticism); warm up if the rep handles you well. Keep every reply to 1-2 short sentences, under 30 words — it will be spoken aloud. You are ALSO the rep's silent sales co-pilot analyzing the call. Reply with ONLY a raw JSON object (no markdown, no backticks): {\"reply\":\"what Renee says out loud\",\"bant\":{\"budget\":\"\",\"authority\":\"\",\"need\":\"\",\"timeline\":\"\"},\"signal\":null,\"objection\":null,\"note\":\"\",\"closer\":\"\",\"coach\":\"\"}. Only fill bant fields you can infer so far; leave the rest empty. Set \"coach\" to ONE short line (under 20 words) the rep should say next to move the sale forward. Set \"signal\" to {\"tag\":\"...\",\"severity\":\"pos|soft|hard\",\"evidence\":\"quote\"} ONLY when she shows a real green/red signal (e.g. coachable, high intent, blamer/victim, can't afford, uncoachable). Set \"objection\" to {\"text\":\"...\",\"agree\":\"...\",\"reframe\":\"...\"} ONLY when she actually objects. Set \"closer\" to the current CLOSER stage (Clarify|Label|Overview|Sell|Explain|Reinforce) or empty.";
 
 async function askRenee(key){
   const body={ model:'claude-haiku-4-5-20251001', max_tokens:400, system:RENEE_SYS, messages:convo };
@@ -1167,14 +1177,37 @@ renderCalDates();
 
 /* payment plans — rep picks the tier before sending the link */
 const PLANS={
-  monthly:{label:'Monthly', desc:'EPIC LIFE · <b>$500 setup + $300/mo</b>', short:'$500 setup + $300/mo', link:'pay.tla.co/r/epic-mo', collect:800},
-  annual:{label:'Annual', desc:'EPIC LIFE Annual · <b>$500 setup + $3,000/yr</b>', short:'$500 setup + $3,000/yr', link:'pay.tla.co/r/epic-yr', collect:3500},
-  pro:{label:'Pro', desc:'EPIC LIFE Pro · <b>$9,700/yr</b>', short:'$9,700/yr', link:'pay.tla.co/r/epic-pro', collect:9700}
+  monthly:{label:'Monthly', price:'$800 to start, then $300/mo', short:'$800 to start · $300/mo', link:'pay.tla.co/r/epic-mo', collect:800, tag:'12-mo commitment', incl:[
+    'Credit Audit & Protection Plan','Credit Builder Program','Personal Debt Exit Strategy','Family Income Protection Strategy',
+    'EPIC LIFE Portal + assigned Coach','Banking Relationship Coaching','Liability Holding Company structuring','Business Insurance Review',
+    'Monthly webinars + EPIC Saturday workshops']},
+  annual:{label:'Annual', price:'$3,500 to start, then $3,000/yr', short:'$3,500 to start · $3,000/yr', link:'pay.tla.co/r/epic-yr', collect:3500, tag:'Best value · save $600/yr', incl:[
+    'Everything in Monthly, plus:','5× referral points on every enrollment','Priority support & workshop access','Exclusive annual member events',
+    'Personal Credit & Cashflow Management','Personal Debt Paydown Plan','Access to Capital — Personal LOCs & HELOCs','On-demand video library']},
+  pro:{label:'Pro', price:'$9,700/yr', short:'$9,700/yr (billed annually)', link:'pay.tla.co/r/epic-pro', collect:9700, tag:'Premium', incl:[
+    'Everything in Annual, plus:','Agency website + pro email + business phone','Google Business Profile, D-U-N-S, Nav monitoring','Brand presence + basic SEO',
+    'Business Credit & Cashflow Management','Bookkeeping + Tax Review (business & personal)','Custom Real Estate Strategy','Turnkey & off-market property access','RE lending vendors + deal calculators']}
 };
 let curPlan='monthly';
-function setPlan(p){ curPlan=p; document.querySelectorAll('#planChips .plan').forEach(b=>b.classList.toggle('sel',b.dataset.p===p)); $('planDesc').innerHTML=PLANS[p].desc; }
+function setPlan(p){ curPlan=p; document.querySelectorAll('#planChips .plan').forEach(b=>b.classList.toggle('sel',b.dataset.p===p));
+  var pl=PLANS[p], d=$('planDesc'); if(d) d.innerHTML='<div class="plan-price">'+pl.price+' <span class="muted" style="font-weight:500;font-size:.72rem">· '+pl.tag+'</span></div><ul class="plan-incl">'+pl.incl.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'; }
 document.querySelectorAll('#planChips .plan').forEach(b=>b.onclick=()=>setPlan(b.dataset.p));
 setPlan('monthly');
+
+/* recommend the most relevant tier from what we know about the prospect */
+function recommendTier(){
+  var b=$('b-budget'); if(b.classList.contains('warn')||b.classList.contains('bad')) return 'monthly';
+  var ctx=($('notes').textContent+' '+$('transcript').textContent).toLowerCase();
+  if(/real estate|propert|rental|invest|website|scal|business credit|expand|d-u-n-s|bookkeep|agency/.test(ctx)) return 'pro';
+  return 'annual';
+}
+function openPayPop(){
+  var t=recommendTier(), nm=curProspectObj().nm;
+  var why={monthly:'budget-friendly entry',annual:'best value — fits most owners',pro:'wants the business + real-estate build-out'}[t];
+  setPlan(t);
+  $('planRec').innerHTML='⭐ Suggested for '+esc(nm)+': <b>'+PLANS[t].label+'</b> — '+why;
+  openPop('payPop');
+}
 
 async function sendPaymentLink(){
   if($('payBtn').disabled){ toast('Payment link already sent'); return; }
@@ -1204,7 +1237,7 @@ function phSendRep(html){ phMsg(html,'me'); toast('Text sent 📤'); }
 function openPop(id){ closePops(); const el=$(id); if(el) el.classList.remove('hidden'); }
 function closePops(){ ['payPop','bookPop','videoPop','contentPop'].forEach(id=>{ const el=$(id); if(el) el.classList.add('hidden'); }); }
 function firePhoneQuick(q){
-  if(q==='pay') openPop('payPop');
+  if(q==='pay') openPayPop();
   else if(q==='book') openPop('bookPop');
   else if(q==='content') openPop('contentPop');
   else if(q==='video'||q==='zoom') openPop('videoPop');
@@ -1234,11 +1267,12 @@ document.querySelectorAll('#videoPop .vidbtn').forEach(b=>b.onclick=()=>{ var v=
 
 /* content library — text a piece of content to the prospect */
 const CONTENT=[
- {icon:'🎬', t:'How EPIC LIFE works', s:'2-min explainer video', link:'tla.co/v/epic-intro'},
- {icon:'🎥', t:'Member success story', s:'client testimonial video', link:'tla.co/v/story'},
- {icon:'📄', t:'EPIC LIFE one-pager', s:'what’s included + pricing', link:'tla.co/d/onepager'},
- {icon:'📊', t:'The 3B / FinFit strategy', s:'how the credit foundation works', link:'tla.co/d/3b-strategy'},
- {icon:'📈', t:'Case study — real results', s:'member numbers', link:'tla.co/d/casestudy'}
+ {icon:'🎬', t:'How EPIC LIFE works', s:'2-min overview video', link:'tla.co/v/epic-intro'},
+ {icon:'💳', t:'Plans & pricing', s:'Monthly / Annual / Pro — what each includes', link:'tla.co/d/pricing'},
+ {icon:'🛡️', t:'Capital Access & Debt Protection', s:'Credit Builder · Debt Exit · Family Income Protection', link:'tla.co/d/protection'},
+ {icon:'🏦', t:'Access to Capital', s:'Personal LOCs & HELOCs (Annual+)', link:'tla.co/d/capital'},
+ {icon:'🏢', t:'Business build-out (Pro)', s:'Website · business credit · D-U-N-S · bookkeeping', link:'tla.co/d/business'},
+ {icon:'🏠', t:'Real Estate strategy (Pro)', s:'Turnkey & off-market access + lending vendors', link:'tla.co/d/realestate'}
 ];
 function renderContent(){
   const box=$('contentList'); if(!box) return;
@@ -1255,7 +1289,7 @@ document.querySelectorAll('[data-pop-close]').forEach(x=>x.onclick=closePops);
 /* text the prospect + get a live AI reply (DM sales) */
 function smsSys(){
   const p=curProspectObj(); const co=((p.sub||'').split('·')[0]||'a small business').trim();
-  return "You are "+p.nm+", owner of "+co+", a small business owner. A sales rep from Team Life Academy is TEXTING you about an EPIC LIFE membership ($500 setup + $300/month — business growth + financial protection). Reply exactly as "+p.nm+" would over text: short, casual, realistic, a bit busy and guarded at first; ask normal questions; raise natural objections (price, timing, \"let me think about it\", needing to check with your partner); warm up if the rep handles you well. Keep replies to 1-2 short sentences like a real text. Reply with ONLY your text back — no name labels, no quotes.";
+  return "You are "+p.nm+", owner of "+co+", a small business owner. A sales rep from Team Life Academy is TEXTING you about an EPIC LIFE membership ($800 to start, then $300/month — business growth + financial protection: credit building, debt payoff, access to capital). Reply exactly as "+p.nm+" would over text: short, casual, realistic, a bit busy and guarded at first; ask normal questions; raise natural objections (price, timing, \"let me think about it\", needing to check with your partner); warm up if the rep handles you well. Keep replies to 1-2 short sentences like a real text. Reply with ONLY your text back — no name labels, no quotes.";
 }
 async function prospectTextReply(){
   const key=getKey(); if(!key) return;
