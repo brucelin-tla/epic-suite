@@ -82,10 +82,22 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 #updbar .x{cursor:pointer;opacity:.75;font-weight:400;font-size:1.1rem}
 body{padding-bottom:86px}
 @media(max-width:600px){body{padding-bottom:132px}}
-#bantBar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--bg2);border-top:1px solid var(--border);box-shadow:0 -4px 18px rgba(0,0,0,.5);padding:8px 12px}
-.bb-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:auto 1fr 1fr 1fr 1fr;gap:8px;align-items:stretch}
-.bb-lbl{align-self:center;font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2)}
-@media(max-width:600px){.bb-inner{grid-template-columns:1fr 1fr}.bb-lbl{display:none}}
+#bantBar{position:fixed;z-index:900;background:var(--bg2)}
+#bantBar.dock-bottom{left:0;right:0;bottom:0;border-top:1px solid var(--border);box-shadow:0 -4px 18px rgba(0,0,0,.5);padding:8px 12px}
+#bantBar.dock-bottom .bb-bar{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:10px}
+#bantBar.dock-bottom .bb-cells{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+#bantBar.dock-left{left:0;top:88px;width:196px;border:1px solid var(--border);border-left:none;border-radius:0 12px 12px 0;box-shadow:6px 0 20px rgba(0,0,0,.5);padding:10px}
+#bantBar.dock-left .bb-bar{display:flex;flex-direction:column;gap:8px}
+#bantBar.dock-left .bb-cells{display:grid;grid-template-columns:1fr;gap:6px}
+#bantBar.dock-left .bb-ctl{order:-1;justify-content:flex-end}
+#bantBar.collapsed .bb-cells{display:none}
+#bantBar.dock-bottom.collapsed{padding:5px 12px}
+#bantBar.dock-left.collapsed{width:auto}
+.bb-lbl{font-size:.64rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);white-space:nowrap}
+.bb-ctl{display:flex;gap:5px;flex:0 0 auto}
+.bb-btn{padding:4px 9px;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text2);cursor:pointer;font-size:.8rem;line-height:1;font-weight:700}
+.bb-btn:hover{border-color:var(--accent);color:var(--text)}
+@media(max-width:600px){#bantBar.dock-bottom .bb-cells{grid-template-columns:1fr 1fr}}
 .ph-compose .ph-cbtn{padding:8px 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);cursor:pointer;font-size:.9rem;line-height:1;flex:0 0 auto}
 .ph-compose .ph-cbtn:hover{border-color:var(--accent)}
 .ph-compose .ph-cbtn.on{background:rgba(239,68,68,.22);border-color:var(--red)}
@@ -188,8 +200,10 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .rz.sel{background:rgba(239,68,68,.18);border-color:var(--red);color:#ffb1b1}
 .hidden{display:none!important}
 /* ===== What's new / changelog ===== */
-#ver{cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
-#ver.ver-new{color:#7ff0c8;text-decoration:none;background:rgba(16,185,129,.16);padding:2px 9px;border-radius:999px;font-weight:700;animation:pulseNew 1.7s ease-in-out infinite}
+#ver{cursor:pointer}
+.ver-badge{font-size:.68rem;padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);text-decoration:none}
+.ver-badge:hover{border-color:var(--accent);color:var(--text)}
+#ver.ver-new{color:#7ff0c8;text-decoration:none;background:rgba(16,185,129,.16);border-color:transparent;padding:3px 10px;border-radius:999px;font-weight:700;animation:pulseNew 1.7s ease-in-out infinite}
 @keyframes pulseNew{0%,100%{opacity:1}50%{opacity:.5}}
 .cl-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
 .cl-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);max-width:520px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.5)}
@@ -321,7 +335,8 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 
   <header>
     <div class="brand"><span style="font-size:1.3rem">📞</span><h1>EPIC Closer</h1>
-      <span id="status" class="pill idle">● idle</span></div>
+      <span id="status" class="pill idle">● idle</span>
+      <span id="ver" class="ver-badge muted">v…</span></div>
     <div class="stats">
       <div class="stat"><b id="s-dials">22</b><span>dials</span></div>
       <div class="stat"><b id="s-conn" style="color:var(--accent)">7</b><span>connects</span></div>
@@ -446,17 +461,23 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
       <div class="ph-legend"><b>Hotkeys</b> · <b>P</b> pay · <b>B</b> booking · <b>C</b> content · <b>Z</b> zoom · <b>T</b> text · <b>M</b> mute</div>
     </div>
   </div>
-  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI. <span id="ver" class="muted">v1.1.0</span></div>
+  <div class="hint">Prototype — simulates the live-listening loop for the team demo. Real version: Twilio audio → Deepgram → Claude → this UI.</div>
 </div>
 
 <!-- floating BANT card (pinned bottom) -->
-<div id="bantBar">
-  <div class="bb-inner">
-    <span class="bb-lbl">✅ BANT</span>
-    <div class="bcell" id="b-budget"><div class="k">💰 Budget ▾</div><div class="v">—</div></div>
-    <div class="bcell" id="b-auth"><div class="k">👤 Authority ▾</div><div class="v">—</div></div>
-    <div class="bcell" id="b-need"><div class="k">🎯 Need ▾</div><div class="v">—</div></div>
-    <div class="bcell" id="b-time"><div class="k">⏱️ Timeline ▾</div><div class="v">—</div></div>
+<div id="bantBar" class="dock-bottom">
+  <div class="bb-bar">
+    <span class="bb-lbl" id="bbLbl">✅ BANT</span>
+    <div class="bb-cells" id="bbCells">
+      <div class="bcell" id="b-budget"><div class="k">💰 Budget ▾</div><div class="v">—</div></div>
+      <div class="bcell" id="b-auth"><div class="k">👤 Authority ▾</div><div class="v">—</div></div>
+      <div class="bcell" id="b-need"><div class="k">🎯 Need ▾</div><div class="v">—</div></div>
+      <div class="bcell" id="b-time"><div class="k">⏱️ Timeline ▾</div><div class="v">—</div></div>
+    </div>
+    <span class="bb-ctl">
+      <button id="bbDock" class="bb-btn" title="Move to left">⬅</button>
+      <button id="bbCollapse" class="bb-btn" title="Collapse">▾</button>
+    </span>
   </div>
 </div>
 
@@ -590,6 +611,10 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.16.0',d:'2026-06-30',n:[
+ "The version / “what's new” badge moved up to the header (next to the title) so it's easy to spot.",
+ "You can move the floating BANT card now — tap ⬅ to dock it to the left side or ⬇ back to the bottom, and ▾ (or the BANT label) to collapse it out of the way. Your choice is remembered.",
+]},
 {v:'1.15.0',d:'2026-06-30',n:[
  "Email the prospect from the contact card — tap the ✉️ address to open a draft with one-tap templates: 📄 Proposal (auto-filled with their recommended plan), 📅 Event invite (EPIC Saturday), and 🎮 Play the Entrepreneur Paradise game. Tweak, then send (confirm first).",
  "Close-the-deal is now a BANK personality read — tap the prospect's dominant type (🔵 Blueprint · 🔴 Action · 🟢 Nurturing · 🟡 Knowledge) to see what drives them, how to close them, and a tailored closing line. Removed the duplicate action buttons (they live on the phone).",
@@ -1051,6 +1076,24 @@ function openBantMenu(cellId){
 document.querySelectorAll('.bcell').forEach(cell=>{ cell.onclick=(e)=>{ e.stopPropagation(); openBantMenu(cell.id); }; });
 document.addEventListener('click',()=>{ var m=$('bantMenu'); if(m && !m.classList.contains('hidden')) closeBantMenu(); });
 window.addEventListener('scroll',closeBantMenu,true);
+
+/* ===== floating BANT dock: bottom / left + collapse (rep preference, saved) ===== */
+var bantDock='bottom', bantCollapsed=false;
+try{ bantDock=localStorage.getItem('bant_dock')||'bottom'; bantCollapsed=localStorage.getItem('bant_collapsed')==='1'; }catch(e){}
+function applyDock(){
+  var bb=$('bantBar'); if(!bb) return;
+  bb.className=(bantDock==='left'?'dock-left':'dock-bottom')+(bantCollapsed?' collapsed':'');
+  var isMob=window.matchMedia&&window.matchMedia('(max-width:600px)').matches;
+  document.body.style.paddingBottom=(bantDock==='left')?'18px':(bantCollapsed?'40px':(isMob?'132px':'86px'));
+  var dk=$('bbDock'); if(dk){ dk.textContent=bantDock==='bottom'?'⬅':'⬇'; dk.title=bantDock==='bottom'?'Move to left':'Move to bottom'; }
+  var cl=$('bbCollapse'); if(cl){ cl.textContent=bantCollapsed?'▸':'▾'; cl.title=bantCollapsed?'Expand':'Collapse'; }
+  try{ localStorage.setItem('bant_dock',bantDock); localStorage.setItem('bant_collapsed',bantCollapsed?'1':'0'); }catch(e){}
+}
+$('bbDock').onclick=function(){ bantDock=(bantDock==='bottom'?'left':'bottom'); applyDock(); };
+$('bbCollapse').onclick=function(){ bantCollapsed=!bantCollapsed; applyDock(); };
+$('bbLbl').onclick=function(){ bantCollapsed=!bantCollapsed; applyDock(); };
+window.addEventListener('resize',applyDock);
+applyDock();
 
 /* type-while-talking notes */
 $('noteInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ const t=$('noteInput').value.trim(); if(t){ addNote(t); $('noteInput').value=''; closerCoach(t); } } });
