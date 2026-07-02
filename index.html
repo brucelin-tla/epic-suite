@@ -3,60 +3,71 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPIC Closer — Choose a build</title>
+<title>EPIC Suite — Team Life Academy</title>
 <style>
-:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;
-  --text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--blue:#3b82f6;--radius:14px}
+:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;--text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--red:#ef4444;--blue:#3b82f6;--purple:#a78bfa;--radius:16px}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);
-  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.wrap{max-width:720px;width:100%;text-align:center}
-.logo{font-size:2.6rem;margin-bottom:6px}
-h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.tag{color:var(--text2);font-size:.95rem;margin:6px 0 28px}
+body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+.wrap{max-width:900px;width:100%;text-align:center}
+.logo{font-size:2.4rem;margin-bottom:4px}
+h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tag{color:var(--text2);font-size:.95rem;margin:6px 0 26px}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:560px){.cards{grid-template-columns:1fr}}
-.card{display:block;text-decoration:none;color:var(--text);background:var(--surface);
-  border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;text-align:left;transition:.15s}
-.card:hover{border-color:var(--accent);transform:translateY(-2px)}
-.card.beta:hover{border-color:var(--gold)}
-.badge{font-size:.78rem;font-weight:800;padding:4px 12px;border-radius:999px;display:inline-block;margin-bottom:12px}
-.live .badge{background:rgba(16,185,129,.16);color:#7ff0c8}
-.beta .badge{background:rgba(245,158,11,.16);color:#ffd58a}
-.vt{font-size:1.5rem;font-weight:800;margin-bottom:8px}
-.card p{color:var(--text2);font-size:.85rem;line-height:1.6;margin-bottom:16px;min-height:54px}
-.go{font-weight:700;font-size:.9rem;color:var(--accent)}
-.beta .go{color:var(--gold)}
-.foot{color:var(--muted);font-size:.78rem;margin-top:24px;line-height:1.6}
+@media(max-width:620px){.cards{grid-template-columns:1fr}}
+.card{display:block;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:left;transition:.15s;position:relative}
+.card:hover{transform:translateY(-3px)}
+.card .role{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:10px}
+.card .vt{font-size:1.35rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.card p{color:var(--text2);font-size:.86rem;line-height:1.55;margin-bottom:16px;min-height:64px}
+.go{font-weight:700;font-size:.9rem}
+.card.closer:hover{border-color:var(--accent)}.card.closer .go{color:var(--accent)}
+.card.setter:hover{border-color:var(--gold)}.card.setter .go{color:var(--gold)}
+.card.ref:hover{border-color:var(--blue)}.card.ref .go{color:var(--blue)}
+.card.cs:hover{border-color:var(--purple)}.card.cs .go{color:var(--purple)}
+.card .live{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(16,185,129,.16);color:#7ff0c8}
+.beta{display:inline-block;margin-top:6px;font-size:.72rem;color:var(--muted);text-decoration:none}.beta:hover{color:var(--text2)}
+.foot{color:var(--muted);font-size:.78rem;margin-top:26px;line-height:1.7}
+.flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:.72rem;color:var(--text2)}
+.flow b{color:var(--text)}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="logo">📞</div>
-  <h1>EPIC Closer</h1>
-  <p class="tag">AI calling co-pilot — choose a build to open</p>
+  <div class="logo">⚡</div>
+  <h1>EPIC Suite</h1>
+  <p class="tag">Team Life Academy — one workspace per role, one funnel end-to-end</p>
   <div class="cards">
-    <a class="card live" href="live/">
-      <div class="badge">🟢 Live</div>
-      <div class="vt" id="liveV">v…</div>
-      <p>The stable build the team uses. Reviewed and promoted — safe for demos and sharing.</p>
-      <div class="go">Open Live →</div>
+    <a class="card closer" href="live/">
+      <span class="live">🟢 Live</span>
+      <div class="role">Closer</div>
+      <div class="vt">📞 EPIC Closer</div>
+      <p>Live AI calling co-pilot — work the ranked queue, get the next line, qualify, handle objections, and close on the call.</p>
+      <div class="go">Open Closer →</div>
     </a>
-    <a class="card beta" href="beta/">
-      <div class="badge">🟡 Beta</div>
-      <div class="vt" id="betaV">v…</div>
-      <p>The newest build, under review. May change before it's promoted to Live.</p>
-      <div class="go">Open Beta →</div>
+    <a class="card setter" href="setter/">
+      <div class="role">BDR / Setter</div>
+      <div class="vt">🎯 EPIC Setter</div>
+      <p>Dial the lead list, quick-qualify who's worth a closer's time, and book the strategy appointment straight onto a closer's calendar.</p>
+      <div class="go">Open Setter →</div>
+    </a>
+    <a class="card ref" href="referral/">
+      <div class="role">Member</div>
+      <div class="vt">🤝 Referral Partner</div>
+      <p>Refer the people you care about — warm ones go straight to a closer, cold ones to a setter — and earn referral points as they win.</p>
+      <div class="go">Open Referral →</div>
+    </a>
+    <a class="card cs" href="success/">
+      <div class="role">Client Success</div>
+      <div class="vt">🌟 EPIC Client Success</div>
+      <p>Run the 15-min MyFICO 3-bureau call, onboard members into the EPIC LIFE portal, and loop in the closer on the demo Zoom.</p>
+      <div class="go">Open Client Success →</div>
     </a>
   </div>
-  <div class="foot">Use <b>Live</b> for the team and demos. <b>Beta</b> is the preview Bruce reviews before promoting.</div>
+  <a class="beta" href="beta/">🧪 EPIC Closer — beta build</a>
+  <div class="foot">
+    The EPIC funnel:
+    <div class="flow"><b>Referral / lead</b> → 🎯 <b>Setter</b> books → 📞 <b>Closer</b> closes → 🌟 <b>Client Success</b> onboards</div>
+  </div>
 </div>
-<script>
-  function load(u,el){ fetch(u+'?t='+Date.now(),{cache:'no-store'})
-    .then(function(r){return r.json()}).then(function(j){document.getElementById(el).textContent='v'+j.v})
-    .catch(function(){document.getElementById(el).textContent='—'}); }
-  load('live/version.json','liveV'); load('beta/version.json','betaV');
-</script>
 </body>
 </html>

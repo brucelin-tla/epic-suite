@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPIC Closer — Choose a build</title>
+<style>
+:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;
+  --text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--blue:#3b82f6;--radius:14px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.wrap{max-width:720px;width:100%;text-align:center}
+.logo{font-size:2.6rem;margin-bottom:6px}
+h1{font-size:1.8rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tag{color:var(--text2);font-size:.95rem;margin:6px 0 28px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.cards{grid-template-columns:1fr}}
+.card{display:block;text-decoration:none;color:var(--text);background:var(--surface);
+  border:1px solid var(--border);border-radius:var(--radius);padding:22px 20px;text-align:left;transition:.15s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card.beta:hover{border-color:var(--gold)}
+.badge{font-size:.78rem;font-weight:800;padding:4px 12px;border-radius:999px;display:inline-block;margin-bottom:12px}
+.live .badge{background:rgba(16,185,129,.16);color:#7ff0c8}
+.beta .badge{background:rgba(245,158,11,.16);color:#ffd58a}
+.vt{font-size:1.5rem;font-weight:800;margin-bottom:8px}
+.card p{color:var(--text2);font-size:.85rem;line-height:1.6;margin-bottom:16px;min-height:54px}
+.go{font-weight:700;font-size:.9rem;color:var(--accent)}
+.beta .go{color:var(--gold)}
+.foot{color:var(--muted);font-size:.78rem;margin-top:24px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo">📞</div>
+  <h1>EPIC Closer</h1>
+  <p class="tag">AI calling co-pilot — choose a build to open</p>
+  <div class="cards">
+    <a class="card live" href="live/">
+      <div class="badge">🟢 Live</div>
+      <div class="vt" id="liveV">v…</div>
+      <p>The stable build the team uses. Reviewed and promoted — safe for demos and sharing.</p>
+      <div class="go">Open Live →</div>
+    </a>
+    <a class="card beta" href="beta/">
+      <div class="badge">🟡 Beta</div>
+      <div class="vt" id="betaV">v…</div>
+      <p>The newest build, under review. May change before it's promoted to Live.</p>
+      <div class="go">Open Beta →</div>
+    </a>
+  </div>
+  <div class="foot">Use <b>Live</b> for the team and demos. <b>Beta</b> is the preview Bruce reviews before promoting.</div>
+</div>
+<script>
+  function load(u,el){ fetch(u+'?t='+Date.now(),{cache:'no-store'})
+    .then(function(r){return r.json()}).then(function(j){document.getElementById(el).textContent='v'+j.v})
+    .catch(function(){document.getElementById(el).textContent='—'}); }
+  load('live/version.json','liveV'); load('beta/version.json','betaV');
+</script>
+</body>
+</html>

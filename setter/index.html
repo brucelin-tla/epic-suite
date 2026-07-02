@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPIC Setter — Book appointments for the closers</title>
+<style>
+:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;--text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--red:#ef4444;--blue:#3b82f6;--radius:12px;--radius-sm:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
+.wrap{max-width:1080px;margin:0 auto}
+a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px}
+.brand h1{font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand .sub{font-size:.72rem;color:var(--text2)}
+.stats{display:flex;gap:6px}.stat{text-align:center;padding:4px 11px;background:var(--surface);border-radius:var(--radius-sm)}
+.stat b{font-size:1.05rem;display:block;line-height:1.1}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:12px}
+.lbl{font-size:.66rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.qhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:.82rem}.qhead .m{color:var(--text2);font-size:.72rem}
+.qcard{display:flex;gap:9px;align-items:center;padding:9px 11px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);margin-bottom:7px;cursor:pointer}
+.qcard.active{background:var(--surface2);border-color:var(--gold)}
+.qbody{flex:1;min-width:0}.qname{font-weight:700;font-size:.86rem}.qreason{font-size:.72rem;color:var(--text2)}
+.qsrc{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--bg2);color:var(--text2)}
+.pd-head{display:flex;align-items:center;gap:11px}
+.avatar{width:40px;height:40px;border-radius:50%;background:rgba(245,158,11,.16);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700}
+.nm{font-size:1.05rem;font-weight:700}.psub{font-size:.78rem;color:var(--text2)}
+.pill{margin-left:auto;font-size:.7rem;font-weight:700;padding:4px 11px;border-radius:999px;background:rgba(245,158,11,.15);color:#ffd58a}
+.callinfo{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:var(--text2);margin-top:9px;border-top:1px solid var(--border);padding-top:9px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:.76rem;font-weight:600;padding:7px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
+.chip.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
+.chip.no.sel{background:rgba(239,68,68,.16);border-color:var(--red);color:#ffb1b1}
+.say{font-size:.95rem;line-height:1.5;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:11px 13px}
+.fitbar{margin:9px 0;font-size:.82rem;font-weight:700}
+.fit-hot{color:#7ff0c8}.fit-mid{color:#ffd58a}.fit-no{color:#ffb1b1}
+.book{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.book{grid-template-columns:1fr}}
+.closers{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.closer{padding:7px 11px;font-size:.78rem;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
+.closer.sel{background:rgba(59,130,246,.18);border-color:var(--blue);color:#bcd4ff}
+.cal-dates{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px}
+.cal-date{text-align:center;padding:5px 2px;font-size:.63rem;border-radius:7px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;line-height:1.3}
+.cal-date .dow{display:block;font-weight:800;color:var(--text)}.cal-date.wknd{opacity:.55}
+.cal-date.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}.cal-date.sel .dow{color:#7ff0c8}
+.cal-times{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.cal-time{padding:6px 10px;font-size:.74rem;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
+.cal-time.sel{background:rgba(16,185,129,.18);border-color:var(--accent);color:#7ff0c8}
+.cstatus{font-size:.78rem;color:var(--text2)}.cstatus.ok{color:#7ff0c8;font-weight:600}
+.disp{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.opt{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;font-size:.8rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);cursor:pointer}
+.opt.sel{background:rgba(16,185,129,.15);border-color:var(--accent);color:#7ff0c8}
+kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--text2)}
+.btn{padding:10px 16px;border:none;border-radius:var(--radius-sm);font-weight:800;font-size:.9rem;cursor:pointer;background:var(--gold);color:#1a1200;margin-left:auto}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--gold);color:#ffd58a;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="../">← EPIC Suite</a>
+  <header>
+    <div class="brand"><h1>🎯 EPIC Setter</h1><div class="sub">Book qualified appointments for the closers</div></div>
+    <div class="stats">
+      <div class="stat"><b id="s-dials">18</b><span>dials</span></div>
+      <div class="stat"><b id="s-conv" style="color:var(--gold)">6</b><span>convos</span></div>
+      <div class="stat"><b id="s-set" style="color:var(--accent)">3</b><span>sets</span></div>
+      <div class="stat"><b id="s-queue">54</b><span>queue</span></div>
+    </div>
+  </header>
+
+  <div class="grid">
+    <div>
+      <div class="qhead"><b>Fresh leads</b><span class="m" id="qCount">—</span></div>
+      <div id="queueList"></div>
+    </div>
+
+    <div>
+      <div class="panel">
+        <div class="pd-head">
+          <div class="avatar" id="pAvatar">MB</div>
+          <div style="flex:1"><div class="nm" id="pName">Marcus Bell</div><div class="psub" id="pSub">Bell HVAC · Owner · 📍 Georgia</div></div>
+          <span class="pill" id="pSrc">New lead</span>
+        </div>
+        <div class="callinfo"><span>📞 <b id="pPhone">(404) 555-0119</b></span><span>🕒 <span id="pWhen">form fill 2h ago</span></span></div>
+      </div>
+
+      <div class="panel">
+        <div class="lbl">🗣️ Setter talk-track</div>
+        <div class="say" id="sayLine">"Hey Marcus — you filled out our form about growing the business and protecting what you've built. I set up a quick 20-min strategy call with one of our closers to walk you through it. I've got a couple times this week — what works better?"</div>
+      </div>
+
+      <div class="panel">
+        <div class="lbl">✅ Quick-qualify · is this worth a closer's time?</div>
+        <div class="chips" id="qualChips">
+          <span class="chip" data-q="owner">Owner / decision-maker</span>
+          <span class="chip" data-q="interest">Real interest</span>
+          <span class="chip" data-q="afford">Can afford ~$300/mo</span>
+          <span class="chip no" data-q="tire">Tire-kicker</span>
+        </div>
+        <div class="fitbar" id="fitBar">Tap what you hear — the fit meter updates.</div>
+      </div>
+
+      <div class="panel">
+        <div class="lbl">📅 Book the closer appointment</div>
+        <div class="book">
+          <div>
+            <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px">Assign a closer</div>
+            <div class="closers" id="closers">
+              <button class="closer sel" data-c="Renee (Sr)">Ana — Sr closer</button>
+              <button class="closer" data-c="Marco">Marco</button>
+              <button class="closer" data-c="Next available">Next available</button>
+            </div>
+            <div class="cal-dates" id="calDates"></div>
+            <div class="cal-times" id="calTimes"></div>
+          </div>
+          <div>
+            <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px">Appointment</div>
+            <div id="bookStatus" class="cstatus">Pick a closer, day, and time.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="lbl">Outcome <span style="text-transform:none;letter-spacing:0;color:var(--muted)">· press 1–4, ↵ log &amp; next</span></div>
+        <div class="disp" id="disp">
+          <div class="opt" data-o="set"><kbd>1</kbd> ✅ Appointment set</div>
+          <div class="opt" data-o="callback"><kbd>2</kbd> 🔁 Callback</div>
+          <div class="opt" data-o="nofit"><kbd>3</kbd> 🙅 Not a fit</div>
+          <div class="opt" data-o="noans"><kbd>4</kbd> 📩 No answer</div>
+          <button class="btn" id="nextBtn">Log &amp; Next ↵</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1900);}
+const LEADS=[
+ {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Bell HVAC · Owner · 📍 Georgia',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago'},
+ {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Reyes Salon · Owner · 📍 Arizona',src:'Referral',reason:'Referred by a member',phone:'(602) 555-0132',when:'referred yesterday'},
+ {id:'leilani',ini:'LK',nm:'Leilani Kane',sub:'Kane Bakery · Owner · 📍 Hawaii',src:'New lead',reason:'Webinar signup',phone:'(808) 555-0177',when:'watched the webinar'},
+ {id:'darnell',ini:'DW',nm:'Darnell White',sub:'White Detailing · Owner · 📍 Ohio',src:'Cold list',reason:'Opted-in list',phone:'(614) 555-0155',when:'on the 1,500 list'},
+ {id:'grace',ini:'GT',nm:'Grace Tan',sub:'Tan Consulting · Owner · 📍 Nevada',src:'Ad',reason:'Clicked the ad',phone:'(702) 555-0143',when:'clicked FB ad'}
+];
+let cur=0, qual={}, closer='Ana — Sr closer', calDate=null, calTime=null;
+function renderQueue(){
+  $('queueList').innerHTML=LEADS.map((l,i)=>'<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+'</div></div><span class="qsrc">'+l.src+'</span></div>').join('');
+  document.querySelectorAll('.qcard').forEach(c=>c.onclick=()=>{cur=+c.dataset.i;selectLead();});
+  $('qCount').textContent=LEADS.length+' to work';
+}
+function selectLead(){
+  var l=LEADS[cur]; $('pAvatar').textContent=l.ini; $('pName').textContent=l.nm; $('pSub').textContent=l.sub;
+  $('pSrc').textContent=l.src; $('pPhone').textContent=l.phone; $('pWhen').textContent=l.when;
+  qual={}; document.querySelectorAll('#qualChips .chip').forEach(c=>c.classList.remove('sel'));
+  updateFit(); document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  calDate=null; calTime=null; renderDates(); $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a closer, day, and time.';
+  document.querySelectorAll('.qcard').forEach((c,i)=>c.classList.toggle('active',i===cur));
+}
+function updateFit(){
+  var pos=(qual.owner?1:0)+(qual.interest?1:0)+(qual.afford?1:0), no=qual.tire?1:0;
+  var el=$('fitBar');
+  if(no){ el.className='fitbar fit-no'; el.textContent='🙅 Likely not a fit — don\'t waste the closer\'s time.'; }
+  else if(pos>=2){ el.className='fitbar fit-hot'; el.textContent='🔥 Strong fit — set the appointment.'; }
+  else if(pos>=1){ el.className='fitbar fit-mid'; el.textContent='🟡 Warming — qualify a bit more, then set.'; }
+  else { el.className='fitbar'; el.textContent='Tap what you hear — the fit meter updates.'; }
+}
+document.querySelectorAll('#qualChips .chip').forEach(c=>c.onclick=()=>{ var q=c.dataset.q; qual[q]=!qual[q]; c.classList.toggle('sel',qual[q]); updateFit(); });
+document.querySelectorAll('#closers .closer').forEach(b=>b.onclick=()=>{ document.querySelectorAll('#closers .closer').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); closer=b.dataset.c; maybeBook(); });
+const CAL_TIMES=['9:00 am','10:30 am','1:00 pm','2:30 pm','4:00 pm'];
+function renderDates(){
+  var box=$('calDates'),dows=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],base=new Date(),h='';
+  for(var i=0;i<14;i++){var d=new Date(base.getTime()+i*864e5),g=d.getDay(),md=(d.getMonth()+1)+'/'+d.getDate(),wk=(g===0||g===6)?' wknd':'';h+='<button class="cal-date'+wk+'" data-lbl="'+dows[g]+' '+md+'"><span class="dow">'+dows[g]+'</span>'+md+'</button>';}
+  box.innerHTML=h; $('calTimes').innerHTML='';
+  box.querySelectorAll('.cal-date').forEach(b=>b.onclick=()=>{box.querySelectorAll('.cal-date').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');calDate=b.dataset.lbl;renderTimes();});
+}
+function renderTimes(){ var box=$('calTimes'); box.innerHTML=CAL_TIMES.map(t=>'<button class="cal-time" data-t="'+t+'">'+t+'</button>').join('');
+  box.querySelectorAll('.cal-time').forEach(b=>b.onclick=()=>{box.querySelectorAll('.cal-time').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');calTime=b.dataset.t;maybeBook();}); }
+function maybeBook(){ if(!calDate||!calTime) return; $('bookStatus').className='cstatus ok';
+  $('bookStatus').innerHTML='✅ 20-min strategy call booked with <b>'+closer+'</b> · <b>'+calDate+' · '+calTime+'</b><br><span style="color:var(--text2);font-weight:400">'+LEADS[cur].nm+' + closer · confirmation texted · shows in the closer\'s queue</span>';
+  document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.o==='set')); toast('Appointment set — handed to '+closer);
+}
+document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');});
+function bump(id){$(id).textContent=+$(id).textContent+1;}
+function logNext(){
+  var sel=document.querySelector('.opt.sel'); if(!sel){toast('Pick an outcome (1–4)');return;}
+  bump('s-dials'); if(sel.dataset.o!=='noans')bump('s-conv'); if(sel.dataset.o==='set')bump('s-set');
+  var qn=$('s-queue'); qn.textContent=Math.max(0,+qn.textContent-1);
+  cur=(cur+1)%LEADS.length; selectLead(); toast('Logged ✓ · next lead');
+}
+$('nextBtn').onclick=logNext;
+document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName))return;
+  var m={'1':'set','2':'callback','3':'nofit','4':'noans'};
+  if(m[e.key]){var o=document.querySelector('.opt[data-o="'+m[e.key]+'"]');document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');e.preventDefault();}
+  else if(e.key==='Enter'){logNext();e.preventDefault();}
+});
+renderQueue(); renderDates(); selectLead();
+</script>
+</body>
+</html>
