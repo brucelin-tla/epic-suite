@@ -38,12 +38,14 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
   <p class="tag">Team Life Academy — one workspace per role, one funnel end-to-end</p>
   <div class="cards">
     <a class="card ref" id="card-ref" href="referral/">
+      <span class="live">🟢 Live</span>
       <div class="role">Referral Partner</div>
       <div class="vt">🤝 EPIC Referral Partner</div>
       <p>Refer the people you care about — warm ones go straight to a closer, cold ones to a setter — and earn referral points as they win.</p>
       <div class="go">Open Referral →</div>
     </a>
     <a class="card setter" id="card-setter" href="setter/">
+      <span class="live">🟢 Live</span>
       <div class="role">BDR / Setter</div>
       <div class="vt">🎯 EPIC Setter</div>
       <p>Dial the lead list, quick-qualify who's worth a closer's time, and book the strategy appointment straight onto a closer's calendar.</p>
@@ -57,6 +59,7 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
       <div class="go">Open Closer →</div>
     </a>
     <a class="card cs" id="card-cs" href="success/">
+      <span class="live">🟢 Live</span>
       <div class="role">Client Success</div>
       <div class="vt">🌟 EPIC Client Success</div>
       <p>Run the 15-min MyFICO 3-bureau call, onboard members into the EPIC LIFE portal, and loop in the closer on the demo Zoom.</p>
@@ -100,8 +103,7 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
   function applyMode(){
     var beta=E.isBeta();
     /* Closer card always links to live/ — in the /beta/ mirror that folder holds the beta closer */
-    var b=document.getElementById('closerBadge');
-    if(b){ b.textContent=beta?'🧪 Beta':'🟢 Live'; b.classList.toggle('betabadge',beta); }
+    document.querySelectorAll('.card .live').forEach(function(b){ b.textContent=beta?'🧪 Beta':'🟢 Live'; b.classList.toggle('betabadge',beta); });
     var t=document.querySelector('.tag');
     if(t){ t.innerHTML=beta
       ? "Team Life Academy — 🧪 <b style=\"color:#ffd58a\">beta preview</b> across the suite · tap the chip to return to Live"
