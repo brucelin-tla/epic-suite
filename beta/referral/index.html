@@ -65,14 +65,23 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
   <header>
     <div class="brand"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h1>🤝 EPIC Referral Partner</h1><span id="ver">v…</span></div><div class="sub">Refer people you care about — earn as they win</div></div>
     <div class="stats">
-      <div class="stat"><b id="s-ref">4</b><span>referrals</span></div>
-      <div class="stat"><b id="s-book" style="color:var(--accent)">2</b><span>booked</span></div>
-      <div class="stat"><b id="s-won" style="color:var(--accent)">1</b><span>joined</span></div>
-      <div class="stat"><b id="s-pts" style="color:var(--gold)">1,250</b><span>points</span></div>
+      <div class="stat"><b id="s-ref">—</b><span>referrals</span></div>
+      <div class="stat"><b id="s-book" style="color:var(--accent)">—</b><span>booked</span></div>
+      <div class="stat"><b id="s-won" style="color:var(--accent)">—</b><span>joined</span></div>
+      <div class="stat"><b id="s-pts" style="color:var(--gold)">—</b><span>earned</span></div>
     </div>
   </header>
 
-  <div class="grid">
+  <!-- 🔐 member sign-in (magic link, no password) — shown until a session exists -->
+  <div id="signin" class="panel" style="display:none;max-width:480px;margin:0 auto 12px">
+    <div class="lbl">🔐 Member sign-in</div>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:10px;line-height:1.55">Enter the email you use with Team Life Academy — we'll send you a <b>one-tap sign-in link</b>. No password to remember.</p>
+    <div class="fld"><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
+    <button class="btn" id="authSend">Email me a sign-in link</button>
+    <div id="authMsg" style="font-size:.8rem;color:var(--text2);margin-top:9px;min-height:18px"></div>
+  </div>
+
+  <div class="grid" id="app" style="display:none">
     <div>
       <div class="panel">
         <div class="lbl">➕ Refer someone</div>
@@ -90,7 +99,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
       </div>
       <div class="panel">
         <div class="lbl">🎁 How you earn</div>
-        <div class="rewards">• <b>250 pts</b> when your referral books a call · <b>1,000 pts</b> when they join.<br>• Annual members earn <b>5× referral points</b> on every enrollment.<br>• Points convert to account credit &amp; member perks.</div>
+        <div class="rewards">• <b>$100</b> when a referral you send <b>joins EPIC LIFE</b> — paid from their setup once it clears.<br>• Warm/vetted referrals go straight to a Closer; new names get a friendly call from the team first.<br>• Bonus tiers &amp; points are being finalized — this page will always show your real, up-to-date earnings.</div>
       </div>
     </div>
 
@@ -103,36 +112,103 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
   </div>
 </div>
 <div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* ===== REAL referral system (2026-07-03) — Supabase magic-link auth, real
+   submits via the submit-referral Edge Function, live tracking from the event
+   spine (referrals + deals), real earnings from the commissions ledger. ===== */
 const $=id=>document.getElementById(id);
 function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1900);}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+
 let vet='unvetted';
 const STAGES=['Submitted','Contacted','Booked','Joined'];
-let REFS=[
- {nm:'Priya Shah',rel:'business owner friend',route:'closer',stage:2,pts:250},
- {nm:'Tom Nguyen',rel:'cousin',route:'bdr',stage:1,pts:0},
- {nm:'Alicia Grant',rel:'neighbor',route:'closer',stage:3,pts:1000},
- {nm:'Derek Cole',rel:'gym buddy',route:'bdr',stage:0,pts:0}
-];
 function setVet(v){ vet=v; $('vetYes').classList.toggle('sel',v==='vetted'); $('vetNo').classList.toggle('sel',v==='unvetted');
   $('route').innerHTML=v==='vetted'?'Routing: <b>Vetted → Closer</b> takes it straight to a strategy call.':'Routing: <b>Unvetted → BDR / Setter</b> qualifies them, then books a Closer.'; }
 $('vetYes').onclick=()=>setVet('vetted'); $('vetNo').onclick=()=>setVet('unvetted');
-function renderRefs(){
-  $('refList').innerHTML=REFS.map(r=>'<div class="ref"><div class="top"><span class="rn">'+r.nm+'</span><span class="badge '+(r.route==='closer'?'b-closer':'b-bdr')+'">'+(r.route==='closer'?'→ Closer':'→ BDR')+'</span></div>'+
-    '<div class="meta">'+r.rel+'</div>'+
-    '<div class="track">'+STAGES.map((s,i)=>'<span class="st'+(i<=r.stage?' on':'')+'">'+s+'</span>').join('')+'</div>'+
-    (r.pts?'<div class="pts">+'+r.pts+' pts earned</div>':'')+'</div>').join('');
+setVet('unvetted');
+
+/* deal stage → member-facing tracker: sub=Submitted, book=Booked, close/join=Joined.
+   ("Contacted" lights up once BDR contact events are tracked — future.) */
+function stageIdx(dealStage){ return dealStage==='book'?2 : (dealStage==='close'||dealStage==='join')?3 : 0; }
+
+/* ---- auth ---- */
+async function refreshUI(){
+  const {data:{session}}=await SB.auth.getSession();
+  $('signin').style.display=session?'none':'';
+  $('app').style.display=session?'':'none';
+  if(session) loadData();
 }
-$('submit').onclick=()=>{
-  var nm=$('rName').value.trim(); if(!nm){toast('Add their name');return;}
-  var route=vet==='vetted'?'closer':'bdr';
-  REFS.unshift({nm:nm,rel:$('rRel').value.trim()||'referral',route:route,stage:0,pts:0});
-  $('s-ref').textContent=+$('s-ref').textContent+1;
-  renderRefs();
-  ['rName','rContact','rRel','rNote'].forEach(id=>$(id).value=''); setVet('unvetted');
-  toast(vet==='vetted'?'Sent to a Closer 🎯':'Sent to the BDR team 🤝');
+$('authSend').onclick=async ()=>{
+  const email=($('authEmail').value||'').trim();
+  if(!/.+@.+\..+/.test(email)){ $('authMsg').textContent='Enter a valid email.'; return; }
+  $('authSend').disabled=true; $('authMsg').textContent='Sending…';
+  const {error}=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+  $('authSend').disabled=false;
+  $('authMsg').textContent=error?('Could not send: '+error.message):'📬 Check your email and tap the sign-in link (check spam the first time).';
 };
-setVet('unvetted'); renderRefs();
+SB.auth.onAuthStateChange(()=>{ refreshUI(); });
+
+/* ---- data ---- */
+async function loadData(){
+  try{
+    const [{data:refs,error:rErr},{data:comms}]=await Promise.all([
+      SB.from('referrals').select('id,prospect_name,relationship,route,created_at,deals(id,stage)').order('created_at',{ascending:false}),
+      SB.from('commissions').select('deal_id,amount,status')
+    ]);
+    if(rErr){ toast('Could not load referrals'); return; }
+    const commByDeal={}; (comms||[]).forEach(c=>{ commByDeal[c.deal_id]=c; });
+    let booked=0, joined=0, paid=0, pending=0;
+    const rows=(refs||[]).map(r=>{
+      const deal=(r.deals&&r.deals[0])||null;
+      const idx=deal?stageIdx(deal.stage):0;
+      if(idx>=2) booked++;
+      if(idx>=3) joined++;
+      const c=deal?commByDeal[deal.id]:null;
+      let earn='';
+      if(c){ if(c.status==='paid'){ paid+=Number(c.amount); earn='<div class="pts">✅ $'+c.amount+' paid</div>'; }
+             else if(c.status!=='void'){ pending+=Number(c.amount); if(idx>=3) earn='<div class="pts">⏳ $'+c.amount+' pending payout</div>'; } }
+      return '<div class="ref"><div class="top"><span class="rn">'+esc(r.prospect_name)+'</span><span class="badge '+(r.route==='closer'?'b-closer':'b-bdr')+'">'+(r.route==='closer'?'→ Closer':'→ BDR')+'</span></div>'+
+        '<div class="meta">'+esc(r.relationship||'referral')+'</div>'+
+        '<div class="track">'+STAGES.map((s,i)=>'<span class="st'+(i<=idx?' on':'')+'">'+s+'</span>').join('')+'</div>'+earn+'</div>';
+    });
+    $('refList').innerHTML=rows.length?rows.join(''):'<div style="font-size:.84rem;color:var(--text2);padding:8px 2px">No referrals yet — send your first one from the form. 👈</div>';
+    $('s-ref').textContent=(refs||[]).length; $('s-book').textContent=booked; $('s-won').textContent=joined;
+    $('s-pts').textContent='$'+paid+(pending?(' (+$'+pending+')'):'');
+  }catch(e){ /* network blip — next poll */ }
+}
+
+/* ---- submit ---- */
+$('submit').onclick=async ()=>{
+  const nm=$('rName').value.trim(); if(!nm){toast('Add their name');return;}
+  const contact=$('rContact').value.trim();
+  const body={ prospect_name:nm, relationship:$('rRel').value.trim()||null,
+    route: vet==='vetted'?'closer':'bdr', note:$('rNote').value.trim()||null,
+    prospect_email: contact.includes('@')?contact:null,
+    prospect_phone: contact&&!contact.includes('@')?contact:null };
+  const btn=$('submit'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    const {data,error}=await SB.functions.invoke('submit-referral',{body});
+    if(error||!data||!data.ok){ toast('Could not send — try again'); }
+    else{
+      ['rName','rContact','rRel','rNote'].forEach(id=>$(id).value='');
+      toast(vet==='vetted'?'Sent to a Closer 🎯':'Sent to the team 🤝');
+      setVet('unvetted'); loadData();
+    }
+  }catch(e){ toast('Network error — try again'); }
+  btn.disabled=false; btn.textContent='Submit referral';
+};
+
+/* ---- keep fresh ---- */
+setInterval(()=>{ if($('app').style.display!=='none') loadData(); },30000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshUI(); });
+refreshUI();
+
+/* small sign-out (bottom of the list panel) */
+(function(){ var p=$('refList')&&$('refList').parentElement; if(!p) return;
+  var a=document.createElement('div'); a.innerHTML='<span style="font-size:.72rem;color:var(--muted);cursor:pointer;text-decoration:underline">sign out</span>';
+  a.style.marginTop='10px'; a.onclick=async()=>{ await SB.auth.signOut(); refreshUI(); }; p.appendChild(a); })();
 </script>
 
 <!-- ===== EPIC Suite: beta toggle + What's new (self-contained) ===== -->
@@ -189,6 +265,11 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Referral Partner', SEEN='epic_referral_seen';
   var NOTES=[
+  {v:'2.0.0',d:'2026-07-03',n:[
+   "It's REAL now. Sign in with your member email (one-tap link, no password), submit real referrals from your phone, and track each one through Submitted → Booked → Joined.",
+   "Real earnings: $100 per referral who joins EPIC LIFE, shown live on this page as it moves from pending to paid.",
+   "Demo names are gone — everything on this page is yours.",
+  ]},
   {v:'1.0.1',d:'2026-07-02',n:[
    "Optimized for mobile — bigger tap targets, phone-friendly forms (no zoom-on-tap), and a cleaner one-column layout.",
   ]},
@@ -255,23 +336,15 @@ body{padding-top:46px}
 })();
 </script>
 
-<!-- role leaderboard + your commission (demo) -->
-<script>
-(function(){var w=document.querySelector('.wrap');if(!w)return;
-var TITLE='🏆 Top partners — lead-gen commission this month';
-var YOU='You: $300 earned · 3 joined · Partner tier · $100 per referral who joins';
-var B=[{n:'Maria Lopez',s:'3 sourced',p:'$300'},{n:'Sofia Reyes',s:'2 sourced',p:'$200'},{n:'James Cole',s:'1 sourced',p:'$100'}];
-var p=document.createElement('div');p.className='panel';p.style.marginTop='12px';
-p.innerHTML='<div class="lbl">'+TITLE+'</div>'+B.map(function(l,i){return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="width:20px;height:20px;border-radius:50%;'+(i===0?'background:rgba(245,158,11,.2);color:var(--gold)':'background:var(--bg2);color:var(--text2)')+';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800">'+(i+1)+'</span><div style="flex:1;min-width:0"><b style="font-size:.85rem">'+l.n+'</b> <span style="font-size:.66rem;color:var(--text2)">· '+l.s+'</span></div><span style="font-weight:800;color:#7ff0c8">'+l.p+'</span></div>';}).join('')+'<div style="margin-top:9px;font-size:.76rem;color:var(--gold);font-weight:700">'+YOU+'</div>';
-w.appendChild(p);})();
-</script>
+<!-- (demo leaderboard removed 2026-07-03 — fake $ next to real earnings was
+     misleading; a real leaderboard returns when the commissions ledger has data) -->
 
 <!-- ===== EPIC Suite: update prompt — compares embedded SUITE_BUILD vs the deploy's
      version.json and prompts the rep to refresh past stale cache. Bump SUITE_BUILD
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.25.0'; /*suite-build*/
+  var SUITE_BUILD='1.26.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
