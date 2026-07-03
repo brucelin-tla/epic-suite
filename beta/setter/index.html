@@ -351,5 +351,39 @@ var p=document.createElement('div');p.className='panel';p.style.marginTop='12px'
 p.innerHTML='<div class="lbl">'+TITLE+'</div>'+B.map(function(l,i){return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="width:20px;height:20px;border-radius:50%;'+(i===0?'background:rgba(245,158,11,.2);color:var(--gold)':'background:var(--bg2);color:var(--text2)')+';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800">'+(i+1)+'</span><div style="flex:1;min-width:0"><b style="font-size:.85rem">'+l.n+'</b> <span style="font-size:.66rem;color:var(--text2)">· '+l.s+'</span></div><span style="font-weight:800;color:#7ff0c8">'+l.p+'</span></div>';}).join('')+'<div style="margin-top:9px;font-size:.76rem;color:var(--gold);font-weight:700">'+YOU+'</div>';
 w.appendChild(p);})();
 </script>
+
+<!-- ===== EPIC Suite: update prompt — compares embedded SUITE_BUILD vs the deploy's
+     version.json and prompts the rep to refresh past stale cache. Bump SUITE_BUILD
+     in every tool on every release (it's the suite build, not this tool's version). ===== -->
+<script>
+(function(){
+  var SUITE_BUILD='1.25.0'; /*suite-build*/
+  var FILE=location.protocol==='file:';
+  var REL=FILE?'version.json':'../live/version.json';
+  var bar=null;
+  function show(v){
+    if(bar) return;
+    bar=document.createElement('div');
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#0d2b22;border-top:1px solid #34d399;color:#a7f3d0;font:700 .85rem system-ui,sans-serif';
+    bar.appendChild(document.createTextNode('🔄 New version available.'));
+    var b=document.createElement('button'); b.textContent='Update now';
+    b.style.cssText='background:#34d399;color:#062a1e;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
+    b.onclick=function(){ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
+    var x=document.createElement('span'); x.textContent='✕'; x.title='dismiss';
+    x.style.cssText='cursor:pointer;opacity:.7;padding:0 6px';
+    x.onclick=function(){ bar.remove(); bar=null; };
+    bar.appendChild(b); bar.appendChild(x); document.body.appendChild(bar);
+  }
+  async function check(){
+    try{
+      var r=await fetch(REL+'?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok) return; var j=await r.json();
+      if(j&&j.v&&j.v!==SUITE_BUILD) show(j.v);
+    }catch(e){}
+  }
+  check(); setInterval(check,60000);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
+})();
+</script>
 </body>
 </html>
