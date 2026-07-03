@@ -554,6 +554,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
       <div class="offer" id="bkDesc"></div>
       <div class="cal-dates" id="calDates"></div>
       <div class="cal-times" id="calTimes"></div>
+      <button id="bookRealBtn" class="paybtn hidden" style="margin-top:2px">📅 Open the real 3B calendar (Calendly)</button>
       <div id="bookStatus" class="cstatus">Pick a day in the next 2 weeks, then a time.</div>
     </div>
   </div>
@@ -627,6 +628,12 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.24.0',d:'2026-07-02',n:[
+ "Live Paid status from Stripe. When you open a checkout, the link now carries a per-send reference; the moment the prospect pays, Stripe's webhook records it and your screen flips to ✅ Paid — auto-marking 🏆 Won, ticking Closed + Revenue — without you touching the Stripe dashboard. If the backend isn't deployed yet the poll simply never confirms and you mark Won manually, like before.",
+]},
+{v:'1.23.0',d:'2026-07-02',n:[
+ "Real book + charge — the Closer now fires your LIVE links, not demo ones. 💳 Pay link opens your real Stripe checkout for the chosen tier (Monthly / Annual / Pro) and copies it to send; 📅 Booking opens your real MyFICO 3B Calendly calendar. Important: sending a payment link is NOT a payment — mark 🏆 Won once Stripe confirms the money cleared (a live 'paid' status needs the Stripe webhook, coming with the backend). Flip LIVE_MODE off to demo again.",
+]},
 {v:'1.22.0',d:'2026-07-02',n:[
  "Qualified-booking verification for the BDR's $100. The Setter now qualifies on BANT (Budget + Authority required) plus an intent check (prospect confirmed the slot); a booking only counts as qualified when both clear. The Closer verifies with one tap — ✅ Qualified / 🚫 Not qualified, with AI corroboration of the BANT — and that's what releases or voids the BDR's $100 (voided → rolls to the house). Admin dashboard adds a BDR booking-quality view: qualified-rate, BANT-match, no-shows, verified vs pending.",
 ]},
@@ -1376,16 +1383,62 @@ function confirmBooking(){
 }
 renderCalDates();
 
+/* ===== LIVE links — real destinations so the closer can actually book + charge.
+   No backend: payment is a customer-completed Stripe LINK (PCI-safe), booking is
+   the real Calendly 3B call. Sending a link is NOT a payment — the closer marks
+   🏆 Won once Stripe confirms. Set LIVE_MODE=false to demo (simulated send). ===== */
+const LIVE_MODE = true;
+const LIVE = {
+  book3b: 'https://calendly.com/d/cvbp-8nf-n3s/myfico-3b-call-with-tla',
+  pay: {
+    monthly: 'https://buy.stripe.com/dRm00j93BgjA1GTfVp3wQ00',
+    annual:  'https://buy.stripe.com/dRmcN52Fd8R899l38D3wQ03',
+    pro:     'https://buy.stripe.com/3cI4gz7Zx4ASbhtbF93wQ04'
+  },
+  // paid-status poll → Supabase Edge Function fed by the Stripe webhook.
+  // Publishable key only (browser-safe); truth comes from Stripe, not the client.
+  statusUrl: 'https://widdgynledwpqaqndtvz.supabase.co/functions/v1/payment-status',
+  statusKey: 'sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ'
+};
+function copyLink(u){ try{ navigator.clipboard&&navigator.clipboard.writeText(u); }catch(e){} }
+
+/* Poll payment-status with the checkout's client_reference_id until Stripe
+   confirms (webhook → payments row). Sent → ✅ Paid → auto-Won, live. */
+let payPollId=null;
+function stopPayPoll(){ if(payPollId){ clearInterval(payPollId); payPollId=null; } }
+function startPayPoll(ref, pl, nm){
+  stopPayPoll();
+  var started=Date.now();
+  payPollId=setInterval(async function(){
+    if(Date.now()-started > 45*60*1000){ stopPayPoll(); return; } // give up after 45 min
+    try{
+      var r=await fetch(LIVE.statusUrl+'?ref='+encodeURIComponent(ref),
+        {headers:{apikey:LIVE.statusKey, Authorization:'Bearer '+LIVE.statusKey}});
+      if(!r.ok) return;                    // fn not deployed yet / transient — keep manual flow
+      var j=await r.json();
+      if(j && j.paid){
+        stopPayPoll();
+        setPay('✅ Paid — '+esc(pl.short)+' ('+esc(pl.label)+') · confirmed by Stripe','ok');
+        phMsg('<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE '+pl.label+' — '+pl.short+'.','ok');
+        toast('Payment received 🎉');
+        $('s-closed').textContent=parseInt($('s-closed').textContent,10)+1;
+        revenue+=pl.collect; updateRev();
+        dealPaid=true; try{ selectOutcome('won'); }catch(e){}
+      }
+    }catch(e){ /* network blip — next tick */ }
+  }, 5000);
+}
+
 /* payment plans — rep picks the tier before sending the link */
 const PLANS={
-  monthly:{label:'Monthly', price:'$800 to start, then $300/mo', short:'$800 to start · $300/mo', link:'pay.tla.co/r/epic-mo', collect:800, tag:'12-mo commitment', incl:[
+  monthly:{label:'Monthly', price:'$800 to start, then $300/mo', short:'$800 to start · $300/mo', link:LIVE.pay.monthly, collect:800, tag:'12-mo commitment', incl:[
     'Credit Audit & Protection Plan','Credit Builder Program','Personal Debt Exit Strategy','Family Income Protection Strategy',
     'EPIC LIFE Portal + assigned Coach','Banking Relationship Coaching','Liability Holding Company structuring','Business Insurance Review',
     'Monthly webinars + EPIC Saturday workshops']},
-  annual:{label:'Annual', price:'$3,500 to start, then $3,000/yr', short:'$3,500 to start · $3,000/yr', link:'pay.tla.co/r/epic-yr', collect:3500, tag:'Best value · save $600/yr', incl:[
+  annual:{label:'Annual', price:'$3,500 to start, then $3,000/yr', short:'$3,500 to start · $3,000/yr', link:LIVE.pay.annual, collect:3500, tag:'Best value · save $600/yr', incl:[
     'Everything in Monthly, plus:','5× referral points on every enrollment','Priority support & workshop access','Exclusive annual member events',
     'Personal Credit & Cashflow Management','Personal Debt Paydown Plan','Access to Capital — Personal LOCs & HELOCs','On-demand video library']},
-  pro:{label:'Pro', price:'$9,700/yr', short:'$9,700/yr (billed annually)', link:'pay.tla.co/r/epic-pro', collect:9700, tag:'Premium', incl:[
+  pro:{label:'Pro', price:'$9,700/yr', short:'$9,700/yr (billed annually)', link:LIVE.pay.pro, collect:9700, tag:'Premium', incl:[
     'Everything in Annual, plus:','Agency website + pro email + business phone','Google Business Profile, D-U-N-S, Nav monitoring','Brand presence + basic SEO',
     'Business Credit & Cashflow Management','Bookkeeping + Tax Review (business & personal)','Custom Real Estate Strategy','Turnkey & off-market property access','RE lending vendors + deal calculators']}
 };
@@ -1394,6 +1447,26 @@ function setPlan(p){ curPlan=p; document.querySelectorAll('#planChips .plan').fo
   var pl=PLANS[p], d=$('planDesc'); if(d) d.innerHTML='<div class="plan-price">'+pl.price+' <span class="muted" style="font-weight:500;font-size:.72rem">· '+pl.tag+'</span></div><ul class="plan-incl">'+pl.incl.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'; }
 document.querySelectorAll('#planChips .plan').forEach(b=>b.onclick=()=>setPlan(b.dataset.p));
 setPlan('monthly');
+
+/* LIVE_MODE booking: hide the demo date grid, open the REAL Calendly 3B call. */
+if(LIVE_MODE){
+  ['calDates','calTimes'].forEach(id=>{ var e=$(id); if(e) e.classList.add('hidden'); });
+  var _brb=$('bookRealBtn');
+  if(_brb){
+    _brb.classList.remove('hidden');
+    var _bs=$('bookStatus'); if(_bs) _bs.textContent='Pick the booking type above, then open the calendar.';
+    _brb.onclick=function(){
+      var nm=curProspectObj().nm, cb=(typeof bkMode!=='undefined'&&bkMode==='callback');
+      try{ window.open(LIVE.book3b,'_blank','noopener'); }catch(e){}
+      copyLink(LIVE.book3b);
+      $('bookStatus').className='cstatus ok';
+      $('bookStatus').innerHTML='📅 Opened the real 3B calendar + copied the link — book <b>'+esc(nm)+'</b> in Calendly.';
+      phMsg('📅 Here’s the link to book your <b>MyFICO 3B call</b>:<br><span class="lk">'+esc(LIVE.book3b)+'</span>','me');
+      try{ selectOutcome(cb?'callback':'booked'); }catch(e){}
+      toast('3B calendar opened');
+    };
+  }
+}
 
 /* recommend the most relevant tier from what we know about the prospect */
 function recommendTier(){
@@ -1451,9 +1524,24 @@ function renderClose(){
 renderClose();
 
 async function sendPaymentLink(){
+  const nm=curProspectObj().nm, pl=PLANS[curPlan];
+  if(LIVE_MODE){
+    // Real close: open + copy the real Stripe checkout, tagged with a per-send
+    // reference so the Stripe webhook can flip this screen to ✅ Paid live.
+    // (If the webhook backend isn't deployed yet, the poll just never confirms
+    // and you mark 🏆 Won manually — nothing breaks.)
+    var ref=(crypto.randomUUID?crypto.randomUUID():('ref-'+Date.now()+'-'+Math.random().toString(36).slice(2)));
+    var url=pl.link+(pl.link.indexOf('?')>-1?'&':'?')+'client_reference_id='+ref;
+    try{ window.open(url,'_blank','noopener'); }catch(e){}
+    copyLink(url);
+    phMsg('💳 Your secure checkout for EPIC LIFE '+pl.label+' — '+pl.short+':<br><span class="lk">'+esc(url)+'</span>','me');
+    setPay('💳 '+esc(pl.label)+' checkout opened + copied — send it to '+esc(nm)+'. Watching Stripe for the payment…','');
+    startPayPoll(ref, pl, nm);
+    try{ setBkMode('closed'); }catch(e){}
+    return;
+  }
   if($('payBtn').disabled){ toast('Payment link already sent'); return; }
   $('payBtn').disabled=true;
-  const nm=curProspectObj().nm, pl=PLANS[curPlan];
   setPay('📲 '+pl.label+' link sent to '+nm+'…','');
   phMsg('💳 Your secure checkout for EPIC LIFE '+pl.label+' — '+pl.short+':<br><span class="lk">'+pl.link+'</span>','me');
   await wait(1600); setPay('👀 '+nm+' opened the payment page…','');
@@ -1464,7 +1552,7 @@ async function sendPaymentLink(){
   dealPaid=true; try{ selectOutcome('won'); }catch(e){}
   try{ setBkMode('closed'); }catch(e){}
 }
-$('payBtn').onclick=()=>{ if($('payBtn').disabled){ toast('Payment link already sent'); return; } var pl=PLANS[curPlan], nm=curProspectObj().nm; maybeConfirm(sendPaymentLink,'Send payment link','Text <b>'+esc(nm)+'</b> the <b>'+pl.label+'</b> checkout link — '+pl.short+'?','Send link'); };
+$('payBtn').onclick=()=>{ if(!LIVE_MODE && $('payBtn').disabled){ toast('Payment link already sent'); return; } var pl=PLANS[curPlan], nm=curProspectObj().nm; var msg=LIVE_MODE?('Open the real <b>'+pl.label+'</b> Stripe checkout ('+pl.short+') and copy it to send to <b>'+esc(nm)+'</b>?'):('Text <b>'+esc(nm)+'</b> the <b>'+pl.label+'</b> checkout link — '+pl.short+'?'); maybeConfirm(sendPaymentLink,LIVE_MODE?'Open checkout':'Send payment link',msg,LIVE_MODE?'Open + copy':'Send link'); };
 
 /* ===== Rep phone: call timer + text thread + quick-send dock ===== */
 let callTimerId=null, callSecs=0;
