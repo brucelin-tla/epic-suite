@@ -27,6 +27,13 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .vet button small{display:block;font-weight:400;font-size:.68rem;color:var(--text2);margin-top:2px}
 .vet button.sel{background:rgba(16,185,129,.15);border-color:var(--accent);color:#7ff0c8}
 .vet button.sel small{color:#9fe8cf}
+.bant-wrap{margin-top:11px}
+.bant-wrap .lbl{margin-bottom:7px}
+.bantq{margin-bottom:9px}
+.bantq label{display:block;font-size:.76rem;color:var(--text2);margin-bottom:5px;line-height:1.4}
+.bant{display:flex;gap:6px}
+.bant button{flex:1;padding:8px 4px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:.72rem;font-weight:700;text-align:center}
+.bant button.sel{background:rgba(16,185,129,.15);border-color:var(--accent);color:#7ff0c8}
 .route{font-size:.8rem;margin:10px 0;padding:9px 11px;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text2)}
 .route b{color:var(--text)}
 .btn{width:100%;padding:12px;border:none;border-radius:var(--radius-sm);background:var(--accent);color:#062a1e;font-weight:800;font-size:.92rem;cursor:pointer}
@@ -53,6 +60,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
   .panel{padding:14px}
   .fld input,.fld textarea{font-size:16px;padding:12px}   /* 16px = no iOS zoom */
   .vet{flex-direction:column}.vet button{font-size:.92rem;padding:14px}
+  .bant button{font-size:.8rem;padding:11px 4px}
   .btn{padding:15px;font-size:1.02rem}
   .rewards{font-size:.86rem}.ref .rn{font-size:.95rem}
   .track .st{font-size:.62rem;padding:5px 2px}
@@ -93,7 +101,18 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
           <button id="vetYes" data-v="vetted">✅ Yes — they're interested<small>Warm / vetted → straight to a Closer</small></button>
           <button id="vetNo" class="sel" data-v="unvetted">🤝 Not yet — just a name<small>Unvetted → a Setter reaches out first</small></button>
         </div>
-        <div class="fld" style="margin-top:11px"><label>Anything the team should know? (optional)</label><textarea id="rNote" rows="3" placeholder="what they do, what they're struggling with, best time to reach them…"></textarea></div>
+        <div class="bant-wrap">
+          <div class="lbl">🎯 Quick read (optional) — helps the team prep. "Don't know" is a totally fine answer.</div>
+          <div class="bantq"><label>Could they afford this right now?</label>
+            <div class="bant" data-k="budget"><button data-v="yes">Yes</button><button data-v="no">No</button><button data-v="unk">Don't know</button></div></div>
+          <div class="bantq"><label>Are they the one who'd make this call — on their own or with a partner?</label>
+            <div class="bant" data-k="authority"><button data-v="yes">Yes</button><button data-v="no">No</button><button data-v="unk">Don't know</button></div></div>
+          <div class="bantq"><label>Do they actually need help with credit, debt, or business finances?</label>
+            <div class="bant" data-k="need"><button data-v="yes">Yes</button><button data-v="no">No</button><button data-v="unk">Don't know</button></div></div>
+          <div class="bantq"><label>Would they want to start soon — not just "maybe someday"?</label>
+            <div class="bant" data-k="timeline"><button data-v="yes">Yes</button><button data-v="no">No</button><button data-v="unk">Don't know</button></div></div>
+        </div>
+        <div class="fld" style="margin-top:11px"><label>Anything else the team should know? (optional)</label><textarea id="rNote" rows="3" placeholder="what they do, what they're struggling with, best time to reach them…"></textarea></div>
         <div class="route" id="route">Routing: <b>Unvetted → BDR / Setter</b> qualifies them, then books a Closer.</div>
         <button class="btn" id="submit">Submit referral</button>
       </div>
@@ -128,6 +147,18 @@ function setVet(v){ vet=v; $('vetYes').classList.toggle('sel',v==='vetted'); $('
   $('route').innerHTML=v==='vetted'?'Routing: <b>Vetted → Closer</b> takes it straight to a strategy call.':'Routing: <b>Unvetted → BDR / Setter</b> qualifies them, then books a Closer.'; }
 $('vetYes').onclick=()=>setVet('vetted'); $('vetNo').onclick=()=>setVet('unvetted');
 setVet('unvetted');
+
+/* soft pre-qualify (BANT-lite) — optional, informational only, never blocks
+   submission. Untouched = null ("don't know") for that question. */
+const BANT_KEYS=['budget','authority','need','timeline'];
+const softBant={budget:null,authority:null,need:null,timeline:null};
+function resetBant(){ BANT_KEYS.forEach(k=>{ softBant[k]=null; document.querySelectorAll('.bant[data-k="'+k+'"] button').forEach(b=>b.classList.remove('sel')); }); }
+BANT_KEYS.forEach(k=>{
+  document.querySelectorAll('.bant[data-k="'+k+'"] button').forEach(b=>{
+    b.onclick=()=>{ softBant[k]= b.dataset.v==='yes'?true : b.dataset.v==='no'?false : null;
+      b.parentElement.querySelectorAll('button').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); };
+  });
+});
 
 /* deal stage → member-facing tracker: sub=Submitted, book=Booked, close/join=Joined.
    ("Contacted" lights up once BDR contact events are tracked — future.) */
@@ -185,6 +216,7 @@ $('submit').onclick=async ()=>{
   const contact=$('rContact').value.trim();
   const body={ prospect_name:nm, relationship:$('rRel').value.trim()||null,
     route: vet==='vetted'?'closer':'bdr', note:$('rNote').value.trim()||null,
+    soft_bant: softBant,
     prospect_email: contact.includes('@')?contact:null,
     prospect_phone: contact&&!contact.includes('@')?contact:null };
   const btn=$('submit'); btn.disabled=true; btn.textContent='Sending…';
@@ -193,6 +225,7 @@ $('submit').onclick=async ()=>{
     if(error||!data||!data.ok){ toast('Could not send — try again'); }
     else{
       ['rName','rContact','rRel','rNote'].forEach(id=>$(id).value='');
+      resetBant();
       toast(vet==='vetted'?'Sent to a Closer 🎯':'Sent to the team 🤝');
       setVet('unvetted'); loadData();
     }
@@ -265,6 +298,9 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Referral Partner', SEEN='epic_referral_seen';
   var NOTES=[
+  {v:'2.1.0',d:'2026-07-03',n:[
+   "New: a quick, optional \"read\" on the person you're referring — 4 simple yes/no/don't-know questions that help the team prep before they reach out. \"Don't know\" is a totally fine answer and never holds up your referral.",
+  ]},
   {v:'2.0.0',d:'2026-07-03',n:[
    "It's REAL now. Sign in with your member email (one-tap link, no password), submit real referrals from your phone, and track each one through Submitted → Booked → Joined.",
    "Real earnings: $100 per referral who joins EPIC LIFE, shown live on this page as it moves from pending to paid.",
@@ -344,7 +380,7 @@ body{padding-top:46px}
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.26.0'; /*suite-build*/
+  var SUITE_BUILD='1.27.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
