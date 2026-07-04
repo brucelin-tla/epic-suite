@@ -340,6 +340,59 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 </style>
 </head>
 <body>
+<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
+     magic-link mechanism as EPIC Referral Partner. Blocks this tool until a
+     real session exists; the client-side EPICBETA code below is a build
+     toggle, not identity — this is the actual security layer. ===== -->
+<style>
+#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
+#epicAuthGate.hidden{display:none}
+.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
+.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
+.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
+.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
+.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
+#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
+</style>
+<div id="epicAuthGate" class="hidden">
+  <div class="epic-auth-box">
+    <h2>🔐 Sign in</h2>
+    <p>Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. No password needed.</p>
+    <input id="epicAuthEmail" type="email" placeholder="you@email.com" autocomplete="email">
+    <button id="epicAuthSend">Email me a sign-in link</button>
+    <div class="epic-auth-msg" id="epicAuthMsg"></div>
+  </div>
+</div>
+<span id="epicSignOut" style="display:none">sign out</span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  async function refresh(){
+    wrapEl=wrapEl||document.querySelector('.wrap');
+    var r=await SB.auth.getSession(), session=r.data.session;
+    gate.classList.toggle('hidden', !!session);
+    if(wrapEl) wrapEl.style.visibility=session?'visible':'hidden';
+    signOutBtn.style.display=session?'':'none';
+    if(session && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+  }
+  document.getElementById('epicAuthSend').onclick=async function(){
+    var email=(document.getElementById('epicAuthEmail').value||'').trim();
+    var msg=document.getElementById('epicAuthMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('epicAuthSend'); btn.disabled=true; msg.textContent='Sending…';
+    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+    btn.disabled=false;
+    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
+  };
+  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
 <div class="wrap">
 
   <a href="../" class="back">← EPIC Suite</a> <button type="button" id="epicSuggBtn" class="epic-sugg-btn" style="display:none">💡 Suggest an improvement</button>
@@ -634,6 +687,12 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.28.0',d:'2026-07-04',n:[
+ "Real sign-in everywhere. Setter, Closer, Client Success, and Admin now require the same one-tap email sign-in Referral Partner already had — no more shared demo codes.",
+ "Setter and Closer now show real Sales Hub leads (booked-call stages for Closer, fresh/needs-follow-up for Setter) instead of demo names, once you're signed in. Closer's scripted practice call stays exactly as-is for training — real leads get a plain live-call mode instead, no fake script.",
+ "Admin: a new Team panel to invite teammates and set their role, and owner-only access (real, not a shared code).",
+ "Real call data pipeline: your actual Zoom/Fathom sales calls now turn into structured data automatically — outcome, objections, next steps — matched to the right lead.",
+]},
 {v:'1.27.0',d:'2026-07-03',n:[
  "Referral Partner: added an optional \"quick read\" on the person you're referring — 4 simple yes/no/don't-know questions (can they afford it, are they the decision-maker, do they actually need this, are they ready soon) to help the team prep. Fully optional — \"don't know\" is a fine answer and never holds up the referral.",
 ]},
@@ -779,7 +838,7 @@ function updateRev(){ var e=$('s-rev'); if(e) e.textContent=fmtRev(revenue); }
 let currentFocus='all', curId=null, curTz='America/New_York', curTzL='ET', hawaiiOnly=false;
 
 /* the book of business — each prospect carries its segments + local time + caller ID */
-const QUEUE=[
+let QUEUE=[
  {id:'renee', ini:'RW', nm:'Renee Webb', sub:'Webb Logistics · Owner · 📍 Florida', reason:'Callback promised today', score:94, seg:['hot','callback'], loc:'📍 Florida', tz:'America/New_York', tzL:'ET', caller:'(305) 555-0142', hist:[
    {d:'Jun 24',t:'📞 Callback — promised to decide by today'},
    {d:'Jun 18',t:'✅ Connected — raised price, wanted to talk to her partner'},
@@ -822,6 +881,74 @@ const FOCUS=[
 function curProspectObj(){ return QUEUE.find(p=>p.id===curId)||QUEUE[0]; }
 function scoreCls(s){ return s>=85?'hi':(s>=75?'mid':'low'); }
 function filteredList(){ return QUEUE.filter(p=>(currentFocus==='all'||p.seg.indexOf(currentFocus)>=0) && (!hawaiiOnly || /Hawaii/.test(p.loc))).slice().sort((a,b)=>b.score-a.score); }
+
+// ── Real Sales Hub leads (2026-07-04): once signed in (real-auth gate above,
+// same pattern as EPIC Referral Partner / EPIC Setter), replace the demo
+// QUEUE with real booked-call prospects — stages 3./5./7. (Discovery Booked,
+// Whale Booked, 3B Report Booked). Setter already handles earlier-funnel
+// stages and no-show recovery; long-tail AE follow-up is its own cadence —
+// neither belongs in Closer's queue.
+//
+// IMPORTANT: the scripted ▶ Start call below (script/runCall/applyEffects)
+// is a fixed demo narrative (fake audio, fake BANT auto-fill) — it always
+// plays the same "Renee" conversation regardless of which prospect is
+// selected. Running it against a REAL prospect would show fabricated
+// dialogue attributed to a real person who never said it (owner-flagged
+// display-truth risk, 2026-07-04). So real leads use runRealCall() instead:
+// a plain connecting/connected call-timer UI with NO scripted transcript,
+// audio, or auto-filled BANT — the rep tracks BANT/signals/notes manually
+// while on their actual phone call. The demo stays fully intact and
+// untouched for training/onboarding (usingRealLeads stays false for it).
+const CLOSER_STAGE_PATTERNS=['3.%','5.%','7.%'];
+let usingRealLeads=false;
+function titleCase(s){ return (s||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
+function initialsFrom(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
+function shortStageLabel(stage){ return (stage||'Sales Hub lead').replace(/^\d+\.?\s*/,''); }
+function formatPhoneDisplay(p){ if(!p) return '—'; var d=p.replace(/\D/g,'').replace(/^1/,''); return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p; }
+async function loadCloserQueue(){
+  try{
+    if(!window.EPIC_SB) throw new Error('Not signed in yet');
+    var orFilter=CLOSER_STAGE_PATTERNS.map(function(p){return 'pipeline_stage.ilike.'+p;}).join(',');
+    var res=await window.EPIC_SB.from('prospects')
+      .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason')
+      .or(orFilter)
+      .order('priority_score',{ascending:false,nullsFirst:false})
+      .order('created_at',{ascending:true})
+      .limit(50);
+    if(res.error) throw new Error(res.error.message);
+    var rows=res.data||[];
+    if(rows.length===0){ usingRealLeads=false; toast('No live booked-call leads yet — showing demo'); return; }
+    QUEUE=rows.map(function(r){
+      var nm=titleCase(r.name);
+      return { id:r.id, ini:initialsFrom(nm), nm:nm,
+        sub:r.priority_reason||('Sales Hub · '+shortStageLabel(r.pipeline_stage)),
+        reason:r.priority_reason||shortStageLabel(r.pipeline_stage),
+        score:r.priority_score||50, seg:['live'], loc:'', tz:'America/Los_Angeles', tzL:'',
+        caller:formatPhoneDisplay(r.phone), hist:[] };
+    });
+    usingRealLeads=true;
+    curId=null; setFocus('all', true);
+    toast('Loaded '+QUEUE.length+' real booked-call leads from Sales Hub');
+  }catch(e){ usingRealLeads=false; toast('Could not load live leads — showing demo'); console.error('loadCloserQueue',e); }
+}
+window.onEpicAuthed=function(){ loadCloserQueue(); };
+async function runRealCall(){
+  const myToken=++runToken;
+  $('status').className='pill live'; $('status').innerHTML='● connecting…';
+  $('callBtn').className='btn end'; $('callBtn').innerHTML='⛔ End'; $('callBtn').disabled=false;
+  phCall('📲 Dialing…','ring');
+  await wait(900); if(myToken!==runToken) return;
+  $('status').innerHTML='🎙️ live — no script, track it yourself';
+  phOnCall();
+  bump('s-dials');
+  try{ setCloser('Manual','no auto-fill — tap BANT/signals/notes as you talk'); }catch(e){}
+  toast('Real call — tap BANT/signals/notes yourself, then log the outcome when done.');
+}
+function endRealCall(){
+  clearCallUI();
+  phEndCall(); phMsg('Call ended','sys');
+  toast('Logged — pick an outcome below and hit Log & Next.');
+}
 
 function pickVoice(){
   const vs=(window.speechSynthesis?speechSynthesis.getVoices():[])||[];
@@ -965,7 +1092,7 @@ async function runCall(){
 }
 function bump(id){$(id).textContent=parseInt($(id).textContent)+1; try{updateMission();}catch(e){}}
 
-$('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; setPhCallBtn(); runCall(); };
+$('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; setPhCallBtn(); if(usingRealLeads){ runRealCall(); } else { runCall(); } };
 function syncMute(){ $('muteBtn').textContent=muted?'🔇 Voice off':'🔊 Voice on'; var pm=$('phMute'); if(pm){ pm.textContent=muted?'🔇':'🔊'; pm.classList.toggle('on',muted); } }
 function toggleMute(){ muted=!muted; if(muted){ if('speechSynthesis'in window)speechSynthesis.cancel(); if(curAudio){try{curAudio.pause()}catch(e){}} } syncMute(); }
 $('muteBtn').onclick=toggleMute;
@@ -1055,7 +1182,7 @@ function resetDemo(){
   try{ updateMission(); }catch(e){}
   toast('Demo reset — ready to start again');
 }
-$('callBtn').onclick=resetDemo;
+$('callBtn').onclick=()=>{ if(usingRealLeads){ endRealCall(); } else { resetDemo(); } };
 
 /* ===== Outcome selection + the sacred log→next loop ===== */
 var outcomeManual=false, dealPaid=false;
@@ -1716,7 +1843,7 @@ $('phInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefau
 
 /* Call / End button on the phone itself */
 function setPhCallBtn(){ var b=$('phCallBtn'); if(!b)return; b.className='ph-callbtn'+(started?' end':''); b.textContent=started?'⛔ End':'📞 Call'; }
-$('phCallBtn').onclick=()=>{ if(started){ resetDemo(); } else { $('startBtn').click(); setPhCallBtn(); } };
+$('phCallBtn').onclick=()=>{ if(started){ if(usingRealLeads){ endRealCall(); } else { resetDemo(); } } else { $('startBtn').click(); setPhCallBtn(); } };
 setPhCallBtn();
 
 /* ===== timezone / quiet-hours guard + caller-ID + daily mission ===== */

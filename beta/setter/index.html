@@ -75,6 +75,62 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 </style>
 </head>
 <body>
+<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
+     magic-link mechanism as EPIC Referral Partner. Blocks this tool until a
+     real session exists; the client-side EPICBETA code below is a build
+     toggle, not identity — this is the actual security layer. Also replaces
+     the interim unauthenticated `setter-queue` Edge Function read (see
+     loadQueue() below): now that there's a real session, the browser reads
+     `prospects` directly — RLS already requires `authenticated`. ===== -->
+<style>
+#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
+#epicAuthGate.hidden{display:none}
+.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
+.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
+.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
+.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
+.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
+#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
+</style>
+<div id="epicAuthGate" class="hidden">
+  <div class="epic-auth-box">
+    <h2>🔐 Sign in</h2>
+    <p>Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. No password needed.</p>
+    <input id="epicAuthEmail" type="email" placeholder="you@email.com" autocomplete="email">
+    <button id="epicAuthSend">Email me a sign-in link</button>
+    <div class="epic-auth-msg" id="epicAuthMsg"></div>
+  </div>
+</div>
+<span id="epicSignOut" style="display:none">sign out</span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  async function refresh(){
+    wrapEl=wrapEl||document.querySelector('.wrap');
+    var r=await SB.auth.getSession(), session=r.data.session;
+    gate.classList.toggle('hidden', !!session);
+    if(wrapEl) wrapEl.style.visibility=session?'visible':'hidden';
+    signOutBtn.style.display=session?'':'none';
+    if(session && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+  }
+  document.getElementById('epicAuthSend').onclick=async function(){
+    var email=(document.getElementById('epicAuthEmail').value||'').trim();
+    var msg=document.getElementById('epicAuthMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('epicAuthSend'); btn.disabled=true; msg.textContent='Sending…';
+    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+    btn.disabled=false;
+    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
+  };
+  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
 <div class="wrap">
   <a class="back" href="../">← EPIC Suite</a> <button type="button" id="epicSuggBtn" class="epic-sugg-btn" style="display:none">💡 Suggest an improvement</button>
   <header>
@@ -83,7 +139,7 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
       <div class="stat"><b id="s-dials">18</b><span>dials</span></div>
       <div class="stat"><b id="s-conv" style="color:var(--gold)">6</b><span>convos</span></div>
       <div class="stat"><b id="s-set" style="color:var(--accent)">3</b><span>sets</span></div>
-      <div class="stat"><b id="s-queue">54</b><span>queue</span></div>
+      <div class="stat"><b id="s-queue">—</b><span>queue</span></div>
     </div>
   </header>
 
@@ -157,20 +213,58 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 <script>
 const $=id=>document.getElementById(id);
 function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1900);}
-const LEADS=[
- {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Bell HVAC · Owner · 📍 Georgia',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago'},
- {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Reyes Salon · Owner · 📍 Arizona',src:'Referral',reason:'Referred by a member',phone:'(602) 555-0132',when:'referred yesterday'},
- {id:'leilani',ini:'LK',nm:'Leilani Kane',sub:'Kane Bakery · Owner · 📍 Hawaii',src:'New lead',reason:'Webinar signup',phone:'(808) 555-0177',when:'watched the webinar'},
- {id:'darnell',ini:'DW',nm:'Darnell White',sub:'White Detailing · Owner · 📍 Ohio',src:'Cold list',reason:'Opted-in list',phone:'(614) 555-0155',when:'on the 1,500 list'},
- {id:'grace',ini:'GT',nm:'Grace Tan',sub:'Tan Consulting · Owner · 📍 Nevada',src:'Ad',reason:'Clicked the ad',phone:'(702) 555-0143',when:'clicked FB ad'}
+// ── Real Sales Hub leads (2026-07-04, real-auth version): reads `prospects`
+// directly with the signed-in member's session (window.EPIC_SB, set by the
+// auth-gate block above) — RLS already requires `authenticated`, so this is
+// a real per-user-gated read, not the earlier interim unauthenticated
+// `setter-queue` Edge Function call. Filtered to early-funnel stages Setter
+// actually works, ordered by `priority_score`. Falls back to a couple of
+// demo cards if the query fails so the page never shows a dead UI.
+const SETTER_STAGE_PATTERNS=['1.%','2.%','4 %','8.%'];
+const DEMO_LEADS=[
+ {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Demo lead — live data unavailable',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago'},
+ {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Demo lead — live data unavailable',src:'Referral',reason:'Referred by a member',phone:'(602) 555-0132',when:'referred yesterday'}
 ];
+let LEADS=DEMO_LEADS;
 let cur=0, qual={}, closer='Ana — Sr closer', calDate=null, calTime=null;
+function initials(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
+function titleCase(name){ return (name||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
+function shortStage(stage){ return (stage||'Sales Hub lead').replace(/^\d+\.?\s*/,''); }
+function formatPhone(p){ if(!p) return '—'; var d=p.replace(/\D/g,'').replace(/^1/,''); return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p; }
+function relTime(iso){ if(!iso) return 'no contact on file'; var days=Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(days<0) return 'just now'; if(days===0) return 'today'; if(days===1) return '1 day ago'; if(days<30) return days+' days ago';
+  var mo=Math.floor(days/30); return mo+(mo===1?' month ago':' months ago'); }
+async function loadQueue(){
+  try{
+    if(!window.EPIC_SB) throw new Error('Not signed in yet');
+    var orFilter=SETTER_STAGE_PATTERNS.map(function(p){return 'pipeline_stage.ilike.'+p;}).join(',');
+    var res=await window.EPIC_SB.from('prospects')
+      .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason')
+      .or(orFilter)
+      .order('priority_score',{ascending:false,nullsFirst:false})
+      .order('created_at',{ascending:true})
+      .limit(50);
+    if(res.error) throw new Error(res.error.message);
+    var rows=res.data||[];
+    if(rows.length===0){ LEADS=DEMO_LEADS; toast('No live Sales Hub leads in queue — showing demo'); }
+    else { LEADS=rows.map(function(r){ var nm=titleCase(r.name); return {
+      id:r.id, ini:initials(nm), nm:nm,
+      sub:r.priority_reason||('Sales Hub · '+shortStage(r.pipeline_stage)),
+      src:shortStage(r.pipeline_stage), reason:r.priority_reason||shortStage(r.pipeline_stage),
+      phone:formatPhone(r.phone), when:relTime(r.last_contact_at)
+    };}); }
+  }catch(e){ LEADS=DEMO_LEADS; toast('Could not load live leads — showing demo'); console.error('loadQueue',e); }
+  cur=0; renderQueue(); selectLead();
+}
+window.onEpicAuthed=function(){ loadQueue(); };
 function renderQueue(){
   $('queueList').innerHTML=LEADS.map((l,i)=>'<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+'</div></div><span class="qsrc">'+l.src+'</span></div>').join('');
   document.querySelectorAll('.qcard').forEach(c=>c.onclick=()=>{cur=+c.dataset.i;selectLead();});
   $('qCount').textContent=LEADS.length+' to work';
+  $('s-queue').textContent=LEADS.length;
 }
 function selectLead(){
+  if(LEADS.length===0){ $('pAvatar').textContent='—'; $('pName').textContent='Queue empty'; $('pSub').textContent='No fresh leads right now — nice work.'; $('pSrc').textContent=''; $('pPhone').textContent='—'; $('pWhen').textContent=''; return; }
   var l=LEADS[cur]; $('pAvatar').textContent=l.ini; $('pName').textContent=l.nm; $('pSub').textContent=l.sub;
   $('pSrc').textContent=l.src; $('pPhone').textContent=l.phone; $('pWhen').textContent=l.when;
   qual={}; document.querySelectorAll('#qualChips .chip').forEach(c=>c.classList.remove('sel'));
@@ -211,8 +305,8 @@ function bump(id){$(id).textContent=+$(id).textContent+1;}
 function logNext(){
   var sel=document.querySelector('.opt.sel'); if(!sel){toast('Pick an outcome (1–4)');return;}
   bump('s-dials'); if(sel.dataset.o!=='noans')bump('s-conv'); if(sel.dataset.o==='set')bump('s-set');
-  var qn=$('s-queue'); qn.textContent=Math.max(0,+qn.textContent-1);
-  cur=(cur+1)%LEADS.length; selectLead(); toast('Logged ✓ · next lead');
+  LEADS.splice(cur,1); if(cur>=LEADS.length)cur=0;
+  renderQueue(); selectLead(); toast('Logged ✓ · next lead');
 }
 $('nextBtn').onclick=logNext;
 document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName))return;
@@ -220,7 +314,7 @@ document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test((document.acti
   if(m[e.key]){var o=document.querySelector('.opt[data-o="'+m[e.key]+'"]');document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');e.preventDefault();}
   else if(e.key==='Enter'){logNext();e.preventDefault();}
 });
-renderQueue(); renderDates(); selectLead();
+renderDates(); renderQueue(); selectLead(); // loadQueue() itself fires from window.onEpicAuthed once signed in
 </script>
 
 <!-- ===== EPIC Suite: beta toggle + What's new (self-contained) ===== -->
@@ -277,6 +371,10 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Setter', SEEN='epic_setter_seen';
   var NOTES=[
+  {v:'1.1.0',d:'2026-07-04',n:[
+   "Real sign-in required (same one-tap email link as Referral Partner) — no more shared beta code for access.",
+   "The queue is now real Sales Hub leads once you're signed in — fresh + needs-follow-up stages, ranked by an AI priority score. Falls back to demo cards only if the live feed can't load.",
+  ]},
   {v:'1.0.1',d:'2026-07-02',n:[
    "Optimized for mobile — bigger tap targets, a full-width Log & Next button, and a cleaner one-column layout.",
   ]},
@@ -359,7 +457,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.27.0'; /*suite-build*/
+  var SUITE_BUILD='1.28.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

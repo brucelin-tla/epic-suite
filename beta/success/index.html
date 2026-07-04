@@ -59,6 +59,59 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 </style>
 </head>
 <body>
+<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
+     magic-link mechanism as EPIC Referral Partner. Blocks this tool until a
+     real session exists; the client-side EPICBETA code below is a build
+     toggle, not identity — this is the actual security layer. ===== -->
+<style>
+#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
+#epicAuthGate.hidden{display:none}
+.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
+.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
+.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
+.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
+.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
+#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
+</style>
+<div id="epicAuthGate" class="hidden">
+  <div class="epic-auth-box">
+    <h2>🔐 Sign in</h2>
+    <p>Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. No password needed.</p>
+    <input id="epicAuthEmail" type="email" placeholder="you@email.com" autocomplete="email">
+    <button id="epicAuthSend">Email me a sign-in link</button>
+    <div class="epic-auth-msg" id="epicAuthMsg"></div>
+  </div>
+</div>
+<span id="epicSignOut" style="display:none">sign out</span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  async function refresh(){
+    wrapEl=wrapEl||document.querySelector('.wrap');
+    var r=await SB.auth.getSession(), session=r.data.session;
+    gate.classList.toggle('hidden', !!session);
+    if(wrapEl) wrapEl.style.visibility=session?'visible':'hidden';
+    signOutBtn.style.display=session?'':'none';
+    if(session && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+  }
+  document.getElementById('epicAuthSend').onclick=async function(){
+    var email=(document.getElementById('epicAuthEmail').value||'').trim();
+    var msg=document.getElementById('epicAuthMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('epicAuthSend'); btn.disabled=true; msg.textContent='Sending…';
+    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+    btn.disabled=false;
+    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
+  };
+  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
 <div class="wrap">
   <a class="back" href="../">← EPIC Suite</a> <button type="button" id="epicSuggBtn" class="epic-sugg-btn" style="display:none">💡 Suggest an improvement</button>
   <header>
@@ -209,6 +262,9 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Client Success', SEEN='epic_success_seen';
   var NOTES=[
+  {v:'1.1.0',d:'2026-07-04',n:[
+   "Real sign-in required (same one-tap email link as Referral Partner) — no more shared beta code for access.",
+  ]},
   {v:'1.0.0',d:'2026-07-01',n:[
    "Run the 15-minute MyFICO 3-bureau (3B) call with a guided checklist — log in, pull all 3 scores, review the key factors, and save the report to their EPIC LIFE portal.",
    "Two paths handled: closed members go straight to onboarding; not-yet-closed members get the 3B pull, then you loop the senior closer onto the Zoom to close.",
@@ -288,7 +344,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.27.0'; /*suite-build*/
+  var SUITE_BUILD='1.28.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

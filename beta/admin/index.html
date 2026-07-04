@@ -73,6 +73,82 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 </style>
 </head>
 <body>
+<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
+     magic-link mechanism as EPIC Referral Partner, PLUS the existing admin
+     code as a second factor (this page had ZERO protection of its own before
+     this — the hub's EPICADMIN prompt only gated the link to get here, it set
+     `epic_admin` in localStorage but nothing ever checked it on this page).
+     Real per-user role gating (profiles.role='owner') is the natural next
+     step once Bruce has signed in once and a profiles row exists for him. ===== -->
+<style>
+#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
+#epicAuthGate.hidden{display:none}
+.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
+.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
+.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
+.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
+.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
+.epic-auth-box a.epic-hub-link{display:inline-block;margin-top:6px;font-size:.82rem;color:#253984;font-weight:700}
+#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
+</style>
+<div id="epicAuthGate" class="hidden">
+  <div class="epic-auth-box" id="epicAuthStep1">
+    <h2>🔐 Sign in</h2>
+    <p>Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. No password needed.</p>
+    <input id="epicAuthEmail" type="email" placeholder="you@email.com" autocomplete="email">
+    <button id="epicAuthSend">Email me a sign-in link</button>
+    <div class="epic-auth-msg" id="epicAuthMsg"></div>
+  </div>
+  <div class="epic-auth-box" id="epicAuthStep2" style="display:none">
+    <h2>🔒 Owner access only</h2>
+    <p>You're signed in, but this account isn't set up as an owner. EPIC Suite's admin dashboard is restricted to the owner — ask Bruce if you think this is wrong.</p>
+  </div>
+</div>
+<span id="epicSignOut" style="display:none">sign out</span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  // 2026-07-04: replaced the EPICADMIN localStorage code with a REAL
+  // per-user check — profiles.role==='owner' (RLS-backed: profiles_select_
+  // self_or_owner lets you read your own row; is_owner() gates everything
+  // else). Bruce's own account (brucelin@teamlifeacademy.com) needs a
+  // profiles row with role='owner' inserted once he's signed in here at
+  // least once — see the "Team" panel below for managing everyone else.
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  var step1=document.getElementById('epicAuthStep1'), step2=document.getElementById('epicAuthStep2');
+  async function isOwner(session){
+    if(!session) return false;
+    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+    return !!(r.data && r.data.role==='owner');
+  }
+  async function refresh(){
+    wrapEl=wrapEl||document.querySelector('.wrap');
+    var r=await SB.auth.getSession(), session=r.data.session;
+    var authorized=await isOwner(session);
+    gate.classList.toggle('hidden', authorized);
+    step1.style.display=session?'none':'';
+    step2.style.display=(session&&!authorized)?'':'none';
+    if(wrapEl) wrapEl.style.visibility=authorized?'visible':'hidden';
+    signOutBtn.style.display=session?'':'none';
+    if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+  }
+  document.getElementById('epicAuthSend').onclick=async function(){
+    var email=(document.getElementById('epicAuthEmail').value||'').trim();
+    var msg=document.getElementById('epicAuthMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('epicAuthSend'); btn.disabled=true; msg.textContent='Sending…';
+    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+    btn.disabled=false;
+    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
+  };
+  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
 <div class="wrap">
   <a class="back" href="../">← EPIC Suite</a>
   <header>
@@ -127,15 +203,107 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
       <div class="panel">
         <div class="lbl">💡 Latest suggestions</div>
         <div id="suggestions"></div>
-        <div class="note">Samples — live feed wires to Supabase (<code>epic_suggestions</code>) once admin auth is added.</div>
+        <div class="note">Samples — live feed wires to Supabase (<code>epic_suggestions</code>) as a follow-up; admin auth (below) is done.</div>
+      </div>
+      <div class="panel">
+        <div class="lbl">👥 Team — emails &amp; roles</div>
+        <div id="teamList" class="note">Loading…</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:11px;align-items:end">
+          <div><label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Email</label>
+            <input id="teamEmail" type="email" placeholder="name@email.com" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border);box-sizing:border-box"></div>
+          <div><label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Role</label>
+            <select id="teamRole" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border)">
+              <option value="rep">rep</option><option value="bdr">bdr</option><option value="closer">closer</option>
+              <option value="cs">cs</option><option value="partner">partner</option><option value="owner">owner</option>
+            </select></div>
+          <button id="teamInviteBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--accent,#253984);color:#fff;white-space:nowrap">Invite</button>
+        </div>
+        <div class="note" id="teamMsg" style="margin-top:8px"></div>
+      </div>
+      <div class="panel">
+        <div class="lbl">📞 Fathom call sync — real calls → real data</div>
+        <div class="note">One-time setup: Register the webhook once (after adding <code>FATHOM_API_KEY</code> as a project secret), copy the returned secret into <code>FATHOM_WEBHOOK_SECRET</code>, then Run backfill — safe to click again anytime, already-processed calls are skipped.</div>
+        <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
+          <button id="fathomRegisterBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--surface2,#F0F1F5);color:var(--text,#121826)">1 · Register webhook</button>
+          <button id="fathomSyncBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--accent,#253984);color:#fff">2 · Run backfill</button>
+        </div>
+        <div class="note" id="fathomMsg" style="margin-top:10px;white-space:pre-wrap"></div>
       </div>
     </div>
   </div>
 
   <div class="foot">
-    🔒 <b>Prototype access.</b> Unlocked by a client-side admin code — fine for a demo, <b>not real security</b>. For production, gate with Supabase Auth (owner role) so live funnel, commission and suggestion data read securely per-account. Commission figures here are illustrative.
+    🔐 <b>Real owner-only access (2026-07-04).</b> Gated by Supabase Auth + a <code>profiles.role='owner'</code> check — not a shared code anymore. Manage who else gets in from the Team panel above. Commission figures elsewhere on this page are still illustrative pending live data wiring.
   </div>
 </div>
+<script>
+(function(){
+  var ROLE_OPTS=['owner','rep','bdr','closer','cs','partner'];
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  async function loadTeam(){
+    var box=document.getElementById('teamList');
+    var r=await window.EPIC_SB.from('profiles').select('id,email,role,created_at').order('created_at',{ascending:true});
+    if(r.error){ box.textContent='Could not load team: '+r.error.message; return; }
+    var rows=r.data||[];
+    if(rows.length===0){ box.innerHTML='No team members yet — invite the first one below.'; return; }
+    box.innerHTML=rows.map(function(m){
+      var opts=ROLE_OPTS.map(function(o){return '<option value="'+o+'"'+(o===m.role?' selected':'')+'>'+o+'</option>';}).join('');
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+
+        '<span style="flex:1;font-size:.85rem">'+esc(m.email)+'</span>'+
+        '<select data-id="'+m.id+'" class="teamRoleSel" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border)">'+opts+'</select>'+
+        '</div>';
+    }).join('');
+    document.querySelectorAll('.teamRoleSel').forEach(function(sel){
+      sel.onchange=async function(){
+        var id=sel.getAttribute('data-id'), role=sel.value;
+        var r2=await window.EPIC_SB.from('profiles').update({role:role}).eq('id',id);
+        document.getElementById('teamMsg').textContent=r2.error?('Could not update: '+r2.error.message):('Updated to '+role+'.');
+      };
+    });
+  }
+  document.getElementById('teamInviteBtn').onclick=async function(){
+    var email=(document.getElementById('teamEmail').value||'').trim();
+    var role=document.getElementById('teamRole').value;
+    var msg=document.getElementById('teamMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('teamInviteBtn'); btn.disabled=true; msg.textContent='Inviting…';
+    try{
+      var r=await window.EPIC_SB.functions.invoke('admin-invite',{body:{email:email,role:role}});
+      if(r.error || !r.data || !r.data.ok){ msg.textContent='Could not invite: '+((r.data&&r.data.error)||r.error||'unknown error'); }
+      else { msg.textContent='✅ Invited '+email+' as '+role+' — they\'ll get a Supabase invite email.'; document.getElementById('teamEmail').value=''; loadTeam(); }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
+  var FATHOM_WEBHOOK_URL='https://widdgynledwpqaqndtvz.supabase.co/functions/v1/fathom-webhook';
+  document.getElementById('fathomRegisterBtn').onclick=async function(){
+    var msg=document.getElementById('fathomMsg'); var btn=this; btn.disabled=true; msg.textContent='Registering…';
+    try{
+      var r=await window.EPIC_SB.functions.invoke('fathom-backfill',{body:{action:'register_webhook',destination_url:FATHOM_WEBHOOK_URL}});
+      if(r.error || !r.data || !r.data.ok){ msg.textContent='Could not register: '+JSON.stringify((r.data&&(r.data.error||r.data.detail))||r.error||'unknown error'); }
+      else { msg.textContent='✅ Webhook registered.\n\nCopy this secret and add it as the FATHOM_WEBHOOK_SECRET project secret (Supabase Dashboard → Edge Functions → Secrets):\n\n'+(r.data.webhook&&r.data.webhook.secret||'(no secret in response — check r.data.webhook)')+'\n\nUntil that secret is set, incoming calls will be rejected (signature check fails closed, by design).'; }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
+  var fathomCursor=null;
+  document.getElementById('fathomSyncBtn').onclick=async function(){
+    var msg=document.getElementById('fathomMsg'); var btn=this; btn.disabled=true; msg.textContent='Scanning your Fathom recordings…';
+    try{
+      var body=fathomCursor?{cursor:fathomCursor}:{};
+      var r=await window.EPIC_SB.functions.invoke('fathom-backfill',{body:body});
+      if(r.error || !r.data || !r.data.ok){ msg.textContent='Could not sync: '+JSON.stringify((r.data&&r.data.error)||r.error||'unknown error'); }
+      else {
+        var d=r.data; fathomCursor=d.next_cursor||null;
+        msg.textContent='Scanned '+d.scanned+' · processed '+d.processed+' ('+d.processed_but_unmatched_to_a_prospect+' not matched to a known prospect) · already done '+d.skipped_already_done+
+          (d.errors&&d.errors.length?'\nErrors:\n'+d.errors.join('\n'):'')+
+          '\n\n'+(fathomCursor?'More remain — click "Run backfill" again to continue from where this left off.':'✅ Backlog fully scanned.');
+        btn.textContent=fathomCursor?'2 · Run backfill (continue)':'2 · Run backfill';
+      }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
+  window.onEpicAuthed=function(){ loadTeam(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
+})();
+</script>
 <script>
 const $=id=>document.getElementById(id);
 /* ===== commission model ===== */
@@ -213,7 +381,7 @@ $('suggestions').innerHTML=SUGGESTIONS.map(s=>'<div class="sug"><div class="r">'
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.27.0'; /*suite-build*/
+  var SUITE_BUILD='1.28.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
