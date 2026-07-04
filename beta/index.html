@@ -4,27 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EPIC Suite — Team Life Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;--text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--red:#ef4444;--blue:#3b82f6;--purple:#a78bfa;--radius:16px}
+:root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:16px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
 .wrap{max-width:900px;width:100%;text-align:center}
 .logo{font-size:2.4rem;margin-bottom:4px}
-h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--accent)}
 .tag{color:var(--text2);font-size:.95rem;margin:6px 0 26px}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:620px){.cards{grid-template-columns:1fr}}
-.card{display:block;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:left;transition:.15s;position:relative}
-.card:hover{transform:translateY(-3px)}
+.card{display:block;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:left;transition:.15s;position:relative;box-shadow:0 1px 3px rgba(18,24,38,.05)}
+.card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(18,24,38,.09)}
 .card .role{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:10px}
-.card .vt{font-size:1.35rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.card .vt{font-size:1.35rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:9px;color:var(--ink)}
 .card p{color:var(--text2);font-size:.86rem;line-height:1.55;margin-bottom:16px;min-height:64px}
 .go{font-weight:700;font-size:.9rem}
 .card.closer:hover{border-color:var(--accent)}.card.closer .go{color:var(--accent)}
-.card.setter:hover{border-color:var(--gold)}.card.setter .go{color:var(--gold)}
-.card.ref:hover{border-color:var(--blue)}.card.ref .go{color:var(--blue)}
-.card.cs:hover{border-color:var(--purple)}.card.cs .go{color:var(--purple)}
-.card .live{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(16,185,129,.16);color:#7ff0c8}
+.card.setter:hover{border-color:var(--gold)}.card.setter .go{color:var(--warn-badge)}
+.card.ref:hover{border-color:var(--info)}.card.ref .go{color:var(--info)}
+.card.cs:hover{border-color:var(--success)}.card.cs .go{color:var(--success)}
+.card .live{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--success-bg);color:var(--success)}
 .beta{display:inline-block;margin-top:6px;font-size:.72rem;color:var(--muted);text-decoration:none}.beta:hover{color:var(--text2)}
 .foot{color:var(--muted);font-size:.78rem;margin-top:26px;line-height:1.7}
 .flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:.72rem;color:var(--text2)}
@@ -75,22 +77,22 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
 
 <!-- ===== EPIC Suite: beta toggle chip + routing (self-contained) ===== -->
 <style>
-#epicChip{position:fixed;top:12px;right:14px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(0,0,0,.4);user-select:none;white-space:nowrap}
+#epicChip{position:fixed;top:12px;right:14px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(18,24,38,.12);user-select:none;white-space:nowrap}
 #epicChip:hover{border-color:var(--accent);color:var(--text)}
-#epicChip.beta{background:rgba(245,158,11,.18);border-color:var(--gold);color:#ffd58a;animation:epicPulse 2s ease-in-out infinite}
+#epicChip.beta{background:var(--warn-badge-bg);border-color:var(--gold);color:var(--warn-badge);animation:epicPulse 2s ease-in-out infinite}
 @keyframes epicPulse{0%,100%{opacity:1}50%{opacity:.6}}
-.card .live.betabadge{background:rgba(245,158,11,.16);color:#ffd58a}
-.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+.card .live.betabadge{background:var(--warn-badge-bg);color:var(--warn-badge)}
+.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(18,24,38,.5);display:flex;align-items:center;justify-content:center;padding:18px}
 .epic-modal.hidden{display:none}
-.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.5);text-align:left}
-.epic-box h3{font-size:1.05rem;margin-bottom:6px}
+.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(18,24,38,.22);text-align:left}
+.epic-box h3{font-size:1.05rem;margin-bottom:6px;color:var(--ink)}
 .epic-box p{font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5}
 .epic-box input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:1rem;letter-spacing:2px;text-align:center;text-transform:uppercase}
 .epic-box input:focus{outline:none;border-color:var(--gold)}
 .epic-err{color:var(--red);font-size:.76rem;margin-top:8px;min-height:16px;text-align:center}
 .epic-row{display:flex;gap:8px;margin-top:14px}
 .epic-row button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:800;font-size:.85rem;cursor:pointer}
-.epic-go{background:var(--gold);color:#1a1200}.epic-cancel{background:var(--surface2);color:var(--text)}
+.epic-go{background:var(--gold);color:var(--ink)}.epic-cancel{background:var(--surface2);color:var(--text)}
 </style>
 <script>
 (function(){
@@ -107,7 +109,7 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
     document.querySelectorAll('.card .live').forEach(function(b){ b.textContent=beta?'🧪 Beta':'🟢 Live'; b.classList.toggle('betabadge',beta); });
     var t=document.querySelector('.tag');
     if(t){ t.innerHTML=beta
-      ? "Team Life Academy — 🧪 <b style=\"color:#ffd58a\">beta preview</b> across the suite · tap the chip to return to Live"
+      ? "Team Life Academy — 🧪 <b style=\"color:#CB7C2E\">beta preview</b> across the suite · tap the chip to return to Live"
       : "Team Life Academy — one workspace per role, one funnel end-to-end"; }
   }
   applyMode();
@@ -161,10 +163,10 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
   function show(v){
     if(bar) return;
     bar=document.createElement('div');
-    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#0d2b22;border-top:1px solid #34d399;color:#a7f3d0;font:700 .85rem system-ui,sans-serif';
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#DEE9FC;border-top:1px solid #273FA8;color:#273FA8;font:700 .85rem system-ui,sans-serif;box-shadow:0 -2px 10px rgba(18,24,38,.08)';
     bar.appendChild(document.createTextNode('🔄 New version available.'));
     var b=document.createElement('button'); b.textContent='Update now';
-    b.style.cssText='background:#34d399;color:#062a1e;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
+    b.style.cssText='background:#253984;color:#fff;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
     b.onclick=function(){ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
     var x=document.createElement('span'); x.textContent='✕'; x.title='dismiss';
     x.style.cssText='cursor:pointer;opacity:.7;padding:0 6px';

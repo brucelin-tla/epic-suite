@@ -4,52 +4,54 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EPIC Referral Partner — Refer & earn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;--text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--red:#ef4444;--blue:#3b82f6;--radius:12px;--radius-sm:8px}
+:root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:14px;--radius-sm:8px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
 .wrap{max-width:940px;margin:0 auto}
 a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px}
-.brand h1{font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px;box-shadow:0 1px 3px rgba(18,24,38,.05)}
+.brand h1{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent)}
 .brand .sub{font-size:.72rem;color:var(--text2)}
-.stats{display:flex;gap:6px}.stat{text-align:center;padding:4px 11px;background:var(--surface);border-radius:var(--radius-sm)}
-.stat b{font-size:1.05rem;display:block;line-height:1.1}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.stats{display:flex;gap:6px}.stat{text-align:center;padding:4px 11px;background:var(--sand,#F7F3E8);border-radius:var(--radius-sm)}
+.stat b{font-size:1.05rem;display:block;line-height:1.1;color:var(--ink)}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 @media(max-width:760px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px;margin-bottom:12px}
-.lbl{font-size:.66rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px;margin-bottom:12px;box-shadow:0 1px 3px rgba(18,24,38,.04)}
+.lbl{font-size:.66rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:9px;font-weight:600}
 .fld{margin-bottom:11px}.fld label{display:block;font-size:.74rem;color:var(--text2);margin-bottom:4px}
 .fld input,.fld textarea{width:100%;padding:9px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.88rem;font-family:inherit}
 .fld input:focus,.fld textarea:focus{outline:none;border-color:var(--accent)}
 .vet{display:flex;gap:8px}
 .vet button{flex:1;padding:11px;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700;font-size:.82rem;text-align:left;line-height:1.4}
 .vet button small{display:block;font-weight:400;font-size:.68rem;color:var(--text2);margin-top:2px}
-.vet button.sel{background:rgba(16,185,129,.15);border-color:var(--accent);color:#7ff0c8}
-.vet button.sel small{color:#9fe8cf}
+.vet button.sel{background:rgba(37,57,132,.08);border-color:var(--accent);color:var(--accent)}
+.vet button.sel small{color:var(--accent)}
 .bant-wrap{margin-top:11px}
 .bant-wrap .lbl{margin-bottom:7px}
 .bantq{margin-bottom:9px}
 .bantq label{display:block;font-size:.76rem;color:var(--text2);margin-bottom:5px;line-height:1.4}
 .bant{display:flex;gap:6px}
 .bant button{flex:1;padding:8px 4px;border-radius:6px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:.72rem;font-weight:700;text-align:center}
-.bant button.sel{background:rgba(16,185,129,.15);border-color:var(--accent);color:#7ff0c8}
+.bant button.sel{background:rgba(37,57,132,.08);border-color:var(--accent);color:var(--accent)}
 .route{font-size:.8rem;margin:10px 0;padding:9px 11px;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);color:var(--text2)}
 .route b{color:var(--text)}
-.btn{width:100%;padding:12px;border:none;border-radius:var(--radius-sm);background:var(--accent);color:#062a1e;font-weight:800;font-size:.92rem;cursor:pointer}
+.btn{width:100%;padding:12px;border:none;border-radius:var(--radius-sm);background:var(--accent);color:#fff;font-weight:800;font-size:.92rem;cursor:pointer}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .ref{border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;background:var(--bg2)}
 .ref .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .ref .rn{font-weight:700;font-size:.9rem}
 .ref .badge{font-size:.64rem;font-weight:800;padding:2px 8px;border-radius:999px}
-.b-closer{background:rgba(59,130,246,.16);color:#bcd4ff}.b-bdr{background:rgba(245,158,11,.16);color:#ffd58a}
+.b-closer{background:var(--info-bg);color:var(--info)}.b-bdr{background:var(--warn-badge-bg);color:var(--warn-badge)}
 .ref .meta{font-size:.72rem;color:var(--text2);margin-top:3px}
 .track{display:flex;gap:5px;margin-top:8px}
-.track .st{flex:1;text-align:center;font-size:.6rem;padding:4px 2px;border-radius:6px;background:var(--surface);color:var(--muted)}
-.track .st.on{background:rgba(16,185,129,.18);color:#7ff0c8;font-weight:700}
-.pts{font-size:.72rem;color:var(--gold);font-weight:700;margin-top:6px}
+.track .st{flex:1;text-align:center;font-size:.6rem;padding:4px 2px;border-radius:6px;background:var(--surface2);color:var(--muted)}
+.track .st.on{background:var(--success-bg);color:var(--success);font-weight:700}
+.pts{font-size:.72rem;color:var(--success);font-weight:700;margin-top:6px}
 .rewards{font-size:.78rem;color:var(--text2);line-height:1.6}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--accent);color:#7ff0c8;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fff;border:1px solid var(--accent);color:var(--accent);padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 4px 16px rgba(18,24,38,.14)}
 .toast.show{opacity:1}
 /* ── mobile-first (Referral is used mostly on phones) ── */
 @media(max-width:640px){
@@ -246,31 +248,31 @@ refreshUI();
 
 <!-- ===== EPIC Suite: beta toggle + What's new (self-contained) ===== -->
 <style>
-#epicChip{position:fixed;top:9px;right:12px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(0,0,0,.4);user-select:none;white-space:nowrap}
+#epicChip{position:fixed;top:9px;right:12px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(18,24,38,.12);user-select:none;white-space:nowrap}
 #epicChip:hover{border-color:var(--accent);color:var(--text)}
-#epicChip.beta{background:rgba(245,158,11,.18);border-color:var(--gold);color:#ffd58a;animation:epicPulse 2s ease-in-out infinite}
+#epicChip.beta{background:var(--warn-badge-bg);border-color:var(--gold);color:var(--warn-badge);animation:epicPulse 2s ease-in-out infinite}
 @keyframes epicPulse{0%,100%{opacity:1}50%{opacity:.6}}
 body{padding-top:46px}
-.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(18,24,38,.5);display:flex;align-items:center;justify-content:center;padding:18px}
 .epic-modal.hidden{display:none}
-.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.5);text-align:left}
-.epic-box h3{font-size:1.05rem;margin-bottom:6px}
+.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(18,24,38,.22);text-align:left}
+.epic-box h3{font-size:1.05rem;margin-bottom:6px;color:var(--ink)}
 .epic-box p{font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5}
 .epic-box input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:1rem;letter-spacing:2px;text-align:center;text-transform:uppercase}
 .epic-box input:focus{outline:none;border-color:var(--gold)}
 .epic-err{color:var(--red);font-size:.76rem;margin-top:8px;min-height:16px;text-align:center}
 .epic-row{display:flex;gap:8px;margin-top:14px}
 .epic-row button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:800;font-size:.85rem;cursor:pointer}
-.epic-go{background:var(--gold);color:#1a1200}.epic-cancel{background:var(--surface2);color:var(--text)}
+.epic-go{background:var(--gold);color:var(--ink)}.epic-cancel{background:var(--surface2);color:var(--text)}
 .epicv-box{max-width:520px;max-height:82vh;overflow:auto}
 .epicv-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.epicv-head b{font-size:.98rem}.epic-x{cursor:pointer;color:var(--text2);font-size:1.1rem}
+.epicv-head b{font-size:.98rem;color:var(--ink)}.epic-x{cursor:pointer;color:var(--text2);font-size:1.1rem}
 .epicv-entry{padding:12px 0;border-bottom:1px solid var(--border)}.epicv-entry:last-child{border-bottom:none}
 .epicv-v{font-weight:800;color:var(--accent)}.epicv-d{font-size:.72rem;color:var(--muted);margin-left:8px}
 .epicv-entry ul{margin:8px 0 0;padding-left:18px}.epicv-entry li{font-size:.82rem;color:var(--text2);margin-bottom:6px;line-height:1.5}
 #ver{cursor:pointer;font-size:.68rem;padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text2);white-space:nowrap;text-decoration:none}
 #ver:hover{border-color:var(--accent);color:var(--text)}
-#ver.new{color:#7ff0c8;background:rgba(16,185,129,.16);border-color:transparent;font-weight:700;animation:epicPulse 1.7s ease-in-out infinite}
+#ver.new{color:var(--success);background:var(--success-bg);border-color:transparent;font-weight:700;animation:epicPulse 1.7s ease-in-out infinite}
 </style>
 <script>
 (function(){
@@ -337,7 +339,7 @@ body{padding-top:46px}
 .epic-sugg-btn:hover{border-color:var(--accent);color:var(--text)}
 .epic-sugg-ta{width:100%;min-height:120px;padding:11px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical}
 .epic-sugg-ta:focus{outline:none;border-color:var(--accent)}
-.epic-sugg-ok{background:var(--accent);color:#062a1e}
+.epic-sugg-ok{background:var(--accent);color:#fff}
 </style>
 <script>
 (function(){
@@ -346,7 +348,7 @@ body{padding-top:46px}
   var ROLE='EPIC Referral Partner';
   function say(t){ try{ if(typeof toast==='function'){toast(t);return;} }catch(e){}
     var d=document.createElement('div'); d.textContent=t;
-    d.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--accent);color:#7ff0c8;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;z-index:1400';
+    d.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:#fff;border:1px solid var(--accent);color:var(--accent);padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;z-index:1400;box-shadow:0 4px 16px rgba(18,24,38,.14)';
     document.body.appendChild(d); setTimeout(function(){d.remove();},2400); }
   var m=document.createElement('div'); m.className='epic-modal hidden';
   m.innerHTML='<div class="epic-box"><h3>💡 Share an idea</h3><p>What would make <b>'+ROLE+'</b> better? Your suggestion goes straight to Bruce for review.</p><textarea class="epic-sugg-ta" id="epicSuggTa" placeholder="An idea, a bug, or something confusing…"></textarea><div class="epic-err" id="epicSuggErr"></div><div class="epic-row"><button class="epic-cancel" id="epicSuggCancel">Cancel</button><button class="epic-go epic-sugg-ok" id="epicSuggSend">Send to Bruce</button></div></div>';
@@ -387,10 +389,10 @@ body{padding-top:46px}
   function show(v){
     if(bar) return;
     bar=document.createElement('div');
-    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#0d2b22;border-top:1px solid #34d399;color:#a7f3d0;font:700 .85rem system-ui,sans-serif';
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#DEE9FC;border-top:1px solid #273FA8;color:#273FA8;font:700 .85rem system-ui,sans-serif;box-shadow:0 -2px 10px rgba(18,24,38,.08)';
     bar.appendChild(document.createTextNode('🔄 New version available.'));
     var b=document.createElement('button'); b.textContent='Update now';
-    b.style.cssText='background:#34d399;color:#062a1e;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
+    b.style.cssText='background:#253984;color:#fff;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
     b.onclick=function(){ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
     var x=document.createElement('span'); x.textContent='✕'; x.title='dismiss';
     x.style.cssText='cursor:pointer;opacity:.7;padding:0 6px';
