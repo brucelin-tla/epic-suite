@@ -687,6 +687,9 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.29.0',d:'2026-07-04',n:[
+ "Payment safety: beta now uses Stripe TEST-mode checkout links (no real charge) automatically — the live site keeps using real ones. Same flow either way, beta just shows a clear 🧪 TEST tag so nobody mistakes a beta test for a real close.",
+]},
 {v:'1.28.0',d:'2026-07-04',n:[
  "Real sign-in everywhere. Setter, Closer, Client Success, and Admin now require the same one-tap email sign-in Referral Partner already had — no more shared demo codes.",
  "Setter and Closer now show real Sales Hub leads (booked-call stages for Closer, fresh/needs-follow-up for Setter) instead of demo names, once you're signed in. Closer's scripted practice call stays exactly as-is for training — real leads get a plain live-call mode instead, no fake script.",
@@ -1530,13 +1533,30 @@ renderCalDates();
    the real Calendly 3B call. Sending a link is NOT a payment — the closer marks
    🏆 Won once Stripe confirms. Set LIVE_MODE=false to demo (simulated send). ===== */
 const LIVE_MODE = true;
+// This exact file is deployed to BOTH /beta/ and the live root — same source,
+// different URL path. Detect which one we're actually running on so beta never
+// fires a real Stripe charge just because someone's testing a UI change there.
+const IS_BETA = location.pathname.indexOf('/beta/') > -1;
+// Real Stripe Payment Links (live mode) — only ever used on the live build.
+const LIVE_PAY = {
+  monthly: 'https://buy.stripe.com/dRm00j93BgjA1GTfVp3wQ00',
+  annual:  'https://buy.stripe.com/dRmcN52Fd8R899l38D3wQ03',
+  pro:     'https://buy.stripe.com/3cI4gz7Zx4ASbhtbF93wQ04'
+};
+// Stripe TEST-mode Payment Links — completing one does NOT move real money.
+// Fill these in once created in the Stripe Dashboard (toggle to Test mode
+// first, mirror the same 3 tiers/prices as LIVE_PAY) — see this repo's
+// NIGHTLY_QUEUE.md for the full setup checklist. Left blank until then: the
+// beta build will show a clear "test link not set up yet" state rather than
+// silently falling back to a real charge.
+const TEST_PAY = {
+  monthly: 'https://buy.stripe.com/test_bJe5kD9Zh3Mtf9Xd2qaR204',
+  annual:  'https://buy.stripe.com/test_4gM7sL8Vd4Qxf9X6E2aR202',
+  pro:     'https://buy.stripe.com/test_aFaeVd5J1beV5znd2qaR205'
+};
 const LIVE = {
   book3b: 'https://calendly.com/d/cvbp-8nf-n3s/myfico-3b-call-with-tla',
-  pay: {
-    monthly: 'https://buy.stripe.com/dRm00j93BgjA1GTfVp3wQ00',
-    annual:  'https://buy.stripe.com/dRmcN52Fd8R899l38D3wQ03',
-    pro:     'https://buy.stripe.com/3cI4gz7Zx4ASbhtbF93wQ04'
-  },
+  pay: IS_BETA ? TEST_PAY : LIVE_PAY,
   // paid-status poll → Supabase Edge Function fed by the Stripe webhook.
   // Publishable key only (browser-safe); truth comes from Stripe, not the client.
   statusUrl: 'https://widdgynledwpqaqndtvz.supabase.co/functions/v1/payment-status',
@@ -1560,9 +1580,13 @@ function startPayPoll(ref, pl, nm){
       var j=await r.json();
       if(j && j.paid){
         stopPayPoll();
-        setPay('✅ Paid — '+esc(pl.short)+' ('+esc(pl.label)+') · confirmed by Stripe','ok');
-        phMsg('<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE '+pl.label+' — '+pl.short+'.','ok');
-        toast('Payment received 🎉');
+        // Server-confirmed livemode (from which webhook secret verified the
+        // signature) is the authoritative test/live signal, not just the URL
+        // path — belt-and-suspenders in case IS_BETA and reality ever disagree.
+        var testTag=(j.livemode===false)?'🧪 TEST — ':'';
+        setPay(testTag+'✅ Paid — '+esc(pl.short)+' ('+esc(pl.label)+') · confirmed by Stripe','ok');
+        phMsg(testTag+'<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE '+pl.label+' — '+pl.short+'.','ok');
+        toast(testTag?'Test payment received 🧪':'Payment received 🎉');
         $('s-closed').textContent=parseInt($('s-closed').textContent,10)+1;
         revenue+=pl.collect; updateRev();
         dealPaid=true; try{ selectOutcome('won'); }catch(e){}
@@ -1668,16 +1692,25 @@ renderClose();
 async function sendPaymentLink(){
   const nm=curProspectObj().nm, pl=PLANS[curPlan];
   if(LIVE_MODE){
-    // Real close: open + copy the real Stripe checkout, tagged with a per-send
+    // Beta build + no test link configured yet: refuse rather than silently
+    // opening a broken URL (or worse, falling back to a real charge).
+    if(IS_BETA && !pl.link){
+      setPay('🧪 Test payment link not set up yet for '+esc(pl.label)+' — see NIGHTLY_QUEUE.md.','');
+      toast('Test Stripe link not configured — nothing sent');
+      return;
+    }
+    // Real close: open + copy the Stripe checkout, tagged with a per-send
     // reference so the Stripe webhook can flip this screen to ✅ Paid live.
     // (If the webhook backend isn't deployed yet, the poll just never confirms
-    // and you mark 🏆 Won manually — nothing breaks.)
+    // and you mark 🏆 Won manually — nothing breaks.) In beta this is a Stripe
+    // TEST-mode link — same flow, no real money moves.
+    var testTag=IS_BETA?'🧪 TEST — ':'';
     var ref=(crypto.randomUUID?crypto.randomUUID():('ref-'+Date.now()+'-'+Math.random().toString(36).slice(2)));
     var url=pl.link+(pl.link.indexOf('?')>-1?'&':'?')+'client_reference_id='+ref;
     try{ window.open(url,'_blank','noopener'); }catch(e){}
     copyLink(url);
-    phMsg('💳 Your secure checkout for EPIC LIFE '+pl.label+' — '+pl.short+':<br><span class="lk">'+esc(url)+'</span>','me');
-    setPay('💳 '+esc(pl.label)+' checkout opened + copied — send it to '+esc(nm)+'. Watching Stripe for the payment…','');
+    phMsg(testTag+'💳 Your secure checkout for EPIC LIFE '+pl.label+' — '+pl.short+':<br><span class="lk">'+esc(url)+'</span>','me');
+    setPay(testTag+'💳 '+esc(pl.label)+' checkout opened + copied — send it to '+esc(nm)+'. Watching Stripe for the payment…','');
     startPayPoll(ref, pl, nm);
     try{ setBkMode('closed'); }catch(e){}
     return;
@@ -1694,7 +1727,7 @@ async function sendPaymentLink(){
   dealPaid=true; try{ selectOutcome('won'); }catch(e){}
   try{ setBkMode('closed'); }catch(e){}
 }
-$('payBtn').onclick=()=>{ if(!LIVE_MODE && $('payBtn').disabled){ toast('Payment link already sent'); return; } var pl=PLANS[curPlan], nm=curProspectObj().nm; var msg=LIVE_MODE?('Open the real <b>'+pl.label+'</b> Stripe checkout ('+pl.short+') and copy it to send to <b>'+esc(nm)+'</b>?'):('Text <b>'+esc(nm)+'</b> the <b>'+pl.label+'</b> checkout link — '+pl.short+'?'); maybeConfirm(sendPaymentLink,LIVE_MODE?'Open checkout':'Send payment link',msg,LIVE_MODE?'Open + copy':'Send link'); };
+$('payBtn').onclick=()=>{ if(!LIVE_MODE && $('payBtn').disabled){ toast('Payment link already sent'); return; } var pl=PLANS[curPlan], nm=curProspectObj().nm; var liveWord=IS_BETA?'🧪 TEST (no real charge)':'real'; var msg=LIVE_MODE?('Open the '+liveWord+' <b>'+pl.label+'</b> Stripe checkout ('+pl.short+') and copy it to send to <b>'+esc(nm)+'</b>?'):('Text <b>'+esc(nm)+'</b> the <b>'+pl.label+'</b> checkout link — '+pl.short+'?'); maybeConfirm(sendPaymentLink,LIVE_MODE?'Open checkout':'Send payment link',msg,LIVE_MODE?'Open + copy':'Send link'); };
 
 /* ===== Rep phone: call timer + text thread + quick-send dock ===== */
 let callTimerId=null, callSecs=0;
