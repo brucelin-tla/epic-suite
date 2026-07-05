@@ -84,11 +84,16 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 
   <!-- 🔐 member sign-in (magic link, no password) — shown until a session exists -->
   <div id="signin" class="panel" style="display:none;max-width:480px;margin:0 auto 12px">
-    <div class="lbl">🔐 Member sign-in</div>
-    <p style="font-size:.85rem;color:var(--text2);margin-bottom:10px;line-height:1.55">Enter the email you use with Team Life Academy — we'll send you a <b>one-tap sign-in link</b>. No password to remember.</p>
-    <div class="fld"><input id="authEmail" type="email" placeholder="you@email.com" autocomplete="email"></div>
-    <button class="btn" id="authSend">Email me a sign-in link</button>
-    <div id="authMsg" style="font-size:.8rem;color:var(--text2);margin-top:9px;min-height:18px"></div>
+    <div id="noSession">
+      <div class="lbl">🔐 Sign in required</div>
+      <p style="font-size:.85rem;color:var(--text2);margin-bottom:10px;line-height:1.55">Sign in once from the EPIC Suite hub — it unlocks every tool your role can reach.</p>
+      <a class="btn" href="../" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box">Go to EPIC Suite hub →</a>
+    </div>
+    <div id="noAccess" style="display:none">
+      <div class="lbl">🔒 Not unlocked yet</div>
+      <p id="noAccessMsg" style="font-size:.85rem;color:var(--text2);margin-bottom:10px;line-height:1.55"></p>
+      <a class="btn" href="../" style="display:block;text-align:center;text-decoration:none;box-sizing:border-box">← Back to EPIC Suite hub</a>
+    </div>
   </div>
 
   <div class="grid" id="app" style="display:none">
@@ -166,21 +171,34 @@ BANT_KEYS.forEach(k=>{
    ("Contacted" lights up once BDR contact events are tracked — future.) */
 function stageIdx(dealStage){ return dealStage==='book'?2 : (dealStage==='close'||dealStage==='join')?3 : 0; }
 
-/* ---- auth ---- */
+/* ---- auth ----
+   Single sign-in point is the hub now (2026-07-05) — this tool never mints
+   its own magic link, it only checks an existing session + role rank.
+   Rank: owner(Admin)=5 > cs(Client Success)=4 > closer=3 > bdr(Setter)=2 >
+   partner(Referral)=1. Higher rank unlocks this tool AND everything below it. */
+const TOOL_RANK=1; // Referral Partner
+const ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
+const ROLE_LABEL={owner:'Admin', cs:'Client Success', closer:'Closer', bdr:'Setter', partner:'Referral Partner', rep:'Rep'};
+async function myRank(session){
+  if(!session) return -1;
+  const r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+  const role=r.data&&r.data.role;
+  return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
+}
 async function refreshUI(){
   const {data:{session}}=await SB.auth.getSession();
-  $('signin').style.display=session?'none':'';
-  $('app').style.display=session?'':'none';
-  if(session) loadData();
+  const rank=await myRank(session);
+  const authorized=rank>=TOOL_RANK;
+  $('signin').style.display=authorized?'none':'';
+  $('noSession').style.display=session?'none':'';
+  $('noAccess').style.display=(session&&!authorized)?'':'none';
+  if(session&&!authorized){
+    const need=Object.keys(ROLE_RANK).find(k=>ROLE_RANK[k]===TOOL_RANK);
+    $('noAccessMsg').textContent="Your role doesn't reach this tool yet — you need "+(ROLE_LABEL[need]||need)+' access or higher.';
+  }
+  $('app').style.display=authorized?'':'none';
+  if(authorized) loadData();
 }
-$('authSend').onclick=async ()=>{
-  const email=($('authEmail').value||'').trim();
-  if(!/.+@.+\..+/.test(email)){ $('authMsg').textContent='Enter a valid email.'; return; }
-  $('authSend').disabled=true; $('authMsg').textContent='Sending…';
-  const {error}=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
-  $('authSend').disabled=false;
-  $('authMsg').textContent=error?('Could not send: '+error.message):'📬 Check your email and tap the sign-in link (check spam the first time).';
-};
 SB.auth.onAuthStateChange(()=>{ refreshUI(); });
 
 /* ---- data ---- */
@@ -382,7 +400,7 @@ body{padding-top:46px}
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.29.0'; /*suite-build*/
+  var SUITE_BUILD='1.30.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

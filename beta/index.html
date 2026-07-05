@@ -31,6 +31,14 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
 .foot{color:var(--muted);font-size:.78rem;margin-top:26px;line-height:1.7}
 .flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:.72rem;color:var(--text2)}
 .flow b{color:var(--text)}
+.card.locked{opacity:.5;cursor:not-allowed;filter:grayscale(.6)}
+.card.locked:hover{transform:none;box-shadow:0 1px 3px rgba(18,24,38,.05)}
+.card .lock-badge{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--surface2);color:var(--text2)}
+#adminLink.locked{opacity:.5;cursor:not-allowed}
+#epicSignedInBar{max-width:520px;margin:0 auto 18px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.8rem}
+#epicSignedInBar .who{color:var(--text2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#epicSignedInBar .who b{color:var(--text)}
+#epicSignedInBar .out{color:var(--info);cursor:pointer;font-weight:700;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -38,29 +46,44 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
   <div class="logo">⚡</div>
   <h1>EPIC Suite</h1>
   <p class="tag">Team Life Academy — one workspace per role, one funnel end-to-end</p>
+
+  <!-- Single sign-in point for the whole suite (2026-07-05) — every tool
+       checks the session this establishes instead of minting its own link. -->
+  <div class="epic-auth-box" id="epicHubSignIn" style="max-width:420px;margin:0 auto 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;text-align:left;box-shadow:0 1px 3px rgba(18,24,38,.05)">
+    <h2 style="font-size:1.05rem;margin-bottom:8px;color:var(--ink)">🔐 Sign in</h2>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:12px;line-height:1.55">Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. This unlocks every tool your role can reach, right here on the hub.</p>
+    <input id="epicHubEmail" type="email" placeholder="you@email.com" autocomplete="email" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid var(--border);font-size:1rem;margin-bottom:10px;box-sizing:border-box">
+    <button id="epicHubSend" style="width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:var(--accent);color:#fff">Email me a sign-in link</button>
+    <div id="epicHubMsg" style="font-size:.8rem;color:var(--text2);margin-top:10px;min-height:18px"></div>
+  </div>
+  <div id="epicSignedInBar" style="display:none">
+    <span class="who">Signed in as <b id="epicWhoEmail"></b> · <span id="epicWhoRole"></span></span>
+    <span class="out" id="epicSignOutHub">Sign out</span>
+  </div>
+
   <div class="cards">
-    <a class="card ref" id="card-ref" href="referral/">
+    <a class="card ref" id="card-ref" href="referral/" data-rank="1">
       <span class="live">🟢 Live</span>
       <div class="role">Referral Partner</div>
       <div class="vt">🤝 EPIC Referral Partner</div>
       <p>Refer the people you care about — warm ones go straight to a closer, cold ones to a setter — and earn referral points as they win.</p>
       <div class="go">Open Referral →</div>
     </a>
-    <a class="card setter" id="card-setter" href="setter/">
+    <a class="card setter" id="card-setter" href="setter/" data-rank="2">
       <span class="live">🟢 Live</span>
       <div class="role">BDR / Setter</div>
       <div class="vt">🎯 EPIC Setter</div>
       <p>Dial the lead list, quick-qualify who's worth a closer's time, and book the strategy appointment straight onto a closer's calendar.</p>
       <div class="go">Open Setter →</div>
     </a>
-    <a class="card closer" id="card-closer" href="live/">
+    <a class="card closer" id="card-closer" href="live/" data-rank="3">
       <span class="live" id="closerBadge">🟢 Live</span>
       <div class="role">Closer</div>
       <div class="vt">📞 EPIC Closer</div>
       <p>Live AI calling co-pilot — work the ranked queue, get the next line, qualify, handle objections, and close on the call.</p>
       <div class="go">Open Closer →</div>
     </a>
-    <a class="card cs" id="card-cs" href="success/">
+    <a class="card cs" id="card-cs" href="success/" data-rank="4">
       <span class="live">🟢 Live</span>
       <div class="role">Client Success</div>
       <div class="vt">🌟 EPIC Client Success</div>
@@ -71,7 +94,7 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
   <div class="foot">
     The EPIC funnel:
     <div class="flow"><b>Referral Partner</b> refers → 🎯 <b>BDR / Setter</b> books → 📞 <b>Closer</b> closes → 🌟 <b>Client Success</b> onboards</div>
-    <div style="margin-top:16px"><span id="adminLink" style="cursor:pointer;color:var(--muted);font-size:.72rem" title="Admin dashboard — global view">🔒 Admin</span></div>
+    <div style="margin-top:16px"><a id="adminLink" href="admin/" data-rank="5" style="cursor:pointer;color:var(--muted);font-size:.72rem;text-decoration:none" title="Admin dashboard — global view">🔒 Admin</a></div>
   </div>
 </div>
 
@@ -132,22 +155,87 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
 })();
 </script>
 
-<!-- ===== EPIC Suite: admin gate → global dashboard (prototype code gate; use Supabase Auth for real security) ===== -->
+<!-- ===== EPIC Suite: single sign-in point + role-rank chip gating (2026-07-05) =====
+     Sign in ONCE here (magic link, emailRedirectTo points at this exact hub
+     URL — the only redirect target the whole suite ever needs). Every other
+     tool checks the resulting session (same origin → shared localStorage,
+     Supabase's default) plus profiles.role to decide unlocked vs locked; the
+     hub additionally paints each card/link locked or open so a rep sees at a
+     glance what their role can reach. Rank: owner(Admin)=5 > cs(Client
+     Success)=4 > closer=3 > bdr(Setter)=2 > partner(Referral)=1 — higher rank
+     unlocks that tool AND everything below it. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  var ACODE='EPICADMIN', FILE=/\.html?$/i.test(location.pathname);
-  var link=document.getElementById('adminLink'); if(!link) return;
-  var m=document.createElement('div'); m.className='epic-modal hidden';
-  m.innerHTML='<div class="epic-box"><h3>🔒 Admin access</h3><p>Enter the admin code to open the global dashboard — referrals, bookings, closes, onboarding, and suggestions across all roles.</p><input id="adminCodeIn" type="password" placeholder="admin code" autocomplete="off" spellcheck="false"><div class="epic-err" id="adminErr"></div><div class="epic-row"><button class="epic-cancel" id="adminCancel">Cancel</button><button class="epic-go" id="adminGo">Open dashboard</button></div></div>';
-  document.body.appendChild(m);
-  function open(){m.classList.remove('hidden');var i=m.querySelector('#adminCodeIn');i.value='';m.querySelector('#adminErr').textContent='';setTimeout(function(){i.focus()},30);}
-  function hide(){m.classList.add('hidden');}
-  function go(){var v=(m.querySelector('#adminCodeIn').value||'').trim().toUpperCase();
-    if(v===ACODE){ try{localStorage.setItem('epic_admin','1')}catch(e){} location.href=FILE?'admin.html':'admin/'; }
-    else { m.querySelector('#adminErr').textContent='Incorrect code.'; } }
-  link.onclick=open; m.addEventListener('click',function(e){if(e.target===m)hide();});
-  m.querySelector('#adminCancel').onclick=hide; m.querySelector('#adminGo').onclick=go;
-  m.querySelector('#adminCodeIn').addEventListener('keydown',function(e){if(e.key==='Enter')go();});
+  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
+  var ROLE_LABEL={owner:'Admin', cs:'Client Success', closer:'Closer', bdr:'Setter', partner:'Referral Partner', rep:'Rep (no tool yet)'};
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var signInBox=document.getElementById('epicHubSignIn'), signedInBar=document.getElementById('epicSignedInBar');
+  var whoEmail=document.getElementById('epicWhoEmail'), whoRole=document.getElementById('epicWhoRole');
+  var gated=document.querySelectorAll('[data-rank]');
+
+  async function myRoleAndRank(session){
+    if(!session) return {role:null, rank:-1};
+    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+    var role=r.data&&r.data.role;
+    return {role:role||null, rank:(role&&(role in ROLE_RANK))?ROLE_RANK[role]:0};
+  }
+
+  function paintGate(el, unlocked){
+    el.classList.toggle('locked', !unlocked);
+    if(el.id==='adminLink'){
+      el.textContent=unlocked?'⚙️ Admin':'🔒 Admin';
+      return;
+    }
+    var badge=el.querySelector('.live'), go=el.querySelector('.go');
+    if(!unlocked){
+      if(badge && !badge.dataset.origText){ badge.dataset.origText=badge.textContent; }
+      if(badge) badge.textContent='🔒 Locked';
+      if(badge){ badge.classList.remove('betabadge'); badge.classList.add('lock-badge'); }
+      if(go && !go.dataset.origText){ go.dataset.origText=go.textContent; }
+      if(go) go.textContent='Reach '+(ROLE_LABEL[gated_need(el)]||'a higher role')+' to unlock';
+    } else {
+      if(badge && badge.dataset.origText){ badge.textContent=badge.dataset.origText; badge.classList.remove('lock-badge'); }
+      if(go && go.dataset.origText){ go.textContent=go.dataset.origText; }
+    }
+  }
+  function gated_need(el){
+    var need=+el.dataset.rank;
+    return Object.keys(ROLE_RANK).find(function(k){return ROLE_RANK[k]===need;});
+  }
+
+  async function refresh(){
+    var r=await SB.auth.getSession(), session=r.data.session;
+    var ra=await myRoleAndRank(session);
+    signInBox.style.display=session?'none':'';
+    signedInBar.style.display=session?'flex':'none';
+    if(session){
+      whoEmail.textContent=session.user.email;
+      whoRole.textContent=ra.role?(ROLE_LABEL[ra.role]||ra.role)+' access':'no role assigned yet — ask an admin';
+    }
+    gated.forEach(function(el){ paintGate(el, session ? (ra.rank>=+el.dataset.rank) : false); });
+    // Prevent navigating into a locked tool (belt-and-suspenders — the tool's
+    // own gate would also block it, this just avoids the pointless round trip).
+    gated.forEach(function(el){
+      el.onclick=function(e){
+        var unlocked=session && ra.rank>=+el.dataset.rank;
+        if(!unlocked){ e.preventDefault(); }
+      };
+    });
+  }
+  document.getElementById('epicHubSend').onclick=async function(){
+    var email=(document.getElementById('epicHubEmail').value||'').trim();
+    var msg=document.getElementById('epicHubMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('epicHubSend'); btn.disabled=true; msg.textContent='Sending…';
+    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+    btn.disabled=false;
+    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
+  };
+  document.getElementById('epicSignOutHub').onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
 })();
 </script>
 
@@ -156,7 +244,7 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
      refresh past stale cache. Bump SUITE_BUILD in all tools on every release. ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.29.0'; /*suite-build*/
+  var SUITE_BUILD='1.30.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'live/version.json';
   var bar=null;

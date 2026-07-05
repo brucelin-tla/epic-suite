@@ -71,42 +71,61 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
 .epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
 .epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-box .epic-gate-btn{display:block;width:100%;padding:12px;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff;text-decoration:none;text-align:center;box-sizing:border-box}
 .epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
 #epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
 </style>
 <div id="epicAuthGate" class="hidden">
   <div class="epic-auth-box">
-    <h2>🔐 Sign in</h2>
-    <p>Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. No password needed.</p>
-    <input id="epicAuthEmail" type="email" placeholder="you@email.com" autocomplete="email">
-    <button id="epicAuthSend">Email me a sign-in link</button>
-    <div class="epic-auth-msg" id="epicAuthMsg"></div>
+    <div id="epicGateNoSession">
+      <h2>🔐 Sign in required</h2>
+      <p>Sign in once from the EPIC Suite hub — it unlocks every tool your role can reach.</p>
+      <a class="epic-gate-btn" href="../">Go to EPIC Suite hub →</a>
+    </div>
+    <div id="epicGateNoAccess" style="display:none">
+      <h2>🔒 Not unlocked yet</h2>
+      <p id="epicGateNoAccessMsg"></p>
+      <a class="epic-gate-btn" href="../">← Back to EPIC Suite hub</a>
+    </div>
   </div>
 </div>
 <span id="epicSignOut" style="display:none">sign out</span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
+  // Single sign-in point is the hub now (2026-07-05) — this tool never mints
+  // its own magic link, it only checks an existing session + role rank.
+  // Rank: owner(Admin)=5 > cs(Client Success)=4 > closer=3 > bdr(Setter)=2 >
+  // partner(Referral)=1. Higher rank unlocks this tool AND everything below it.
+  var TOOL_RANK=4; // Client Success
+  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
+  var ROLE_LABEL={owner:'Admin', cs:'Client Success', closer:'Closer', bdr:'Setter', partner:'Referral Partner', rep:'Rep'};
   var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
   window.EPIC_SB=SB;
   var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  var noSession=document.getElementById('epicGateNoSession'), noAccess=document.getElementById('epicGateNoAccess');
+  async function myRank(session){
+    if(!session) return -1;
+    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+    var role=r.data&&r.data.role;
+    return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
+  }
   async function refresh(){
     wrapEl=wrapEl||document.querySelector('.wrap');
     var r=await SB.auth.getSession(), session=r.data.session;
-    gate.classList.toggle('hidden', !!session);
-    if(wrapEl) wrapEl.style.visibility=session?'visible':'hidden';
+    var rank=await myRank(session);
+    var authorized=rank>=TOOL_RANK;
+    gate.classList.toggle('hidden', authorized);
+    noSession.style.display=session?'none':'';
+    noAccess.style.display=(session&&!authorized)?'':'none';
+    if(session&&!authorized){
+      var need=Object.keys(ROLE_RANK).find(function(k){return ROLE_RANK[k]===TOOL_RANK;});
+      document.getElementById('epicGateNoAccessMsg').textContent="Your role doesn't reach this tool yet — you need "+(ROLE_LABEL[need]||need)+' access or higher.';
+    }
+    if(wrapEl) wrapEl.style.visibility=authorized?'visible':'hidden';
     signOutBtn.style.display=session?'':'none';
-    if(session && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+    if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
   }
-  document.getElementById('epicAuthSend').onclick=async function(){
-    var email=(document.getElementById('epicAuthEmail').value||'').trim();
-    var msg=document.getElementById('epicAuthMsg');
-    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
-    var btn=document.getElementById('epicAuthSend'); btn.disabled=true; msg.textContent='Sending…';
-    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
-    btn.disabled=false;
-    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
-  };
   signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
   SB.auth.onAuthStateChange(function(){ refresh(); });
   refresh();
@@ -344,7 +363,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.29.0'; /*suite-build*/
+  var SUITE_BUILD='1.30.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

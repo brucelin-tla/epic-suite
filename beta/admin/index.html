@@ -88,46 +88,49 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 .epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
 .epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
 .epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-box .epic-gate-btn{display:block;width:100%;padding:12px;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff;text-decoration:none;text-align:center;box-sizing:border-box}
 .epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
 .epic-auth-box a.epic-hub-link{display:inline-block;margin-top:6px;font-size:.82rem;color:#253984;font-weight:700}
 #epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
 </style>
 <div id="epicAuthGate" class="hidden">
   <div class="epic-auth-box" id="epicAuthStep1">
-    <h2>🔐 Sign in</h2>
-    <p>Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. No password needed.</p>
-    <input id="epicAuthEmail" type="email" placeholder="you@email.com" autocomplete="email">
-    <button id="epicAuthSend">Email me a sign-in link</button>
-    <div class="epic-auth-msg" id="epicAuthMsg"></div>
+    <h2>🔐 Sign in required</h2>
+    <p>Sign in once from the EPIC Suite hub — it unlocks every tool your role can reach.</p>
+    <a class="epic-gate-btn" href="../">Go to EPIC Suite hub →</a>
   </div>
   <div class="epic-auth-box" id="epicAuthStep2" style="display:none">
-    <h2>🔒 Owner access only</h2>
-    <p>You're signed in, but this account isn't set up as an owner. EPIC Suite's admin dashboard is restricted to the owner — ask Bruce if you think this is wrong.</p>
+    <h2>🔒 Admin access only</h2>
+    <p>You're signed in, but your role doesn't reach Admin. EPIC Suite's admin dashboard needs Admin (owner) access — ask Bruce if you think this is wrong.</p>
+    <a class="epic-gate-btn" href="../">← Back to EPIC Suite hub</a>
   </div>
 </div>
 <span id="epicSignOut" style="display:none">sign out</span>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
-  // 2026-07-04: replaced the EPICADMIN localStorage code with a REAL
-  // per-user check — profiles.role==='owner' (RLS-backed: profiles_select_
-  // self_or_owner lets you read your own row; is_owner() gates everything
-  // else). Bruce's own account (brucelin@teamlifeacademy.com) needs a
-  // profiles row with role='owner' inserted once he's signed in here at
-  // least once — see the "Team" panel below for managing everyone else.
+  // Single sign-in point is the hub now (2026-07-05) — this tool never mints
+  // its own magic link, it only checks an existing session + role rank.
+  // Rank: owner(Admin)=5 > cs(Client Success)=4 > closer=3 > bdr(Setter)=2 >
+  // partner(Referral)=1. Admin needs the top rank — owner only, same as before,
+  // just expressed through the shared rank system all 5 tools now use.
+  var TOOL_RANK=5; // Admin
+  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
   var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
   window.EPIC_SB=SB;
   var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
   var step1=document.getElementById('epicAuthStep1'), step2=document.getElementById('epicAuthStep2');
-  async function isOwner(session){
-    if(!session) return false;
+  async function myRank(session){
+    if(!session) return -1;
     var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
-    return !!(r.data && r.data.role==='owner');
+    var role=r.data&&r.data.role;
+    return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
   }
   async function refresh(){
     wrapEl=wrapEl||document.querySelector('.wrap');
     var r=await SB.auth.getSession(), session=r.data.session;
-    var authorized=await isOwner(session);
+    var rank=await myRank(session);
+    var authorized=rank>=TOOL_RANK;
     gate.classList.toggle('hidden', authorized);
     step1.style.display=session?'none':'';
     step2.style.display=(session&&!authorized)?'':'none';
@@ -135,15 +138,6 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
     signOutBtn.style.display=session?'':'none';
     if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
   }
-  document.getElementById('epicAuthSend').onclick=async function(){
-    var email=(document.getElementById('epicAuthEmail').value||'').trim();
-    var msg=document.getElementById('epicAuthMsg');
-    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
-    var btn=document.getElementById('epicAuthSend'); btn.disabled=true; msg.textContent='Sending…';
-    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
-    btn.disabled=false;
-    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
-  };
   signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
   SB.auth.onAuthStateChange(function(){ refresh(); });
   refresh();
@@ -381,7 +375,7 @@ $('suggestions').innerHTML=SUGGESTIONS.map(s=>'<div class="sug"><div class="r">'
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.29.0'; /*suite-build*/
+  var SUITE_BUILD='1.30.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
