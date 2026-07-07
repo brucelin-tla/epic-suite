@@ -96,6 +96,11 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
       <div class="go">Open Client Success →</div>
     </a>
   </div>
+  <div id="roadmapPanel" style="max-width:640px;margin:0 auto 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;text-align:left;box-shadow:0 1px 3px rgba(18,24,38,.05)">
+    <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:9px">🚀 Building next — from your suggestions</div>
+    <div id="roadmapList" style="font-size:.85rem;color:var(--text);line-height:1.9"></div>
+    <div style="font-size:.7rem;color:var(--muted);margin-top:8px">Keep the ideas coming with 💡 on any tool page.</div>
+  </div>
   <div class="foot">
     The EPIC funnel:
     <div class="flow"><b>Referral Partner</b> refers → 🎯 <b>BDR / Setter</b> books → 📞 <b>Closer</b> closes → 🌟 <b>Client Success</b> onboards</div>
@@ -252,12 +257,28 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
 })();
 </script>
 
+<!-- ===== EPIC Suite: "Building next" — curated from the real 💡 suggestion box
+     (2026-07-07). Editorial, not a live query — Bruce reviews suggestions in
+     Admin and updates this short list by hand as priorities move, same pattern
+     as the per-tool "What's new" NOTES arrays elsewhere in the suite. ===== -->
+<script>
+(function(){
+  var ROADMAP=[
+   {emoji:'💰', text:'Real referral payment tracking — a $ value (not just points), a Paid/Pending flag, and a payout method for partners who aren\'t members.'},
+   {emoji:'✉️', text:'Real email sending from inside the tools — starting with one-click outreach templates for Referral Partners.'},
+   {emoji:'🏆', text:'A real referral leaderboard, once payment tracking gives it real numbers to show.'},
+  ];
+  var box=document.getElementById('roadmapList');
+  if(box) box.innerHTML=ROADMAP.map(function(r){return '<div>'+r.emoji+' '+r.text+'</div>';}).join('');
+})();
+</script>
+
 <!-- ===== EPIC Suite: update prompt — every deploy bumps version.json (the SUITE
      build); pages compare their embedded SUITE_BUILD and prompt the rep to
      refresh past stale cache. Bump SUITE_BUILD in all tools on every release. ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.38.0'; /*suite-build*/
+  var SUITE_BUILD='1.39.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'live/version.json';
   var bar=null;
