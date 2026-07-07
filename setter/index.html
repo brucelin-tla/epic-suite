@@ -202,7 +202,14 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 
       <div class="panel">
         <div class="lbl">📅 Book the real EPIC LIFE Strategy Session — live on Bruce's calendar</div>
-        <div class="book">
+        <div id="bookedState" style="display:none">
+          <div class="cstatus ok" id="bookedWhen" style="margin-bottom:9px"></div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" id="cancelBookBtn" style="background:var(--warning-bg);color:var(--warning);flex:1">❌ Cancel</button>
+            <button class="btn" id="rescheduleBookBtn" style="flex:1">🔁 Reschedule</button>
+          </div>
+        </div>
+        <div class="book" id="bookPicker">
           <div>
             <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px" id="calAvailNote">Loading real availability…</div>
             <div class="cal-dates" id="calDates"></div>
@@ -259,6 +266,7 @@ const DEMO_LEADS=[
 ];
 let ALL_LEADS=DEMO_LEADS.slice();
 let FOLLOWUPS={}; // prospect_id -> open follow_ups row {id,due_at}
+let BOOKINGS={}; // prospect_id -> active bookings row {id,slot_at,status}
 let activeTab='new', cur=0, qual={}, calDate=null, calTime=null;
 function initials(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
 function titleCase(name){ return (name||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
@@ -293,6 +301,11 @@ async function loadQueue(){
       var ex=FOLLOWUPS[f.prospect_id];
       if(!ex||new Date(f.due_at||0)<new Date(ex.due_at||0)) FOLLOWUPS[f.prospect_id]=f;
     });
+    // Real bookings (2026-07-07): so a booked lead shows its real appointment
+    // + Cancel/Reschedule instead of the picker, on this load and any future one.
+    var bk=await window.EPIC_SB.from('bookings').select('id,prospect_id,slot_at,status').not('prospect_id','is',null).not('status','in','(void,no_show,disqualified)');
+    BOOKINGS={};
+    if(!bk.error) (bk.data||[]).forEach(function(b){ BOOKINGS[b.prospect_id]=b; });
     if(rows.length===0){ ALL_LEADS=DEMO_LEADS; toast('No live Sales Hub leads in queue — showing demo'); }
     else { ALL_LEADS=rows.map(function(r){ var nm=titleCase(r.name); var f=FOLLOWUPS[r.id];
       var entered=r.lead_entered_at||r.created_at; // real CRM entry date once synced; falls back until a re-sync backfills it
@@ -361,7 +374,39 @@ function selectLead(){
   calDate=null; calTime=null; calBooked=false; renderDates();
   $('confirmBookBtn').style.display='none'; $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a day and time, then confirm.';
   document.querySelectorAll('.qcard').forEach((c,i)=>c.classList.toggle('active',i===cur));
+  renderBookedState(l);
 }
+// ── See/cancel/reschedule a real booking (2026-07-07) ──
+function renderBookedState(lead){
+  var b=BOOKINGS[lead.id];
+  if(b){
+    $('bookedState').style.display=''; $('bookPicker').style.display='none';
+    $('bookedWhen').innerHTML='✅ <b>Booked</b> — '+new Date(b.slot_at).toLocaleString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'})+' HST';
+  } else {
+    $('bookedState').style.display='none'; $('bookPicker').style.display='';
+  }
+}
+async function cancelCurrentBooking(reschedule){
+  var LEADS=currentLeads(), lead=LEADS[cur]; if(!lead) return;
+  var b=BOOKINGS[lead.id]; if(!b) return;
+  if(!reschedule && !confirm('Cancel this real appointment on Calendly?')) return;
+  var btn=reschedule?$('rescheduleBookBtn'):$('cancelBookBtn'); btn.disabled=true; btn.textContent=reschedule?'Canceling…':'Canceling…';
+  try{
+    var r=await window.EPIC_SB.functions.invoke('calendly-cancel',{body:{booking_id:b.id}});
+    if(r.error||!r.data||!r.data.ok){
+      var msg=(r.data&&r.data.error)||null;
+      if(!msg&&r.error&&r.error.context&&typeof r.error.context.json==='function'){ try{ var body=await r.error.context.json(); msg=body&&(body.error||body.message);}catch(_){} }
+      throw new Error(msg||'unknown error');
+    }
+    delete BOOKINGS[lead.id];
+    toast(reschedule?'Canceled — pick a new time':'✅ Appointment canceled');
+    calBooked=false; renderBookedState(lead);
+    if(reschedule){ calDate=null; calTime=null; renderDates(); }
+  }catch(e){ toast('Could not cancel — '+e.message); console.error('cancelCurrentBooking',e); }
+  btn.disabled=false; btn.textContent=reschedule?'🔁 Reschedule':'❌ Cancel';
+}
+$('cancelBookBtn').onclick=function(){ cancelCurrentBooking(false); };
+$('rescheduleBookBtn').onclick=function(){ cancelCurrentBooking(true); };
 // ── Real tracking: every logged outcome writes a real call_logs row; a
 // callback or no-answer also opens a real follow_ups row (due tomorrow
 // 9am by default) so it resurfaces here instead of silently vanishing.
@@ -463,11 +508,10 @@ async function confirmBooking(){
       throw new Error(msg||(r.error&&r.error.message)||'unknown error');
     }
     calBooked=true; btn.style.display='none';
-    $('bookStatus').className='cstatus ok';
-    $('bookStatus').innerHTML='✅ <b>Real Strategy Session booked</b> with Bruce · '+calDate+' at '+new Date(calTime).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'})+
-      (r.data.qualified?'<br><span style="color:#3C7E44">🟢 Qualified booking — your $100 locks when the closer verifies live on the call.</span>':'<br><span style="color:#CB7C2E">🟡 Booked, not yet qualified — BANT/intent bar not fully met.</span>');
+    BOOKINGS[lead.id]={id:r.data.booking_id, slot_at:calTime, status:r.data.qualified?'qualified':'booked'};
+    renderBookedState(lead);
     document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.o==='set'));
-    toast('✅ Real booking confirmed on Calendly');
+    toast('✅ Real booking confirmed on Calendly'+(r.data.qualified?' — qualified 🟢':''));
   }catch(e){
     $('bookStatus').className='cstatus'; $('bookStatus').textContent='❌ Booking failed — '+e.message;
     toast('Could not book — see status');
@@ -551,6 +595,9 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Setter', SEEN='epic_setter_seen';
   var NOTES=[
+  {v:'1.5.0',d:'2026-07-07',n:[
+   "Once you've booked a lead's Strategy Session, this page now shows the real appointment time instead of the picker — with ❌ Cancel and 🔁 Reschedule, both real (cancel actually cancels on Calendly; reschedule cancels then lets you pick a fresh slot).",
+  ]},
   {v:'1.4.0',d:'2026-07-06',n:[
    "Book the closer appointment is now REAL — it books the actual Discovery Call slot on Miki's live Calendly calendar, no more fake date grid. Pick a real open day/time, confirm, and it creates a real Calendly booking on the spot.",
    "Removed the fake closer picker (Ana/Marco/Next available were demo names) — Discovery Call only has one real host today.",
@@ -649,7 +696,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.36.0'; /*suite-build*/
+  var SUITE_BUILD='1.37.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

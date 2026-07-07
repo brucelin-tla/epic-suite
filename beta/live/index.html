@@ -468,6 +468,10 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
           <span id="emailLink" class="email-link" title="Draft an email — proposal, event invite, or game">✉️ —</span>
           <span id="histToggle" class="hist-toggle">🕐 History (0) ▾</span>
         </div>
+        <div id="realBookingInfo" style="display:none;margin-top:8px;padding:9px 11px;border-radius:8px;background:var(--info-bg,#DEE9FC);font-size:.8rem;color:var(--info,#273FA8)">
+          <span id="realBookingWhen"></span>
+          <span style="margin-left:10px"><a href="#" id="realBookingCancel" style="color:inherit;font-weight:700;text-decoration:underline">Cancel</a> · <a href="#" id="realBookingResched" style="color:inherit;font-weight:700;text-decoration:underline">Reschedule</a></span>
+        </div>
         <div id="histBox" class="hist-box hidden"></div>
       </div>
 
@@ -698,6 +702,25 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 
 <div id="bantMenu" class="bant-menu hidden"></div>
 
+<!-- 📅 Reschedule the real appointment (2026-07-07) — cancel + pick a new real slot -->
+<div class="epic-modal hidden" id="reschedModal">
+  <div class="epic-box" style="max-width:420px">
+    <h3 style="margin-bottom:10px">🔁 Reschedule appointment</h3>
+    <div id="reschedAvailNote" style="font-size:.78rem;color:var(--text2);margin-bottom:8px">Loading real availability…</div>
+    <div class="cal-dates" id="clCalDates" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px"></div>
+    <div class="cal-times" id="clCalTimes" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <div id="reschedStatus" style="font-size:.78rem;color:var(--text2);margin-bottom:10px">Pick a day and time.</div>
+    <div class="epic-row"><button class="epic-cancel" id="reschedCancelBtn">Close</button><button class="epic-go" id="reschedConfirmBtn" style="background:var(--accent);color:#fff;display:none">✅ Confirm new time</button></div>
+  </div>
+</div>
+<style>
+#clCalDates .cal-date{text-align:center;padding:5px 2px;font-size:.63rem;border-radius:7px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;line-height:1.3}
+#clCalDates .cal-date .dow{display:block;font-weight:800;color:var(--text)}
+#clCalDates .cal-date.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+#clCalTimes .cal-time{padding:6px 10px;font-size:.74rem;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
+#clCalTimes .cal-time.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+</style>
+
 <div id="toast" class="toast"></div>
 
 <script>
@@ -706,6 +729,10 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.37.0',d:'2026-07-07',n:[
+ "Referral Partner, Setter, and Closer can now all see a real booked appointment's date/time, and cancel or reschedule it — real actions on the actual Calendly event, not just a local UI change.",
+ "Closer: real leads with a booked Strategy Session now show it right on the contact card, with the same cancel/reschedule.",
+]},
 {v:'1.36.0',d:'2026-07-07',n:[
  "Setter now books the real EPIC LIFE Strategy Session directly onto Bruce's own Calendly (was Miki's Discovery Call) — owner decision: qualified cold leads go straight to the real closer.",
  "Referral Partner: new 📅 Book the Discovery Call action — a partner can now book the real 30-min call for anyone they've referred, straight from their phone, onto Miki's real calendar. Moves their tracker to Booked immediately.",
@@ -950,6 +977,7 @@ function filteredList(){ return QUEUE.filter(p=>(currentFocus==='all'||p.seg.ind
 // untouched for training/onboarding (usingRealLeads stays false for it).
 const CLOSER_STAGE_PATTERNS=['3.%','5.%','7.%'];
 let usingRealLeads=false;
+let REAL_BOOKINGS={}; // prospect_id -> active bookings row {id,slot_at,status} (2026-07-07)
 function titleCase(s){ return (s||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
 function initialsFrom(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
 function shortStageLabel(stage){ return (stage||'Sales Hub lead').replace(/^\d+\.?\s*/,''); }
@@ -976,10 +1004,95 @@ async function loadCloserQueue(){
         caller:formatPhoneDisplay(r.phone), hist:[] };
     });
     usingRealLeads=true;
+    var pids=QUEUE.map(function(q){return q.id;});
+    var bk=await window.EPIC_SB.from('bookings').select('id,prospect_id,slot_at,status').in('prospect_id',pids).not('status','in','(void,no_show,disqualified)');
+    REAL_BOOKINGS={};
+    if(!bk.error) (bk.data||[]).forEach(function(b){ REAL_BOOKINGS[b.prospect_id]=b; });
     curId=null; setFocus('all', true);
     toast('Loaded '+QUEUE.length+' real booked-call leads from Sales Hub');
   }catch(e){ usingRealLeads=false; toast('Could not load live leads — showing demo'); console.error('loadCloserQueue',e); }
 }
+// ── See/cancel/reschedule the real appointment (2026-07-07) ──
+function renderRealBookingPanel(prospectId){
+  var el=$('realBookingInfo'); if(!el) return;
+  var b=usingRealLeads?REAL_BOOKINGS[prospectId]:null;
+  if(b){
+    el.style.display='';
+    $('realBookingWhen').innerHTML='📅 <b>Booked</b> — '+new Date(b.slot_at).toLocaleString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'})+' HST';
+  } else {
+    el.style.display='none';
+  }
+}
+async function cancelRealBooking(prospectId){
+  var b=REAL_BOOKINGS[prospectId]; if(!b) return;
+  if(!confirm('Cancel this real appointment on Calendly?')) return;
+  try{
+    var r=await window.EPIC_SB.functions.invoke('calendly-cancel',{body:{booking_id:b.id}});
+    if(r.error||!r.data||!r.data.ok){
+      var msg=(r.data&&r.data.error)||null;
+      if(!msg&&r.error&&r.error.context&&typeof r.error.context.json==='function'){ try{ var body=await r.error.context.json(); msg=body&&(body.error||body.message);}catch(_){} }
+      throw new Error(msg||'unknown error');
+    }
+    delete REAL_BOOKINGS[prospectId]; renderRealBookingPanel(prospectId); toast('✅ Appointment canceled');
+  }catch(e){ toast('Could not cancel — '+e.message); }
+}
+$('realBookingCancel').onclick=function(e){ e.preventDefault(); if(curId) cancelRealBooking(curId); };
+let CL_SLOTS=[], clCalDate=null, clCalTime=null;
+function clSlotsByDay(){
+  var by={};
+  CL_SLOTS.forEach(function(iso){ var d=new Date(iso); var key=d.toLocaleDateString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric'}); (by[key]=by[key]||[]).push(iso); });
+  return by;
+}
+function clRenderDates(){
+  var box=$('clCalDates'), by=clSlotsByDay(), days=Object.keys(by);
+  if(!days.length){ box.innerHTML=''; $('clCalTimes').innerHTML=''; return; }
+  box.innerHTML=days.map(function(k,i){ var parts=k.replace(',','').split(' '); return '<button class="cal-date'+(i===0?' sel':'')+'" data-lbl="'+k+'"><span class="dow">'+parts[0]+'</span>'+(parts[1]||'')+'</button>'; }).join('');
+  box.querySelectorAll('.cal-date').forEach(function(b){ b.onclick=function(){ box.querySelectorAll('.cal-date').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); clCalDate=b.getAttribute('data-lbl'); clRenderTimes(); }; });
+  clCalDate=days[0]; clRenderTimes();
+}
+function clRenderTimes(){
+  var box=$('clCalTimes'), by=clSlotsByDay(), slots=by[clCalDate]||[];
+  box.innerHTML=slots.map(function(iso){ var label=new Date(iso).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'}); return '<button class="cal-time" data-iso="'+iso+'">'+label+'</button>'; }).join('');
+  box.querySelectorAll('.cal-time').forEach(function(b){ b.onclick=function(){
+    box.querySelectorAll('.cal-time').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel');
+    clCalTime=b.getAttribute('data-iso'); $('reschedStatus').textContent='Ready to book '+clCalDate+' at the selected time.'; $('reschedConfirmBtn').style.display='';
+  }; });
+}
+async function openReschedModal(){
+  if(!curId) return;
+  clCalDate=null; clCalTime=null; $('reschedConfirmBtn').style.display='none'; $('reschedStatus').textContent='Pick a day and time.';
+  $('reschedModal').classList.remove('hidden'); $('reschedAvailNote').textContent='Loading real availability…';
+  try{
+    var r=await window.EPIC_SB.functions.invoke('calendly-availability',{body:{}});
+    if(r.error||!r.data||!r.data.ok) throw new Error((r.data&&r.data.error)||'unknown error');
+    CL_SLOTS=r.data.slots||[];
+    $('reschedAvailNote').textContent=CL_SLOTS.length?'Pick a real open slot:':'No real availability found in the next few days.';
+  }catch(e){ CL_SLOTS=[]; $('reschedAvailNote').textContent='⚠️ Could not load availability — '+e.message; }
+  clRenderDates();
+}
+$('realBookingResched').onclick=async function(e){
+  e.preventDefault(); if(!curId) return;
+  var b=REAL_BOOKINGS[curId];
+  if(b){ try{ await window.EPIC_SB.functions.invoke('calendly-cancel',{body:{booking_id:b.id}}); delete REAL_BOOKINGS[curId]; renderRealBookingPanel(curId); }catch(err){} }
+  openReschedModal();
+};
+$('reschedCancelBtn').onclick=function(){ $('reschedModal').classList.add('hidden'); };
+$('reschedModal').addEventListener('click',function(e){ if(e.target===$('reschedModal')) $('reschedModal').classList.add('hidden'); });
+$('reschedConfirmBtn').onclick=async function(){
+  if(!curId||!clCalTime) return;
+  var btn=$('reschedConfirmBtn'); btn.disabled=true; btn.textContent='Booking on Calendly…';
+  try{
+    var r=await window.EPIC_SB.functions.invoke('calendly-book',{body:{prospect_id:curId, start_time:clCalTime}});
+    if(r.error||!r.data||!r.data.ok){
+      var msg=(r.data&&r.data.error)||null;
+      if(!msg&&r.error&&r.error.context&&typeof r.error.context.json==='function'){ try{ var body=await r.error.context.json(); msg=body&&(body.error||body.message);}catch(_){} }
+      throw new Error(msg||'unknown error');
+    }
+    REAL_BOOKINGS[curId]={id:r.data.booking_id, slot_at:clCalTime, status:'booked'};
+    renderRealBookingPanel(curId); toast('✅ New time booked on Calendly'); $('reschedModal').classList.add('hidden');
+  }catch(e){ $('reschedStatus').textContent='❌ Booking failed — '+e.message; toast('Could not book — see status'); }
+  btn.disabled=false; btn.textContent='✅ Confirm new time';
+};
 window.onEpicAuthed=function(){ loadCloserQueue(); };
 async function runRealCall(){
   const myToken=++runToken;
@@ -1196,6 +1309,7 @@ function selectProspect(id, clear){
   $('histToggle').innerHTML='🕐 History ('+h.length+') ▾';
   document.querySelectorAll('#queueList .qcard').forEach(c=>c.classList.toggle('active', c.getAttribute('data-id')===p.id));
   try{renderClose()}catch(e){}
+  renderRealBookingPanel(p.id);
 }
 /* render the queue from the current focus */
 function renderQueue(){

@@ -167,6 +167,7 @@ function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTi
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 const SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
 
+let BOOKING_BY_DEAL={};
 let vet='unvetted';
 const STAGES=['Submitted','Contacted','Booked','Joined'];
 function setVet(v){ vet=v; $('vetYes').classList.toggle('sel',v==='vetted'); $('vetNo').classList.toggle('sel',v==='unvetted');
@@ -223,12 +224,14 @@ SB.auth.onAuthStateChange(()=>{ refreshUI(); });
 /* ---- data ---- */
 async function loadData(){
   try{
-    const [{data:refs,error:rErr},{data:comms}]=await Promise.all([
+    const [{data:refs,error:rErr},{data:comms},{data:bks}]=await Promise.all([
       SB.from('referrals').select('id,prospect_name,prospect_phone,prospect_email,relationship,route,created_at,deals(id,stage)').order('created_at',{ascending:false}),
-      SB.from('commissions').select('deal_id,amount,status')
+      SB.from('commissions').select('deal_id,amount,status'),
+      SB.from('bookings').select('id,deal_id,slot_at,status').not('deal_id','is',null).not('status','in','(void,no_show,disqualified)')
     ]);
     if(rErr){ toast('Could not load referrals'); return; }
     const commByDeal={}; (comms||[]).forEach(c=>{ commByDeal[c.deal_id]=c; });
+    BOOKING_BY_DEAL={}; (bks||[]).forEach(b=>{ BOOKING_BY_DEAL[b.deal_id]=b; });
     let booked=0, joined=0, paid=0, pending=0;
     const rows=(refs||[]).map(r=>{
       const deal=(r.deals&&r.deals[0])||null;
@@ -246,12 +249,25 @@ async function loadData(){
         if(r.prospect_phone&&r.prospect_email){ bookBtn='<button class="btn" style="margin-top:8px;padding:9px" data-book="'+deal.id+'" data-nm="'+esc(r.prospect_name)+'">📅 Book the Discovery Call</button>'; }
         else { bookBtn='<div style="font-size:.7rem;color:var(--muted);margin-top:8px">Add their phone + email to book the Discovery Call directly.</div>'; }
       }
+      // See/cancel/reschedule the real booking (2026-07-07) — shown while Booked
+      // and not yet Joined (once joined, the appointment already happened).
+      let bookedInfo='';
+      if(deal&&idx===2&&BOOKING_BY_DEAL[deal.id]){
+        var bk=BOOKING_BY_DEAL[deal.id];
+        var when=new Date(bk.slot_at).toLocaleString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'});
+        bookedInfo='<div class="pts" style="color:var(--info)">📅 Booked '+when+' HST</div>'+
+          '<div style="display:flex;gap:6px;margin-top:6px">'+
+          '<button class="btn" style="padding:7px;font-size:.76rem;background:var(--warning-bg);color:var(--warning)" data-cancel="'+bk.id+'">❌ Cancel</button>'+
+          '<button class="btn" style="padding:7px;font-size:.76rem" data-resched="'+bk.id+'" data-book="'+deal.id+'" data-nm="'+esc(r.prospect_name)+'">🔁 Reschedule</button></div>';
+      }
       return '<div class="ref"><div class="top"><span class="rn">'+esc(r.prospect_name)+'</span><span class="badge '+(r.route==='closer'?'b-closer':'b-bdr')+'">'+(r.route==='closer'?'→ Closer':'→ BDR')+'</span></div>'+
         '<div class="meta">'+esc(r.relationship||'referral')+'</div>'+
-        '<div class="track">'+STAGES.map((s,i)=>'<span class="st'+(i<=idx?' on':'')+'">'+s+'</span>').join('')+'</div>'+earn+bookBtn+'</div>';
+        '<div class="track">'+STAGES.map((s,i)=>'<span class="st'+(i<=idx?' on':'')+'">'+s+'</span>').join('')+'</div>'+earn+bookBtn+bookedInfo+'</div>';
     });
     $('refList').innerHTML=rows.length?rows.join(''):'<div style="font-size:.84rem;color:var(--text2);padding:8px 2px">No referrals yet — send your first one from the form. 👈</div>';
     $('refList').querySelectorAll('[data-book]').forEach(function(b){ b.onclick=function(){ openBookModal(b.getAttribute('data-book'), b.getAttribute('data-nm')); }; });
+    $('refList').querySelectorAll('[data-cancel]').forEach(function(b){ b.onclick=function(){ cancelReferralBooking(b.getAttribute('data-cancel'), false); }; });
+    $('refList').querySelectorAll('[data-resched]').forEach(function(b){ b.onclick=function(){ cancelReferralBooking(b.getAttribute('data-resched'), true, b.getAttribute('data-book'), b.getAttribute('data-nm')); }; });
     $('s-ref').textContent=(refs||[]).length; $('s-book').textContent=booked; $('s-won').textContent=joined;
     $('s-pts').textContent='$'+paid+(pending?(' (+$'+pending+')'):'');
   }catch(e){ /* network blip — next poll */ }
@@ -325,6 +341,21 @@ $('bookConfirm').onclick=async function(){
   }catch(e){ $('bookStatus2').textContent='❌ Booking failed — '+e.message; toast('Could not book — see status'); }
   btn.disabled=false; if(!rBooked) btn.textContent='✅ Confirm booking';
 };
+
+/* ---- cancel / reschedule a real booking (2026-07-07) ---- */
+async function cancelReferralBooking(bookingId, reschedule, dealId, name){
+  if(!reschedule && !confirm('Cancel this real appointment on Calendly?')) return;
+  try{
+    const r=await SB.functions.invoke('calendly-cancel',{body:{booking_id:bookingId}});
+    if(r.error||!r.data||!r.data.ok){
+      var msg=(r.data&&r.data.error)||null;
+      if(!msg&&r.error&&r.error.context&&typeof r.error.context.json==='function'){ try{ var b=await r.error.context.json(); msg=b&&(b.error||b.message);}catch(_){} }
+      throw new Error(msg||'unknown error');
+    }
+    toast(reschedule?'Canceled — pick a new time':'✅ Appointment canceled');
+    if(reschedule&&dealId){ openBookModal(dealId, name); } else { loadData(); }
+  }catch(e){ toast('Could not cancel — '+e.message); }
+}
 
 /* ---- submit ---- */
 $('submit').onclick=async ()=>{
@@ -414,6 +445,9 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Referral Partner', SEEN='epic_referral_seen';
   var NOTES=[
+  {v:'2.3.0',d:'2026-07-07',n:[
+   "Once you've booked a Discovery Call, this page now shows the real appointment time with ❌ Cancel and 🔁 Reschedule, both real (cancel actually cancels on Calendly; reschedule cancels then lets you pick a fresh slot).",
+  ]},
   {v:'2.2.0',d:'2026-07-07',n:[
    "New: 📅 Book the Discovery Call — for any referral that's still just Submitted, book the real 30-min call directly from this page (real Calendly slots, real booking, no separate step). Needs their phone + email on file first.",
    "Booking one moves your tracker straight to Booked — no waiting on a sync.",
@@ -500,7 +534,7 @@ body{padding-top:46px}
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.36.0'; /*suite-build*/
+  var SUITE_BUILD='1.37.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
