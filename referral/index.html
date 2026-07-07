@@ -103,7 +103,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
       <div class="panel">
         <div class="lbl">➕ Refer someone</div>
         <div class="fld"><label>Their name</label><input id="rName" placeholder="e.g. Jordan Alvarez"></div>
-        <div class="fld"><label>Phone or email</label><input id="rContact" placeholder="phone or email"></div>
+        <div class="fld"><label>Phone</label><input id="rPhone" type="tel" placeholder="(808) 555-0142"></div>
+        <div class="fld"><label>Email <span style="font-weight:400;color:var(--text2)">— add this to book their Discovery Call directly</span></label><input id="rEmail" type="email" placeholder="name@email.com"></div>
         <div class="fld"><label>How do you know them?</label><input id="rRel" placeholder="friend, family, business owner you know…"></div>
         <div class="lbl">Have you already talked to them about EPIC LIFE?</div>
         <div class="vet">
@@ -266,7 +267,14 @@ async function loadData(){
       let bookBtn='';
       if(deal&&idx===0){
         if(r.prospect_phone&&r.prospect_email){ bookBtn='<button class="btn" style="margin-top:8px;padding:9px" data-book="'+deal.id+'" data-nm="'+esc(r.prospect_name)+'">📅 Book the Discovery Call</button>'; }
-        else { bookBtn='<div style="font-size:.7rem;color:var(--muted);margin-top:8px">Add their phone + email to book the Discovery Call directly.</div>'; }
+        else {
+          var need=[]; if(!r.prospect_phone) need.push('phone'); if(!r.prospect_email) need.push('email');
+          bookBtn='<div style="font-size:.7rem;color:var(--muted);margin-top:8px 0 4px">Add their '+need.join(' + ')+' to book the Discovery Call directly:</div>'+
+            '<div style="display:flex;gap:6px;margin-top:4px">'+
+            (r.prospect_phone?'':'<input class="fixPhone" data-ref="'+r.id+'" placeholder="phone" style="flex:1;padding:7px 9px;font-size:.78rem;border-radius:6px;border:1px solid var(--border)">')+
+            (r.prospect_email?'':'<input class="fixEmail" data-ref="'+r.id+'" placeholder="email" style="flex:1;padding:7px 9px;font-size:.78rem;border-radius:6px;border:1px solid var(--border)">')+
+            '<button class="btn" data-fix="'+r.id+'" style="width:auto;padding:7px 12px;font-size:.78rem">Save</button></div>';
+        }
       }
       // See/cancel/reschedule the real booking (2026-07-07) — shown while Booked
       // and not yet Joined (once joined, the appointment already happened).
@@ -285,6 +293,19 @@ async function loadData(){
     });
     $('refList').innerHTML=rows.length?rows.join(''):'<div style="font-size:.84rem;color:var(--text2);padding:8px 2px">No referrals yet — send your first one from the form. 👈</div>';
     $('refList').querySelectorAll('[data-book]').forEach(function(b){ b.onclick=function(){ openBookModal(b.getAttribute('data-book'), b.getAttribute('data-nm')); }; });
+    $('refList').querySelectorAll('[data-fix]').forEach(function(b){ b.onclick=async function(){
+      var refId=b.getAttribute('data-fix');
+      var phoneEl=$('refList').querySelector('.fixPhone[data-ref="'+refId+'"]');
+      var emailEl=$('refList').querySelector('.fixEmail[data-ref="'+refId+'"]');
+      var upd={};
+      if(phoneEl&&phoneEl.value.trim()) upd.prospect_phone=phoneEl.value.trim();
+      if(emailEl&&emailEl.value.trim()) upd.prospect_email=emailEl.value.trim();
+      if(!Object.keys(upd).length){ toast('Add at least one'); return; }
+      b.disabled=true; b.textContent='Saving…';
+      var r=await SB.from('referrals').update(upd).eq('id',refId);
+      if(r.error){ toast('Could not save — '+r.error.message); b.disabled=false; b.textContent='Save'; }
+      else { toast('Saved ✓'); loadData(); }
+    }; });
     $('refList').querySelectorAll('[data-cancel]').forEach(function(b){ b.onclick=function(){ cancelReferralBooking(b.getAttribute('data-cancel'), false); }; });
     $('refList').querySelectorAll('[data-resched]').forEach(function(b){ b.onclick=function(){ cancelReferralBooking(b.getAttribute('data-resched'), true, b.getAttribute('data-book'), b.getAttribute('data-nm')); }; });
     $('s-ref').textContent=(refs||[]).length; $('s-book').textContent=booked; $('s-won').textContent=joined;
@@ -380,18 +401,17 @@ async function cancelReferralBooking(bookingId, reschedule, dealId, name){
 /* ---- submit ---- */
 $('submit').onclick=async ()=>{
   const nm=$('rName').value.trim(); if(!nm){toast('Add their name');return;}
-  const contact=$('rContact').value.trim();
   const body={ prospect_name:nm, relationship:$('rRel').value.trim()||null,
     route: vet==='vetted'?'closer':'bdr', note:$('rNote').value.trim()||null,
     soft_bant: softBant,
-    prospect_email: contact.includes('@')?contact:null,
-    prospect_phone: contact&&!contact.includes('@')?contact:null };
+    prospect_phone: $('rPhone').value.trim()||null,
+    prospect_email: $('rEmail').value.trim()||null };
   const btn=$('submit'); btn.disabled=true; btn.textContent='Sending…';
   try{
     const {data,error}=await SB.functions.invoke('submit-referral',{body});
     if(error||!data||!data.ok){ toast('Could not send — try again'); }
     else{
-      ['rName','rContact','rRel','rNote'].forEach(id=>$(id).value='');
+      ['rName','rPhone','rEmail','rRel','rNote'].forEach(id=>$(id).value='');
       resetBant();
       toast(vet==='vetted'?'Sent to a Closer 🎯':'Sent to the team 🤝');
       setVet('unvetted'); loadData();
@@ -465,6 +485,9 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Referral Partner', SEEN='epic_referral_seen';
   var NOTES=[
+  {v:'2.5.0',d:'2026-07-07',n:[
+   "Fixed: the referral form only ever asked for phone OR email, so almost nobody had both — silently blocking the real Discovery Call booking feature (it needs both to book a real outbound call). Now asks for phone and email separately, and any referral missing one can add it right on the card.",
+  ]},
   {v:'2.4.0',d:'2026-07-07',n:[
    "Real payout tracking: clear Paid vs. Pending amounts (split out in the stats bar), and a real payout cadence — earned the 1st–15th pays the 25th, earned the 16th–end pays the 5th of next month. Sent by the TLA team directly (Venmo/PayPal/check), not automatic — this just tells you what to expect and when.",
   ]},
@@ -557,7 +580,7 @@ body{padding-top:46px}
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.40.0'; /*suite-build*/
+  var SUITE_BUILD='1.41.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

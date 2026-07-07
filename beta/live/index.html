@@ -729,6 +729,9 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.41.0',d:'2026-07-07',n:[
+ "Fixed: Referral Partner's submit form only ever asked for phone OR email, so almost no referral had both — silently blocking the real Discovery Call booking button, which needs both (Calendly requires an email; it's booked as an outbound call, so it needs a phone too). Now asks for both separately, and any referral missing one can add it right on the card.",
+]},
 {v:'1.40.0',d:'2026-07-07',n:[
  "Real referral payment tracking: Referral Partner now shows clear Paid vs. Pending $ amounts and a real payout cadence (earned 1st–15th pays the 25th; 16th–end pays the 5th next month). Admin gets a new Payout tracker — real commissions grouped by person + pay cycle, with a checkbox for when your team actually sends the money.",
  "Hub's \"Building next\" panel now shows Done / Building now / Future plan, kept up to date as work ships.",
