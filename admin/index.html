@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EPIC Suite — Admin Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:14px;--radius-sm:9px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
+.wrap{max-width:1180px;margin:0 auto}
+a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:13px 17px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px;box-shadow:0 1px 3px rgba(18,24,38,.05)}
+.brand h1{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--accent)}
+.brand .sub{font-size:.72rem;color:var(--text2)}
+.demo{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:999px;background:var(--warn-badge-bg);color:var(--warn-badge)}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px}
+@media(max-width:820px){.metrics{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 13px;box-shadow:0 1px 3px rgba(18,24,38,.04)}
+.metric b{font-size:1.4rem;display:block;line-height:1.1;color:var(--ink)}.metric span{font-size:.64rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.cols{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;align-items:start}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px;margin-bottom:14px;box-shadow:0 1px 3px rgba(18,24,38,.04)}
+.lbl{font-size:.68rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:11px;font-weight:700}
+/* commission split bar — 4 distinct in-palette hues for a readable legend */
+.split{display:flex;height:34px;border-radius:8px;overflow:hidden;margin-bottom:10px}
+.seg{display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;color:#fff}
+.seg.lg{background:var(--info);flex:1}.seg.bd{background:var(--gold);flex:1}.seg.c3{background:var(--success);flex:1}.seg.cc{background:var(--warning);flex:2}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.leg{display:flex;align-items:center;gap:8px;font-size:.78rem}
+.dot{width:10px;height:10px;border-radius:3px;flex:0 0 auto}
+.leg .amt{margin-left:auto;font-weight:800}
+.leg .who{color:var(--text2);font-size:.7rem}
+.cmtd{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.cmtd div{flex:1;min-width:120px}.cmtd b{display:block;font-size:1.1rem;color:var(--ink)}.cmtd span{font-size:.66rem;color:var(--text2)}
+/* funnel */
+.funnel{display:flex;flex-direction:column;gap:9px}
+.stage{display:flex;align-items:center;gap:11px}
+.stage .nm{width:118px;font-size:.8rem;font-weight:700;flex:0 0 auto}
+.stage .track{flex:1;height:26px;background:var(--surface2);border-radius:7px;overflow:hidden;position:relative}
+.stage .track i{display:block;height:100%;border-radius:7px}
+.stage .val{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:.74rem;font-weight:800;color:#fff}
+.stage .cv{width:52px;text-align:right;font-size:.72rem;color:var(--text2);flex:0 0 auto}
+.f1{background:linear-gradient(90deg,#273FA8,#5B7FD6)}.f2{background:linear-gradient(90deg,#C4A95B,#DDBD7A)}
+.f3{background:linear-gradient(90deg,#3C7E44,#5FA467)}.f4{background:linear-gradient(90deg,#87451D,#B06A3E)}
+/* leaderboards */
+.lead{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}.lead:last-child{border-bottom:none}
+.rank{width:21px;height:21px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex:0 0 auto}
+.rank.g{background:var(--warn-badge-bg);color:var(--warn-badge)}
+.lead .who{flex:1;min-width:0}.lead .who b{font-size:.84rem}.lead .who span{display:block;font-size:.66rem;color:var(--text2)}
+.lead .pay{font-size:.82rem;font-weight:800;color:var(--success);flex:0 0 auto}
+.lbtabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.lbtab{font-size:.7rem;font-weight:700;padding:6px 11px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer}
+.lbtab.on{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+/* table */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.tbl th{text-align:left;font-size:.62rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);padding:7px 8px;border-bottom:1px solid var(--border);font-weight:700}
+.tbl td{padding:8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.chipst{font-size:.62rem;font-weight:800;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.st-sub{background:var(--surface2);color:var(--text2)}.st-book{background:var(--warn-badge-bg);color:var(--warn-badge)}
+.st-close{background:var(--info-bg);color:var(--info)}.st-join{background:var(--success-bg);color:var(--success)}
+.owner{font-size:.7rem;color:var(--text2)}
+.comm{font-size:.74rem;font-weight:800;color:var(--success)}.comm.pend{color:var(--text2);font-weight:600}
+.sug{border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px 11px;margin-bottom:8px;background:var(--bg2)}
+.sug .r{font-size:.6rem;font-weight:800;color:var(--warn-badge);text-transform:uppercase;letter-spacing:.4px}
+.sug p{font-size:.78rem;color:var(--text);margin-top:3px}
+.note{font-size:.72rem;color:var(--muted);margin-top:8px;line-height:1.5}
+.foot{color:var(--muted);font-size:.72rem;margin-top:16px;line-height:1.6}
+</style>
+</head>
+<body>
+<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
+     magic-link mechanism as EPIC Referral Partner, PLUS the existing admin
+     code as a second factor (this page had ZERO protection of its own before
+     this — the hub's EPICADMIN prompt only gated the link to get here, it set
+     `epic_admin` in localStorage but nothing ever checked it on this page).
+     Real per-user role gating (profiles.role='owner') is the natural next
+     step once Bruce has signed in once and a profiles row exists for him. ===== -->
+<style>
+#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
+#epicAuthGate.hidden{display:none}
+.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
+.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
+.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
+.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
+.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-box .epic-gate-btn{display:block;width:100%;padding:12px;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff;text-decoration:none;text-align:center;box-sizing:border-box}
+.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
+.epic-auth-box a.epic-hub-link{display:inline-block;margin-top:6px;font-size:.82rem;color:#253984;font-weight:700}
+#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
+</style>
+<div id="epicAuthGate" class="hidden">
+  <div class="epic-auth-box" id="epicAuthStep1">
+    <h2>🔐 Sign in required</h2>
+    <p>Sign in once from the EPIC Suite hub — it unlocks every tool your role can reach.</p>
+    <a class="epic-gate-btn" href="../">Go to EPIC Suite hub →</a>
+  </div>
+  <div class="epic-auth-box" id="epicAuthStep2" style="display:none">
+    <h2>🔒 Admin access only</h2>
+    <p>You're signed in, but your role doesn't reach Admin. EPIC Suite's admin dashboard needs Admin (owner) access — ask Bruce if you think this is wrong.</p>
+    <a class="epic-gate-btn" href="../">← Back to EPIC Suite hub</a>
+  </div>
+</div>
+<span id="epicSignOut" style="display:none">sign out</span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  // Single sign-in point is the hub now (2026-07-05) — this tool never mints
+  // its own magic link, it only checks an existing session + role rank.
+  // Rank: owner(Admin)=5 > cs(Client Success)=4 > closer=3 > bdr(Setter)=2 >
+  // partner(Referral)=1. Admin needs the top rank — owner only, same as before,
+  // just expressed through the shared rank system all 5 tools now use.
+  var TOOL_RANK=5; // Admin
+  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  var step1=document.getElementById('epicAuthStep1'), step2=document.getElementById('epicAuthStep2');
+  async function myRank(session){
+    if(!session) return -1;
+    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+    var role=r.data&&r.data.role;
+    return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
+  }
+  async function refresh(){
+    wrapEl=wrapEl||document.querySelector('.wrap');
+    var r=await SB.auth.getSession(), session=r.data.session;
+    var rank=await myRank(session);
+    var authorized=rank>=TOOL_RANK;
+    gate.classList.toggle('hidden', authorized);
+    step1.style.display=session?'none':'';
+    step2.style.display=(session&&!authorized)?'':'none';
+    if(wrapEl) wrapEl.style.visibility=authorized?'visible':'hidden';
+    signOutBtn.style.display=session?'':'none';
+    if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+  }
+  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
+<div class="wrap">
+  <a class="back" href="../">← EPIC Suite</a>
+  <header>
+    <div class="brand"><h1>📊 EPIC Suite — Admin Dashboard</h1><div class="sub">Global view · funnel, commissions & leaderboards across every role</div></div>
+    <span class="demo">Demo data</span>
+  </header>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="panel">
+    <div class="lbl">💵 Commission — how each closed membership's $500 setup splits</div>
+    <div class="split">
+      <div class="seg lg">$100</div><div class="seg bd">$100</div><div class="seg c3">$100</div><div class="seg cc">$200</div>
+    </div>
+    <div class="legend">
+      <div class="leg"><span class="dot" style="background:#273FA8"></span> Lead gen <span class="who">· Referral Partner / TLA ads</span><span class="amt">$100</span></div>
+      <div class="leg"><span class="dot" style="background:#C4A95B"></span> BDR booking <span class="who">· qualified → closer cal</span><span class="amt">$100</span></div>
+      <div class="leg"><span class="dot" style="background:#3C7E44"></span> Closer — 3B booked <span class="amt">$100</span></div>
+      <div class="leg"><span class="dot" style="background:#87451D"></span> Closer — membership <span class="amt">$200</span></div>
+    </div>
+    <div class="cmtd" id="cmtd"></div>
+    <div class="note">Commissions realize <b>on close</b> (when the $500 setup is collected), attributed to whoever did each step. Warm referrals that skip the BDR leave that $100 with the house. Client Success is not in the setup-fee split.</div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <div class="panel">
+        <div class="lbl">🔻 Funnel — this month</div>
+        <div class="funnel" id="funnel"></div>
+      </div>
+      <div class="panel">
+        <div class="lbl">🔗 Recent interactions — who's handling + commission</div>
+        <div style="overflow-x:auto"><table class="tbl" id="interactions"></table></div>
+      </div>
+      <div class="panel">
+        <div class="lbl">🎯 BDR booking quality — verified qualified bookings drive the $100</div>
+        <div style="overflow-x:auto"><table class="tbl" id="bdrqual"></table></div>
+        <div class="note">BDR earns $100 when a booking is <b>verified qualified</b> — BANT met (Budget + Authority required) + intent + it sits, confirmed by the closer with AI corroboration. Earned/locked at the qualified booking, paid from the $500 on close (TLA fronts). No-shows &amp; closer-disqualifies don't pay — that $100 rolls to the house. Watch <b>BANT-match</b> (BDR tags vs what the AI heard) for gaming.</div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <div class="lbl">🏆 Leaderboards — by role (commission earned MTD)</div>
+        <div class="lbtabs" id="lbtabs"></div>
+        <div id="leaderboard"></div>
+      </div>
+      <div class="panel">
+        <div class="lbl">🌟 Client Success — onboarding leaders</div>
+        <div id="csboard"></div>
+        <div class="note">CS isn't commissioned on the setup fee — ranked on members onboarded. (A retention bonus could slot in here.)</div>
+      </div>
+      <div class="panel">
+        <div class="lbl">💡 Latest suggestions</div>
+        <div id="suggestions">Loading…</div>
+        <div class="note">Real feed from every tool's 💡 suggestion box (<code>epic_suggestions</code>) — click "mark reviewed" once you've read one.</div>
+      </div>
+      <div class="panel">
+        <div class="lbl">👥 Team — emails &amp; roles</div>
+        <div id="teamList" class="note">Loading…</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-top:11px;align-items:end">
+          <div><label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Email</label>
+            <input id="teamEmail" type="email" placeholder="name@email.com" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border);box-sizing:border-box"></div>
+          <div><label style="font-size:.72rem;color:var(--text2);display:block;margin-bottom:4px">Role</label>
+            <select id="teamRole" style="width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--border)">
+              <option value="rep">rep</option><option value="bdr">bdr</option><option value="closer">closer</option>
+              <option value="cs">cs</option><option value="partner">partner</option><option value="owner">owner</option>
+            </select></div>
+          <button id="teamInviteBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--accent,#253984);color:#fff;white-space:nowrap">Invite</button>
+        </div>
+        <div class="note" id="teamMsg" style="margin-top:8px"></div>
+      </div>
+      <div class="panel">
+        <div class="lbl">🔁 Sales Hub sync — refresh real leads from the CRM</div>
+        <div class="note" id="salesHubStatus">Checking last sync…</div>
+        <div style="margin-top:11px"><button id="salesHubSyncBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--accent,#253984);color:#fff">Sync now</button></div>
+        <div class="note" id="salesHubMsg" style="margin-top:10px;white-space:pre-wrap"></div>
+      </div>
+      <div class="panel">
+        <div class="lbl">📞 Fathom call sync — real calls → real data</div>
+        <div class="note">One-time setup: Register the webhook once (after adding <code>FATHOM_API_KEY</code> as a project secret), copy the returned secret into <code>FATHOM_WEBHOOK_SECRET</code>, then Run backfill — safe to click again anytime, already-processed calls are skipped.</div>
+        <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
+          <button id="fathomRegisterBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--surface2,#F0F1F5);color:var(--text,#121826)">1 · Register webhook</button>
+          <button id="fathomSyncBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--accent,#253984);color:#fff">2 · Run backfill</button>
+        </div>
+        <div class="note" id="fathomMsg" style="margin-top:10px;white-space:pre-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    🔐 <b>Real owner-only access (2026-07-04).</b> Gated by Supabase Auth + a <code>profiles.role='owner'</code> check — not a shared code anymore. Manage who else gets in from the Team panel above. Commission figures elsewhere on this page are still illustrative pending live data wiring.
+  </div>
+</div>
+<script>
+(function(){
+  var ROLE_OPTS=['owner','rep','bdr','closer','cs','partner'];
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  async function loadTeam(){
+    var box=document.getElementById('teamList');
+    var r=await window.EPIC_SB.from('profiles').select('id,email,role,created_at').order('created_at',{ascending:true});
+    if(r.error){ box.textContent='Could not load team: '+r.error.message; return; }
+    var rows=r.data||[];
+    if(rows.length===0){ box.innerHTML='No team members yet — invite the first one below.'; return; }
+    box.innerHTML=rows.map(function(m){
+      var opts=ROLE_OPTS.map(function(o){return '<option value="'+o+'"'+(o===m.role?' selected':'')+'>'+o+'</option>';}).join('');
+      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+
+        '<span style="flex:1;font-size:.85rem">'+esc(m.email)+'</span>'+
+        '<select data-id="'+m.id+'" class="teamRoleSel" style="padding:5px 8px;border-radius:6px;border:1px solid var(--border)">'+opts+'</select>'+
+        '</div>';
+    }).join('');
+    document.querySelectorAll('.teamRoleSel').forEach(function(sel){
+      sel.onchange=async function(){
+        var id=sel.getAttribute('data-id'), role=sel.value;
+        var r2=await window.EPIC_SB.from('profiles').update({role:role}).eq('id',id);
+        document.getElementById('teamMsg').textContent=r2.error?('Could not update: '+r2.error.message):('Updated to '+role+'.');
+      };
+    });
+  }
+  document.getElementById('teamInviteBtn').onclick=async function(){
+    var email=(document.getElementById('teamEmail').value||'').trim();
+    var role=document.getElementById('teamRole').value;
+    var msg=document.getElementById('teamMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('teamInviteBtn'); btn.disabled=true; msg.textContent='Inviting…';
+    try{
+      var r=await window.EPIC_SB.functions.invoke('admin-invite',{body:{email:email,role:role}});
+      if(r.error || !r.data || !r.data.ok){ msg.textContent='Could not invite: '+((r.data&&r.data.error)||r.error||'unknown error'); }
+      else { msg.textContent='✅ Invited '+email+' as '+role+' — they\'ll get a Supabase invite email.'; document.getElementById('teamEmail').value=''; loadTeam(); }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
+  async function loadSalesHubStatus(){
+    var el=document.getElementById('salesHubStatus');
+    var r=await window.EPIC_SB.from('sync_state').select('last_synced_at,last_status').eq('source','sales-hub-fabric').maybeSingle();
+    if(r.error||!r.data){ el.textContent='No sync recorded yet — click Sync now.'; return; }
+    var when=r.data.last_synced_at?new Date(r.data.last_synced_at).toLocaleString():'never';
+    el.textContent='Last synced: '+when+' — '+(r.data.last_status||'');
+  }
+  document.getElementById('salesHubSyncBtn').onclick=async function(){
+    var msg=document.getElementById('salesHubMsg'); var btn=this; btn.disabled=true; msg.textContent='Syncing from Sales Hub…';
+    try{
+      var r=await window.EPIC_SB.functions.invoke('sales-hub-sync',{body:{}});
+      if(r.error||!r.data||!r.data.ok){ msg.textContent='Could not sync: '+JSON.stringify((r.data&&r.data.error)||r.error||'unknown error'); }
+      else { msg.textContent='✅ Synced '+r.data.upserted+' leads (of '+r.data.contacts_seen+' contacts, '+r.data.deals_seen+' deals).'; loadSalesHubStatus(); }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
+  var FATHOM_WEBHOOK_URL='https://widdgynledwpqaqndtvz.supabase.co/functions/v1/fathom-webhook';
+  document.getElementById('fathomRegisterBtn').onclick=async function(){
+    var msg=document.getElementById('fathomMsg'); var btn=this; btn.disabled=true; msg.textContent='Registering…';
+    try{
+      var r=await window.EPIC_SB.functions.invoke('fathom-backfill',{body:{action:'register_webhook',destination_url:FATHOM_WEBHOOK_URL}});
+      if(r.error || !r.data || !r.data.ok){ msg.textContent='Could not register: '+JSON.stringify((r.data&&(r.data.error||r.data.detail))||r.error||'unknown error'); }
+      else { msg.textContent='✅ Webhook registered.\n\nCopy this secret and add it as the FATHOM_WEBHOOK_SECRET project secret (Supabase Dashboard → Edge Functions → Secrets):\n\n'+(r.data.webhook&&r.data.webhook.secret||'(no secret in response — check r.data.webhook)')+'\n\nUntil that secret is set, incoming calls will be rejected (signature check fails closed, by design).'; }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
+  var fathomCursor=null;
+  document.getElementById('fathomSyncBtn').onclick=async function(){
+    var msg=document.getElementById('fathomMsg'); var btn=this; btn.disabled=true; msg.textContent='Scanning your Fathom recordings…';
+    try{
+      var body=fathomCursor?{cursor:fathomCursor}:{};
+      var r=await window.EPIC_SB.functions.invoke('fathom-backfill',{body:body});
+      if(r.error || !r.data || !r.data.ok){ msg.textContent='Could not sync: '+JSON.stringify((r.data&&r.data.error)||r.error||'unknown error'); }
+      else {
+        var d=r.data; fathomCursor=d.next_cursor||null;
+        msg.textContent='Scanned '+d.scanned+' · processed '+d.processed+' ('+d.processed_but_unmatched_to_a_prospect+' not matched to a known prospect) · already done '+d.skipped_already_done+
+          (d.errors&&d.errors.length?'\nErrors:\n'+d.errors.join('\n'):'')+
+          '\n\n'+(fathomCursor?'More remain — click "Run backfill" again to continue from where this left off.':'✅ Backlog fully scanned.');
+        btn.textContent=fathomCursor?'2 · Run backfill (continue)':'2 · Run backfill';
+      }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
+  window.onEpicAuthed=function(){ loadTeam(); loadSuggestions(); loadSalesHubStatus(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
+})();
+</script>
+<script>
+const $=id=>document.getElementById(id);
+/* ===== commission model ===== */
+const C={setup:500, leadgen:100, bdr:100, closer3b:100, closerClose:200};
+/* ===== DEMO DATA ===== */
+const CLOSED=7; // closed memberships this month
+const METRICS=[
+ {v:'42',l:'Referrals'},{v:'18',l:'Booked'},{v:CLOSED,l:'Closed'},{v:'5',l:'Onboarded'},
+ {v:'$3,500',l:'Commissions MTD'},{v:'11',l:'Active partners'}
+];
+// MTD commission buckets (see notes for reconciliation)
+const CMTD=[
+ {b:'$700',s:'Lead gen'},{b:'$500',s:'BDR'},{b:'$2,100',s:'Closers'},{b:'$200',s:'House (warm, no BDR)'}
+];
+const FUNNEL=[
+ {nm:'Referrals',v:42,pct:100,cls:'f1'},{nm:'Booked (Setter)',v:18,pct:43,cls:'f2'},
+ {nm:'Closed (Closer)',v:7,pct:39,cls:'f3'},{nm:'Onboarded (CS)',v:5,pct:71,cls:'f4'}
+];
+const INTERACTIONS=[
+ {ref:'Alicia Grant',by:'Maria Lopez',src:'partner',stage:'join',setter:'Kai Rivera',closer:'Ana Vega',cs:'Renee',plan:'Annual'},
+ {ref:'Priya Shah',by:'Maria Lopez',src:'partner',stage:'close',setter:'Mia Tan',closer:'Ana Vega',cs:'—',plan:'Pro'},
+ {ref:'Dana Liu',by:'James Cole',src:'partner',stage:'book',setter:'Mia Tan',closer:'Ana Vega',cs:'—',plan:'—'},
+ {ref:'Marcus Bell',by:'TLA ads',src:'ads',stage:'close',setter:'Jordan Poe',closer:'Devin Lu',cs:'—',plan:'Monthly'},
+ {ref:'Keoni Mahoe',by:'Sofia Reyes',src:'partner',stage:'join',setter:'—',closer:'Devin Lu',cs:'Renee',plan:'Monthly'},
+ {ref:'Tom Nguyen',by:'James Cole',src:'partner',stage:'sub',setter:'(triaging)',closer:'—',cs:'—',plan:'—'}
+];
+// role leaderboards — commission earned MTD
+const BOARDS={
+ partners:[{nm:'Maria Lopez',d:3,pay:300},{nm:'Sofia Reyes',d:2,pay:200},{nm:'James Cole',d:1,pay:100},{nm:'TLA (ads)',d:1,pay:100}],
+ bdrs:[{nm:'Kai Rivera',d:4,pay:400},{nm:'Mia Tan',d:4,pay:400},{nm:'Jordan Poe',d:2,pay:200}],
+ closers:[{nm:'Ana Vega (Sr)',d:4,pay:1200},{nm:'Devin Lu',d:3,pay:900}]
+};
+const BOARDMETA={partners:['Top partners / lead gen','sourced'],bdrs:['Top BDRs','qualified bookings'],closers:['Top closers','closed']};
+const BDRQUAL=[
+ {nm:'Kai Rivera',booked:6,qual:4,bant:95,noshow:1,verified:400,pending:100},
+ {nm:'Mia Tan',booked:5,qual:4,bant:92,noshow:0,verified:400,pending:0},
+ {nm:'Jordan Poe',booked:4,qual:2,bant:78,noshow:1,verified:200,pending:0}
+];
+const CSBOARD=[{nm:'Renee Webb',d:3},{nm:'Priya Nair',d:2}];
+const STLABEL={sub:['Submitted','st-sub'],book:['Booked','st-book'],close:['Closed','st-close'],join:['Joined','st-join']};
+// per-deal commission (closed/joined only)
+function dealComm(i){ if(i.stage!=='close'&&i.stage!=='join') return null;
+  var parts=[]; parts.push((i.src==='ads'?'TLA':i.by.split(' ')[0])+' $'+C.leadgen);
+  if(i.setter&&i.setter!=='—'&&i.setter!=='(triaging)') parts.push(i.setter.split(' ')[0]+' $'+C.bdr);
+  parts.push(i.closer.split(' ')[0]+' $'+(C.closer3b+C.closerClose));
+  return parts.join(' · '); }
+
+$('metrics').innerHTML=METRICS.map(m=>'<div class="metric"><b>'+m.v+'</b><span>'+m.l+'</span></div>').join('');
+$('cmtd').innerHTML=CMTD.map(c=>'<div><b>'+c.b+'</b><span>'+c.s+'</span></div>').join('');
+$('funnel').innerHTML=FUNNEL.map(f=>'<div class="stage"><span class="nm">'+f.nm+'</span><div class="track"><i class="'+f.cls+'" style="width:'+f.pct+'%"></i><span class="val">'+f.v+'</span></div><span class="cv">'+f.pct+'%</span></div>').join('');
+$('interactions').innerHTML='<tr><th>Referral</th><th>Source</th><th>Stage</th><th>Handling</th><th>Commission</th></tr>'+
+ INTERACTIONS.map(i=>{var s=STLABEL[i.stage];var who=[i.setter&&i.setter!=='—'&&i.setter!=='(triaging)'?'🎯 '+i.setter.split(' ')[0]:'',i.closer!=='—'?'📞 '+i.closer.split(' ')[0]:'',i.cs!=='—'?'🌟 '+i.cs.split(' ')[0]:''].filter(Boolean).join(' → ')||'—';
+   var c=dealComm(i);
+   return '<tr><td><b>'+i.ref+'</b></td><td class="owner">'+(i.src==='ads'?'📣 TLA ads':'🤝 '+i.by)+'</td><td><span class="chipst '+s[1]+'">'+s[0]+'</span></td><td class="owner">'+who+'</td><td class="comm '+(c?'':'pend')+'">'+(c||'—')+'</td></tr>';}).join('');
+function renderBoard(key){
+  document.querySelectorAll('.lbtab').forEach(t=>t.classList.toggle('on',t.dataset.k===key));
+  var meta=BOARDMETA[key];
+  $('leaderboard').innerHTML=BOARDS[key].map((l,i)=>'<div class="lead"><span class="rank'+(i===0?' g':'')+'">'+(i+1)+'</span><div class="who"><b>'+l.nm+'</b><span>'+l.d+' '+meta[1]+'</span></div><span class="pay">$'+l.pay.toLocaleString()+'</span></div>').join('');
+}
+$('lbtabs').innerHTML=Object.keys(BOARDS).map((k,i)=>'<span class="lbtab'+(i===0?' on':'')+'" data-k="'+k+'">'+BOARDMETA[k][0]+'</span>').join('');
+document.querySelectorAll('.lbtab').forEach(t=>t.onclick=()=>renderBoard(t.dataset.k));
+renderBoard('partners');
+$('csboard').innerHTML=CSBOARD.map((l,i)=>'<div class="lead"><span class="rank'+(i===0?' g':'')+'">'+(i+1)+'</span><div class="who"><b>'+l.nm+'</b><span>'+l.d+' onboarded</span></div></div>').join('');
+$('bdrqual').innerHTML='<tr><th>BDR</th><th>Booked</th><th>Qual</th><th>Rate</th><th>BANT match</th><th>No-show</th><th>$ verified</th><th>$ pending</th></tr>'+BDRQUAL.map(function(b){var rate=Math.round(b.qual/b.booked*100);var low=b.bant<85;return '<tr><td><b>'+b.nm+'</b></td><td>'+b.booked+'</td><td>'+b.qual+'</td><td>'+rate+'%</td><td style="font-weight:700;color:'+(low?'#87451D':'#3C7E44')+'">'+b.bant+'%'+(low?' ⚠️':'')+'</td><td>'+b.noshow+'</td><td class="comm">$'+b.verified+'</td><td class="comm pend">'+(b.pending?'$'+b.pending:'—')+'</td></tr>';}).join('');
+// ── Real suggestions (2026-07-06): epic_suggestions now has an owner-only
+// select+update RLS policy (migration epic_suggestions_owner_read_update) —
+// this used to be a hardcoded SUGGESTIONS demo array with no live read path
+// at all (the table was anon-insert-only, unreadable from any browser).
+function sugEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function sugWhen(iso){ var days=Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(days<=0) return 'today'; if(days===1) return '1 day ago'; return days+' days ago'; }
+async function loadSuggestions(){
+  var box=$('suggestions');
+  var r=await window.EPIC_SB.from('epic_suggestions').select('id,role,text,meta,status,created_at').order('created_at',{ascending:false}).limit(50);
+  if(r.error){ box.textContent='Could not load suggestions: '+r.error.message; return; }
+  var rows=r.data||[];
+  if(rows.length===0){ box.innerHTML='No suggestions submitted yet.'; return; }
+  box.innerHTML=rows.map(function(s){
+    var page=(s.meta&&s.meta.page)?' · '+sugEsc(s.meta.page):'';
+    return '<div class="sug" style="opacity:'+(s.status==='reviewed'?'.55':'1')+'">'+
+      '<div class="r">'+sugEsc(s.role)+page+' · '+sugWhen(s.created_at)+'</div>'+
+      '<p>'+sugEsc(s.text)+'</p>'+
+      '<div style="margin-top:6px"><span class="sugRevBtn" data-id="'+s.id+'" style="font-size:.68rem;font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline">'+(s.status==='reviewed'?'reviewed ✓':'mark reviewed')+'</span></div>'+
+      '</div>';
+  }).join('');
+  box.querySelectorAll('.sugRevBtn').forEach(function(el){
+    el.onclick=async function(){
+      if(el.textContent.indexOf('✓')>-1) return;
+      await window.EPIC_SB.from('epic_suggestions').update({status:'reviewed'}).eq('id',el.getAttribute('data-id'));
+      loadSuggestions();
+    };
+  });
+}
+</script>
+
+<!-- ===== EPIC Suite: update prompt — compares embedded SUITE_BUILD vs the deploy's
+     version.json and prompts the rep to refresh past stale cache. Bump SUITE_BUILD
+     in every tool on every release (it's the suite build, not this tool's version). ===== -->
+<script>
+(function(){
+  var SUITE_BUILD='1.33.0'; /*suite-build*/
+  var FILE=location.protocol==='file:';
+  var REL=FILE?'version.json':'../live/version.json';
+  var bar=null;
+  function show(v){
+    if(bar) return;
+    bar=document.createElement('div');
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#DEE9FC;border-top:1px solid #273FA8;color:#273FA8;font:700 .85rem system-ui,sans-serif;box-shadow:0 -2px 10px rgba(18,24,38,.08)';
+    bar.appendChild(document.createTextNode('🔄 New version available.'));
+    var b=document.createElement('button'); b.textContent='Update now';
+    b.style.cssText='background:#253984;color:#fff;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
+    b.onclick=function(){ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
+    var x=document.createElement('span'); x.textContent='✕'; x.title='dismiss';
+    x.style.cssText='cursor:pointer;opacity:.7;padding:0 6px';
+    x.onclick=function(){ bar.remove(); bar=null; };
+    bar.appendChild(b); bar.appendChild(x); document.body.appendChild(bar);
+  }
+  async function check(){
+    try{
+      var r=await fetch(REL+'?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok) return; var j=await r.json();
+      if(j&&j.v&&j.v!==SUITE_BUILD) show(j.v);
+    }catch(e){}
+  }
+  check(); setInterval(check,60000);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
+})();
+</script>
+</body>
+</html>
