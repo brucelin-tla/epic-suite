@@ -1,5 +1,21 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.49.0** — **Epic Life Ledger (owner-only), b29**: three fixes from real use. (1) The policy
+  premium no longer automatically counted a member's redirected tax withholding, so the "tax bill
+  paid out of pocket instead" line was often large even when the intent was to cover it via policy
+  loan — added a "+ Add my tax withholding on top" switch that layers the real withholding onto the
+  premium and shows the effect on both today's loan coverage and the full retirement projection
+  (verified: at defaults, turning it on takes the effective premium from $10K to $42K/yr, drops
+  out-of-pocket tax from $6,916 to $0, and lifts projected legacy by ~$1.26M; off is byte-identical
+  to b28). (2) Full mobile pass: the year-by-year playbook renders as stacked cards instead of a
+  table below 480px (table stays for desktop, same data, one render pass), both line charts now size
+  to their real container width instead of shrinking to an unreadable 1000px coordinate space, and
+  buttons/sliders/spacing are sized for touch (verified: zero horizontal scroll at 375px, zero
+  regression at 1280px). (3) Trimmed wall-of-text: shortened the densest explainer paragraphs
+  throughout, and collapsed the long compliance/assumption disclosures behind a "tap to see" summary
+  line (same pattern as the existing "Agent settings" blocks) — nothing removed, just tucked away
+  until wanted.
+
 - **1.48.0** — **Epic Life Ledger (owner-only)**: fixed the same blank-screen bug just fixed on the
   other four gated tools (v1.47.0) — a DOM-timing race where the auth check could resolve correctly
   (real sign-in, real floating panel) while the main content stayed permanently hidden. Deferred the
