@@ -729,6 +729,9 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.38.0',d:'2026-07-07',n:[
+ "Fixed a real gap: a lead Setter just booked onto Bruce's calendar wasn't showing up in Closer's queue at all (Setter bookings don't touch the Sales Hub pipeline stage Closer's queue filters on). Closer's real-lead queue now also pulls in anyone with an active real booking, so a fresh Setter booking appears immediately.",
+]},
 {v:'1.37.0',d:'2026-07-07',n:[
  "Referral Partner, Setter, and Closer can now all see a real booked appointment's date/time, and cancel or reschedule it — real actions on the actual Calendly event, not just a local UI change.",
  "Closer: real leads with a booked Strategy Session now show it right on the contact card, with the same cancel/reschedule.",
@@ -985,10 +988,20 @@ function formatPhoneDisplay(p){ if(!p) return '—'; var d=p.replace(/\D/g,'').r
 async function loadCloserQueue(){
   try{
     if(!window.EPIC_SB) throw new Error('Not signed in yet');
-    var orFilter=CLOSER_STAGE_PATTERNS.map(function(p){return 'pipeline_stage.ilike.'+p;}).join(',');
+    // 2026-07-07: union in anyone with an active real booking, not just the
+    // Sales Hub stage patterns — a lead Setter books straight onto Bruce's
+    // calendar doesn't get its pipeline_stage flipped (that stays Sales Hub's
+    // one-way sync, see calendly-book's design notes), so without this a
+    // freshly-booked lead would never appear in Closer's queue at all.
+    var bkRes=await window.EPIC_SB.from('bookings').select('id,prospect_id,slot_at,status').not('prospect_id','is',null).not('status','in','(void,no_show,disqualified)');
+    REAL_BOOKINGS={};
+    (bkRes.data||[]).forEach(function(b){ REAL_BOOKINGS[b.prospect_id]=b; });
+    var bookedIds=Object.keys(REAL_BOOKINGS);
+    var orParts=CLOSER_STAGE_PATTERNS.map(function(p){return 'pipeline_stage.ilike.'+p;});
+    if(bookedIds.length) orParts.push('id.in.('+bookedIds.join(',')+')');
     var res=await window.EPIC_SB.from('prospects')
       .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason')
-      .or(orFilter)
+      .or(orParts.join(','))
       .order('priority_score',{ascending:false,nullsFirst:false})
       .order('created_at',{ascending:true})
       .limit(50);
@@ -996,20 +1009,18 @@ async function loadCloserQueue(){
     var rows=res.data||[];
     if(rows.length===0){ usingRealLeads=false; toast('No live booked-call leads yet — showing demo'); return; }
     QUEUE=rows.map(function(r){
+      var bk=REAL_BOOKINGS[r.id];
+      var bkWhen=bk?new Date(bk.slot_at).toLocaleString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'}):null;
       var nm=titleCase(r.name);
       return { id:r.id, ini:initialsFrom(nm), nm:nm,
-        sub:r.priority_reason||('Sales Hub · '+shortStageLabel(r.pipeline_stage)),
-        reason:r.priority_reason||shortStageLabel(r.pipeline_stage),
+        sub:bkWhen?('📅 Booked '+bkWhen+' HST'):(r.priority_reason||('Sales Hub · '+shortStageLabel(r.pipeline_stage))),
+        reason:bkWhen?('📅 '+bkWhen):(r.priority_reason||shortStageLabel(r.pipeline_stage)),
         score:r.priority_score||50, seg:['live'], loc:'', tz:'America/Los_Angeles', tzL:'',
         caller:formatPhoneDisplay(r.phone), hist:[] };
     });
     usingRealLeads=true;
-    var pids=QUEUE.map(function(q){return q.id;});
-    var bk=await window.EPIC_SB.from('bookings').select('id,prospect_id,slot_at,status').in('prospect_id',pids).not('status','in','(void,no_show,disqualified)');
-    REAL_BOOKINGS={};
-    if(!bk.error) (bk.data||[]).forEach(function(b){ REAL_BOOKINGS[b.prospect_id]=b; });
     curId=null; setFocus('all', true);
-    toast('Loaded '+QUEUE.length+' real booked-call leads from Sales Hub');
+    toast('Loaded '+QUEUE.length+' real leads (booked-call stages + Setter-booked)');
   }catch(e){ usingRealLeads=false; toast('Could not load live leads — showing demo'); console.error('loadCloserQueue',e); }
 }
 // ── See/cancel/reschedule the real appointment (2026-07-07) ──
