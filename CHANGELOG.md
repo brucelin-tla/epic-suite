@@ -1,5 +1,10 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.45.0** — **Hub redesign**: Admin and the Epic Life Ledger are now full role cards on the hub
+  (same style as the other four roles) instead of tiny footer links — same owner-only lock, just
+  visible. The 🚀 "Building next" panel is now collapsed by default (tap the header to open it —
+  your choice is remembered), so the hub stays compact.
+
 - **1.44.0** — **Epic Life Ledger (owner-only)**: added the enhanced target premium (1.25× target —
   the payout basis when year-1 client premium exceeds target), tucked into a collapsed "Agent —
   commission basis" panel since only agents need it. Shows target, enhanced target, year-1 client

@@ -26,6 +26,8 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
 .card.setter:hover{border-color:var(--gold)}.card.setter .go{color:var(--warn-badge)}
 .card.ref:hover{border-color:var(--info)}.card.ref .go{color:var(--info)}
 .card.cs:hover{border-color:var(--success)}.card.cs .go{color:var(--success)}
+.card.admin:hover{border-color:var(--accent)}.card.admin .go{color:var(--accent)}
+.card.ledger:hover{border-color:var(--gold)}.card.ledger .go{color:var(--warn-badge)}
 .card .live{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--success-bg);color:var(--success)}
 .beta{display:inline-block;margin-top:6px;font-size:.72rem;color:var(--muted);text-decoration:none}.beta:hover{color:var(--text2)}
 .foot{color:var(--muted);font-size:.78rem;margin-top:26px;line-height:1.7}
@@ -34,7 +36,6 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
 .card.locked{opacity:.5;cursor:not-allowed;filter:grayscale(.6)}
 .card.locked:hover{transform:none;box-shadow:0 1px 3px rgba(18,24,38,.05)}
 .card .lock-badge{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--surface2);color:var(--text2)}
-#adminLink.locked{opacity:.5;cursor:not-allowed}
 #epicSignedInBar{max-width:520px;margin:0 auto 18px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.8rem}
 #epicSignedInBar .who{color:var(--text2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #epicSignedInBar .who b{color:var(--text)}
@@ -95,17 +96,34 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
       <p>Run the 15-min MyFICO 3-bureau call, onboard members into the EPIC LIFE portal, and loop in the closer on the demo Zoom.</p>
       <div class="go">Open Client Success →</div>
     </a>
+    <a class="card admin" id="card-admin" href="admin/" data-rank="5">
+      <span class="live">🟢 Live</span>
+      <div class="role">Admin</div>
+      <div class="vt">⚙️ EPIC Admin</div>
+      <p>The global view — manage the team and roles, track payouts, review 💡 suggestions, sync the Sales Hub, and run the Fathom call tools.</p>
+      <div class="go">Open Admin →</div>
+    </a>
+    <a class="card ledger" id="card-ledger" href="ledger/" data-rank="5">
+      <span class="live">🟢 Live</span>
+      <div class="role">Owner Tool</div>
+      <div class="vt">📒 Epic Life Ledger</div>
+      <p>The full life-cycle wealth calculator — model a member's plan end-to-end, from velocity banking and policy funding to retirement income and legacy.</p>
+      <div class="go">Open Ledger →</div>
+    </a>
   </div>
-  <div id="roadmapPanel" style="max-width:640px;margin:0 auto 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;text-align:left;box-shadow:0 1px 3px rgba(18,24,38,.05)">
-    <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:9px">🚀 Building next — from your suggestions</div>
-    <div id="roadmapList" style="font-size:.85rem;color:var(--text);line-height:1.9"></div>
-    <div style="font-size:.7rem;color:var(--muted);margin-top:8px">Keep the ideas coming with 💡 on any tool page.</div>
+  <div id="roadmapPanel" style="max-width:640px;margin:16px auto 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 20px;text-align:left;box-shadow:0 1px 3px rgba(18,24,38,.05)">
+    <div id="roadmapHead" style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;user-select:none">
+      <span>🚀 Building next — from your suggestions</span>
+      <span id="roadmapChev" style="font-size:.8rem;color:var(--muted);transition:transform .15s">▸</span>
+    </div>
+    <div id="roadmapBody" style="display:none">
+      <div id="roadmapList" style="font-size:.85rem;color:var(--text);line-height:1.9;margin-top:9px"></div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:8px">Keep the ideas coming with 💡 on any tool page.</div>
+    </div>
   </div>
   <div class="foot">
     The EPIC funnel:
     <div class="flow"><b>Referral Partner</b> refers → 🎯 <b>BDR / Setter</b> books → 📞 <b>Closer</b> closes → 🌟 <b>Client Success</b> onboards</div>
-    <div style="margin-top:16px"><a id="adminLink" href="admin/" data-rank="5" style="cursor:pointer;color:var(--muted);font-size:.72rem;text-decoration:none" title="Admin dashboard — global view">🔒 Admin</a>
-    <a id="ledgerLink" href="ledger/" data-rank="5" style="cursor:pointer;color:var(--muted);font-size:.72rem;text-decoration:none;margin-left:14px" title="Epic Life Ledger — owner-only">🔒 Ledger</a></div>
   </div>
 </div>
 
@@ -195,11 +213,6 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
 
   function paintGate(el, unlocked){
     el.classList.toggle('locked', !unlocked);
-    if(el.id==='adminLink'){
-      el.textContent=unlocked?'⚙️ Admin':'🔒 Admin';
-      return;
-    }
-    if(el.id==='ledgerLink'){ el.textContent=unlocked?'📒 Ledger':'🔒 Ledger'; return; }
     var badge=el.querySelector('.live'), go=el.querySelector('.go');
     if(!unlocked){
       if(badge && !badge.dataset.origText){ badge.dataset.origText=badge.textContent; }
@@ -285,6 +298,19 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
     return '<div style="margin-bottom:8px"><div style="font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:3px">'+SECTION_LABEL[k]+'</div>'+
       ROADMAP[k].map(function(r){return '<div>'+r.emoji+' '+r.text+'</div>';}).join('')+'</div>';
   }).join('');
+  // Collapsed by default — remembers the reader's choice per browser.
+  var head=document.getElementById('roadmapHead'), bodyEl=document.getElementById('roadmapBody'), chev=document.getElementById('roadmapChev');
+  var OPEN_KEY='epic_roadmap_open';
+  function setOpen(open){
+    bodyEl.style.display=open?'':'none';
+    chev.style.transform=open?'rotate(90deg)':'';
+    try{localStorage.setItem(OPEN_KEY,open?'1':'0')}catch(e){}
+  }
+  if(head && bodyEl && chev){
+    var saved=null; try{saved=localStorage.getItem(OPEN_KEY)}catch(e){}
+    setOpen(saved==='1');
+    head.onclick=function(){ setOpen(bodyEl.style.display==='none'); };
+  }
 })();
 </script>
 
@@ -293,7 +319,7 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
      refresh past stale cache. Bump SUITE_BUILD in all tools on every release. ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.41.0'; /*suite-build*/
+  var SUITE_BUILD='1.45.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'live/version.json';
   var bar=null;
