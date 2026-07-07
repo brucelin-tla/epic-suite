@@ -1,5 +1,13 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.48.0** — **Epic Life Ledger (owner-only)**: fixed the same blank-screen bug just fixed on the
+  other four gated tools (v1.47.0) — a DOM-timing race where the auth check could resolve correctly
+  (real sign-in, real floating panel) while the main content stayed permanently hidden. Deferred the
+  initial auth check to DOMContentLoaded and added the same 7-second load-failure watchdog. Verified
+  the fix directly: reproduced the failure with a microtask-speed stub, confirmed it now passes, and
+  confirmed zero regression across every existing Ledger feature (age/sex face sizing, target
+  premium, enhanced target premium, the loan-payoff mechanic).
+
 - **1.47.0** — **Fixed the real "blank white screen" bug on Admin (and the same bug, found while
   fixing it, on Setter, Client Success, and Closer).** Root cause: the sign-in check ran before the
   page's own content div had even been added to the page yet, so it could never find it to reveal
