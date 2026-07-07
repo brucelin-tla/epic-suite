@@ -1,5 +1,15 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.1** — **Epic Life Ledger (owner-only), b34 — BETA ONLY, not yet promoted**: fixed a real
+  UX confusion Bruce flagged in the "flip tools freely" row — 0% biz credit was shown as its own
+  independent toggle next to velocity chunking, but it does nothing without velocity on (the
+  engine already gates `stacking` on `TOOLS.bizcredit && TOOLS.velocity`; only the UI was
+  misleading). Now the button greys out and disables (both the toolbar and its per-topic "In the
+  plan" twin) whenever velocity chunking is off, showing "— needs velocity chunking" instead of a
+  false active/inactive peer state. The member's underlying 0% biz credit preference is preserved
+  and restores exactly when velocity comes back on — verified via direct DOM test (off → disabled
+  + hint updated → click-while-disabled no-ops → velocity back on → restores). 0 regressions.
+
 - **1.52.0** — **Epic Life Ledger (owner-only), b33 — BETA ONLY, not yet promoted**: new
   "📄 Generate member report" button in the floating ALIS panel — a printable 7-page report (cover
   w/ prepared-for/by fields, starting point, the plan built, retirement outcome, stress-test

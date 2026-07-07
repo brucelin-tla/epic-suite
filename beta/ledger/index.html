@@ -105,6 +105,7 @@
   .toggle-btn { font-family: inherit; font-size: 13px; font-weight: 600; padding: 8px 15px; border-radius: 7px; border: 1px solid var(--line); background: var(--paper-raised); color: var(--ink-soft); cursor: pointer; }
   .toggle-btn:focus-visible { outline: 2px solid var(--ledger); outline-offset: 2px; }
   .toggle-btn.active { background: var(--ledger); border-color: var(--ledger); color: var(--paper); }
+  .toggle-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
   .ledger { display: flex; flex-direction: column; }
   .lline { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -466,12 +467,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b33</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b34</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b34</span><p class="topic-exp" style="margin-top:2px;">Fixed a real point of confusion in the "flip tools freely" row: 0% biz credit was shown as its own independent switch sitting right next to velocity chunking, but it does nothing on its own — it only speeds up chunks velocity chunking is already landing. Now it greys out and reads "needs velocity chunking" whenever velocity is off, instead of looking like two separate tools both attacking the mortgage. Turning velocity back on restores your 0% biz credit setting exactly as you left it.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b33</span><p class="topic-exp" style="margin-top:2px;">New: "📄 Generate member report" in the floating ALIS panel — a printable, 7-page report (cover, your starting point, the plan built for you, retirement outcome, stress-test results, playbook highlights, disclosures) built entirely from the numbers already on screen. Auto-runs the stress test first if you haven't clicked it yet, so the report is never incomplete. Print or Save as PDF straight from the browser. The disclosures page pulls its text live from this tool's own existing, already-sourced caveats — nothing new was written — and carries a note that TLA's compliance function should review final wording before this goes to a real member.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b32</span><p class="topic-exp" style="margin-top:2px;">The 401(k) now de-risks with age, the way real accounts do. Almost nobody in their 50s runs 90% stocks with retirement on the line — so instead of one flat growth rate forever, the account follows the standard target-date glide path (Vanguard's published anchors): ~90% stocks through age 40, easing to 50/50 at retirement, 30/70 bonds by 72. You set what the <b>stock market</b> earns (default: its real 10.02%/yr full record since 1928, with a one-tap "recent era 2011–2025 — 13.94%" alternative); the bond slice earns the 10-yr Treasury's real record (4.82%/yr). The stress test draws both legs with their real volatility — so a market dip late in life now hits a 30%-stocks account, not a 90% one, which is exactly why the glide exists. Side effect worth knowing: this also fixed an internal inconsistency — the stress test's floor/cap crediting now lands at 6.42%/yr against the 6.40% "honest long-run" default, where before the two quietly disagreed by almost a full point. The story is told in the journey too: the 401(k) must trade growth away for safety as you age — the policy never has to, because its 0% floor IS its safety.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b31</span><p class="topic-exp" style="margin-top:2px;">Two additions. (1) The stress test now shows income extracted and total wealth (legacy + income), worst/median/best across all 1,000 market histories — same rigor it already gave legacy, so a "Max income" plan gets the same downside-risk visibility a "Max legacy" plan always had. (2) Real-world rates instead of round marketing numbers: mortgage 6.43% (Freddie Mac's weekly survey), HELOC 7.46% (Bankrate national average), investment-property loan 7.18% (primary + typical premium), home appreciation 4.44% (the same Case-Shiller figure already used elsewhere in this tool). Sliders still move freely — these are just more honest starting points.</p></div>
@@ -3766,24 +3768,40 @@
 
   // One source of truth for tool availability: the Section-3 tool bar AND every per-topic
   // "In the plan / Not applicable" button flip the same TOOLS flag and stay in sync.
+  // 0% biz credit is NOT a peer of velocity chunking — it's a modifier that only speeds up
+  // chunks velocity is already landing (stacking = TOOLS.bizcredit && TOOLS.velocity in the
+  // engine); showing it as an equal, independently-clickable toggle read as two tools both
+  // attacking the mortgage when really one does nothing without the other. So its button is
+  // shown OFF and disabled whenever velocity is off, regardless of its own stored TOOLS value —
+  // honest about what's actually happening, and it remembers the member's real preference for
+  // whenever velocity comes back on.
+  function isDependentTool(k){ return k === 'bizcredit' && !TOOLS.velocity; }
   function syncToolUI(){
-    document.querySelectorAll('#toolBar .toggle-btn').forEach(b => b.classList.toggle('active', TOOLS[b.dataset.tool]));
+    document.querySelectorAll('#toolBar .toggle-btn').forEach(b => {
+      const k = b.dataset.tool, dep = isDependentTool(k);
+      b.classList.toggle('active', TOOLS[k] && !dep);
+      b.disabled = dep;
+      b.title = dep ? '0% biz credit only speeds up velocity chunking — turn velocity chunking on first' : '';
+    });
     document.querySelectorAll('.na-btn').forEach(b => {
-      const on = TOOLS[b.dataset.natool];
+      const k = b.dataset.natool, dep = isDependentTool(k);
+      const on = TOOLS[k] && !dep;
       b.classList.toggle('off', !on);
       b.classList.toggle('active', on);
-      b.textContent = on ? '✓ In the plan' : '✗ Not applicable';
+      b.disabled = dep;
+      b.textContent = dep ? '— needs velocity chunking' : (on ? '✓ In the plan' : '✗ Not applicable');
     });
-    document.querySelectorAll('[data-natopic]').forEach(t => t.classList.toggle('na-off', !TOOLS[t.dataset.natopic]));
-    const off = Object.keys(TOOLS).filter(x => !TOOLS[x]);
+    document.querySelectorAll('[data-natopic]').forEach(t => t.classList.toggle('na-off', !TOOLS[t.dataset.natopic] || isDependentTool(t.dataset.natopic)));
+    const off = new Set(Object.keys(TOOLS).filter(x => !TOOLS[x] || isDependentTool(x)));
     const hint = $('tool-hint');
-    if (off.length){
+    if (off.size){
       const names = { velocity:'velocity chunking', bizcredit:'0% biz credit', policy:'the policy', heloc:'the HELOC', mortgage:'the mortgage', rental:'the rental', qualified:'the 401(k)' };
-      hint.innerHTML = '<b>Planning without:</b> '+off.map(x=>names[x]).join(', ')+'. Flip a tool back on to see what it adds.';
+      hint.innerHTML = '<b>Planning without:</b> '+[...off].map(x=>names[x]).join(', ')+'. Flip a tool back on to see what it adds.';
       hint.classList.add('show');
     } else hint.classList.remove('show');
   }
   function flipTool(k){
+    if (isDependentTool(k)) return;   // disabled buttons shouldn't fire, but guard anyway
     TOOLS[k] = !TOOLS[k];
     journeyIdx = null;
     $('journeyCard').style.display = 'none';
