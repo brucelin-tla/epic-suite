@@ -405,12 +405,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b30</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b31</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b31</span><p class="topic-exp" style="margin-top:2px;">Two additions. (1) The stress test now shows income extracted and total wealth (legacy + income), worst/median/best across all 1,000 market histories — same rigor it already gave legacy, so a "Max income" plan gets the same downside-risk visibility a "Max legacy" plan always had. (2) Real-world rates instead of round marketing numbers: mortgage 6.43% (Freddie Mac's weekly survey), HELOC 7.46% (Bankrate national average), investment-property loan 7.18% (primary + typical premium), home appreciation 4.44% (the same Case-Shiller figure already used elsewhere in this tool). Sliders still move freely — these are just more honest starting points.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b30</span><p class="topic-exp" style="margin-top:2px;">Fixed the ALIS output tiles (Outcome/Legacy/Total tax paid, etc.) — longer titles like "401(k)→loan payoff" or "Losses carried to retirement" were overflowing their little boxes instead of wrapping to a second line. Now they wrap cleanly at every screen size.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b29</span><p class="topic-exp" style="margin-top:2px;">Three fixes from real use. (1) Added a "+ Add my tax withholding on top" switch on the policy premium — since the policy no longer automatically counted redirected withholding, the tax bill was often showing as paid mostly out of pocket instead of through a policy loan; flip the switch to add your real withholding on top of the premium and see the loan actually cover it (and the effect on the full retirement projection). (2) Made the whole page work on a phone: the playbook now shows as stacked cards instead of a table, both charts stay crisp instead of shrinking to tiny text, and buttons/sliders/spacing are sized for a touch screen. (3) Trimmed the walls of text — shorter, plainer explainer paragraphs throughout, and the long compliance/assumption disclosures now collapse behind a "tap to see" line instead of sitting open on the page (nothing was removed, just tucked away until you want it).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b28</span><p class="topic-exp" style="margin-top:2px;">Fixed a real blank-screen bug: a signed-in owner could load this page and see nothing but a dark screen — the sign-in check itself was working fine, but a timing race meant the page occasionally never revealed the actual content. Same bug already found and fixed on the rest of EPIC Suite the same day; now fixed here too. Also added a safety message if the page ever genuinely fails to load (network issue, etc.) instead of leaving an unexplained blank screen.</p></div>
@@ -502,7 +503,7 @@
           <div class="side-controls">
             <div class="control"><label>Property value <span class="val" id="v-propValue">$1,100,000</span></label><input type="range" id="propValue" min="50000" max="3000000" step="10000" value="1100000"></div>
             <div class="control"><label>Original mortgage principal <span class="val" id="v-principal">$500,000</span></label><input type="range" id="principal" min="0" max="2000000" step="5000" value="500000"></div>
-            <div class="control"><label>Interest rate <span class="val" id="v-rate">6.50%</span></label><input type="range" id="rate" min="2" max="9" step="0.05" value="6.5"></div>
+            <div class="control"><label>Interest rate <span class="val" id="v-rate">6.43%</span></label><input type="range" id="rate" min="2" max="9" step="0.01" value="6.43"></div>
             <div class="control"><label>Loan term <span class="val" id="v-term">30 yrs</span></label><input type="range" id="term" min="15" max="30" step="5" value="30"></div>
             <div class="control"><label>Years already paid <span class="val" id="v-yearsPaid">5 yrs</span></label><input type="range" id="yearsPaid" min="0" max="25" step="1" value="5"></div>
           </div>
@@ -645,9 +646,9 @@
         <p class="topic-exp">Funds future property down payments, then in retirement covers whatever properties and low-tax qualified money don't. Real terms: a line stays open ~10 years from its first draw. Once that window closes, ALIS refinances the balance into a 30-year fixed loan (a real payment the plan funds), and a fresh line can open against the remaining equity.</p>
         <div class="split">
           <div class="side-controls">
-            <div class="control"><label>HELOC rate <span class="val" id="v-helocRate">8.00%</span></label><input type="range" id="helocRate" min="5" max="9" step="0.1" value="8"></div>
+            <div class="control"><label>HELOC rate <span class="val" id="v-helocRate">7.46%</span></label><input type="range" id="helocRate" min="5" max="9" step="0.01" value="7.46"></div>
             <div class="control"><label>Home value securing the HELOC <span class="val" id="v-reEquity">$1,100,000</span></label><input type="range" id="reEquity" min="0" max="3000000" step="25000" value="1100000"></div>
-            <div class="control"><label>Home appreciation <span class="val" id="v-reGrowth">4.00%</span></label><input type="range" id="reGrowth" min="1" max="6" step="0.25" value="4"></div>
+            <div class="control"><label>Home appreciation <span class="val" id="v-reGrowth">4.44%</span></label><input type="range" id="reGrowth" min="1" max="6" step="0.01" value="4.44"></div>
             <div class="control"><label>Max loan-to-value <span class="val" id="v-maxLtv">85%</span></label><input type="range" id="maxLtv" min="70" max="90" step="1" value="85"></div>
           </div>
           <div class="side-results">
@@ -704,7 +705,7 @@
             <div class="control"><label>Buy at age <span class="val" id="v-buyAge1">60</span></label><input type="range" id="buyAge1" min="20" max="99" step="1" value="60"></div>
             <div class="control"><label>Purchase price (2nd property) <span class="val" id="v-invPrice">$1,100,000</span></label><input type="range" id="invPrice" min="100000" max="3000000" step="10000" value="1100000"></div>
             <div class="control"><label>Down payment <span class="val" id="v-downPct">25%</span></label><input type="range" id="downPct" min="15" max="50" step="1" value="25"></div>
-            <div class="control"><label>Loan rate <span class="val" id="v-invRate">7.00%</span></label><input type="range" id="invRate" min="2" max="9" step="0.05" value="7"></div>
+            <div class="control"><label>Loan rate <span class="val" id="v-invRate">7.18%</span></label><input type="range" id="invRate" min="2" max="9" step="0.01" value="7.18"></div>
             <div class="control"><label>Written off immediately (Year 1) <span class="val" id="v-writeOff">20%</span></label><input type="range" id="writeOff" min="0" max="28" step="1" value="20"></div>
             <div class="toggle-row" id="veh1Row">
               <button type="button" class="toggle-btn active" id="btn-veh1-heloc">Down payment: HELOC</button>
@@ -1524,7 +1525,7 @@
         '<div class="control"><label>Buy at age <span class="val" id="v-xbuy'+i+'">'+p.buyAge+'</span></label><input type="range" id="xbuy'+i+'" min="20" max="99" step="1" value="'+p.buyAge+'"></div>'+
         '<div class="control"><label>Purchase price (at purchase) <span class="val" id="v-xprice'+i+'">'+fmt0.format(p.price)+'</span></label><input type="range" id="xprice'+i+'" min="100000" max="3000000" step="10000" value="'+p.price+'"></div>'+
         '<div class="control"><label>Down payment <span class="val" id="v-xdown'+i+'">'+p.downPct+'%</span></label><input type="range" id="xdown'+i+'" min="15" max="50" step="1" value="'+p.downPct+'"></div>'+
-        '<div class="control"><label>Loan rate <span class="val" id="v-xrate'+i+'">'+p.ratePct.toFixed(2)+'%</span></label><input type="range" id="xrate'+i+'" min="2" max="9" step="0.05" value="'+p.ratePct+'"></div>'+
+        '<div class="control"><label>Loan rate <span class="val" id="v-xrate'+i+'">'+p.ratePct.toFixed(2)+'%</span></label><input type="range" id="xrate'+i+'" min="2" max="9" step="0.01" value="'+p.ratePct+'"></div>'+
         '<div class="toggle-row">'+
           '<button type="button" class="toggle-btn'+(p.loc==='hawaii'?' active':'')+'" data-xloc="'+i+':hawaii">Hawaii</button>'+
           '<button type="button" class="toggle-btn'+(p.loc==='mainland'?' active':'')+'" data-xloc="'+i+':mainland">Mainland</button>'+
@@ -3102,7 +3103,7 @@
         const probeAge = Math.min(retireAge + 3, planAge - 5);
         if (probeAge > currentAge){
           const woPct = (+$('writeOff').value)/100;
-          const probe = { idx: 99, buyAge: probeAge, price: 1, downPct: 0.25, ratePct: 7, vehicle: 'heloc',
+          const probe = { idx: 99, buyAge: probeAge, price: 1, downPct: 0.25, ratePct: 7.18, vehicle: 'heloc',
                           noi0: 0, apprec: LOC.mainland.apprec/100, depBonus: 0, depOngoing: 0, ownedFromStart: false };
           const defsP = [...propsDef, probe];
           const aP = accumulate(chosenAlloc.fr, Object.assign({}, acc0, { props: defsP }));
@@ -3117,7 +3118,7 @@
               const price = Math.floor((room*frac/0.25)/50000)*50000;
               if (price < 300000) break;
               const gross = price * (LOC.mainland.yield/100);
-              const cand = { idx: 99, buyAge: probeAge, price, downPct: 0.25, ratePct: 7,
+              const cand = { idx: 99, buyAge: probeAge, price, downPct: 0.25, ratePct: 7.18,
                 vehicle: useHeloc ? 'heloc' : 'policy',
                 noi0: gross - gross*(LOC.mainland.opex/100) - propertyTax(price, 'mainland'),
                 apprec: LOC.mainland.apprec/100, depBonus: price*woPct,
@@ -3233,7 +3234,7 @@
     const packW = M.packWith;
     const packO = M.replanNoPolicy();
     const totalYears = M.accYears + M.horizon;
-    const res = { w: { legacies: [], years: [] }, o: { legacies: [], years: [] }, accts: {} };
+    const res = { w: { legacies: [], extracted: [], years: [] }, o: { legacies: [], extracted: [], years: [] }, accts: {} };
     IUL_ACCOUNTS.forEach(a => { res.accts[a.key] = { legacies: [], years: [], credSum: 0 }; });
     let credSum = 0, qSum = 0, yrN = 0;
     let i = 0;
@@ -3270,8 +3271,8 @@
           if (acct.key === 'base'){ rw = rA; credSum += credA.reduce((s,v)=>s+v,0); }
         }
         const ro = mcRunOne(M, packO, { qm: seqQm, cred: seqQm.map(()=>0) }, reShift);
-        res.w.legacies.push(rw.legacy); res.w.years.push(rw.years);
-        res.o.legacies.push(ro.legacy); res.o.years.push(ro.years);
+        res.w.legacies.push(rw.legacy); res.w.extracted.push(rw.totalExtracted); res.w.years.push(rw.years);
+        res.o.legacies.push(ro.legacy); res.o.extracted.push(ro.totalExtracted); res.o.years.push(ro.years);
       }
       btn.textContent = 'Running… ' + i + ' / ' + MC_N + ' market histories';
       if (i < MC_N) setTimeout(step, 0);
@@ -3290,20 +3291,36 @@
   function renderMcResults(M, res, credAvg, qAvg){
     $('mcResults').style.display = '';
     const wl = [...res.w.legacies].sort((a,b)=>a-b), ol = [...res.o.legacies].sort((a,b)=>a-b);
+    const exWl = [...res.w.extracted].sort((a,b)=>a-b), exOl = [...res.o.extracted].sort((a,b)=>a-b);
+    // Total wealth = legacy + income extracted, summed PER SCENARIO before sorting — the two are
+    // correlated within a single market history (a bad-market run tends to hit both), so sorting
+    // each independently and adding percentiles afterward would overstate the real spread.
+    const wealthW = res.w.legacies.map((v,idx) => v + res.w.extracted[idx]).sort((a,b)=>a-b);
+    const wealthO = res.o.legacies.map((v,idx) => v + res.o.extracted[idx]).sort((a,b)=>a-b);
     const survW = res.w.years.filter(y => y >= M.horizon).length / res.w.years.length;
     const survO = res.o.years.filter(y => y >= M.horizon).length / res.o.years.length;
     const p10w = pctile(wl,0.10), p50w = pctile(wl,0.50), p90w = pctile(wl,0.90);
     const p10o = pctile(ol,0.10), p50o = pctile(ol,0.50), p90o = pctile(ol,0.90);
+    const ex10w = pctile(exWl,0.10), ex50w = pctile(exWl,0.50), ex90w = pctile(exWl,0.90);
+    const ex10o = pctile(exOl,0.10), ex50o = pctile(exOl,0.50), ex90o = pctile(exOl,0.90);
+    const wt10w = pctile(wealthW,0.10), wt50w = pctile(wealthW,0.50), wt90w = pctile(wealthW,0.90);
+    const wt10o = pctile(wealthO,0.10), wt50o = pctile(wealthO,0.50), wt90o = pctile(wealthO,0.90);
     $('mc-headW').textContent = (survW*100).toFixed(1)+'% of markets reach age '+M.planAge;
     $('mc-headO').textContent = (survO*100).toFixed(1)+'% of markets reach age '+M.planAge;
-    const tilesFor = (surv, p10, p50, p90) => [
+    const tilesFor = (surv, p10, p50, p90, ex10, ex50, ex90, wt10, wt50, wt90) => [
       { label:'Reaches age '+M.planAge, val:(surv*100).toFixed(1)+'%', risk: surv < 0.995 },
       { label:'Worst 1-in-10 legacy', val: fmtCompact(p10), risk: p10 < 0 },
       { label:'Median legacy', val: fmtCompact(p50) },
-      { label:'Best 1-in-10 legacy', val: fmtCompact(p90) }
+      { label:'Best 1-in-10 legacy', val: fmtCompact(p90) },
+      { label:'Worst 1-in-10 income extracted', val: fmtCompact(ex10), risk: ex10 < 0 },
+      { label:'Median income extracted', val: fmtCompact(ex50) },
+      { label:'Best 1-in-10 income extracted', val: fmtCompact(ex90) },
+      { label:'Worst 1-in-10 total wealth', val: fmtCompact(wt10), risk: wt10 < 0 },
+      { label:'Median total wealth', val: fmtCompact(wt50) },
+      { label:'Best 1-in-10 total wealth', val: fmtCompact(wt90) }
     ];
-    renderStatCard('mcDashWith', tilesFor(survW, p10w, p50w, p90w), null);
-    renderStatCard('mcDashWithout', tilesFor(survO, p10o, p50o, p90o), null);
+    renderStatCard('mcDashWith', tilesFor(survW, p10w, p50w, p90w, ex10w, ex50w, ex90w, wt10w, wt50w, wt90w), null);
+    renderStatCard('mcDashWithout', tilesFor(survO, p10o, p50o, p90o, ex10o, ex50o, ex90o, wt10o, wt50o, wt90o), null);
     // Computed-true takeaway — states only what THIS run's numbers actually show, never a script.
     const survDiff = (survW - survO) * 100;
     const downDiff = p10w - p10o, medDiff = p50w - p50o;
@@ -3583,7 +3600,7 @@
   $('btn-veh1-policy').addEventListener('click', () => { veh1='policy'; $('btn-veh1-policy').classList.add('active'); $('btn-veh1-heloc').classList.remove('active'); renderSection5(); });
   $('addProp').addEventListener('click', () => {
     if (EXTRA_PROPS.length >= MAX_EXTRA) return;
-    EXTRA_PROPS.push({ buyAge: 70, price: 800000, downPct: 25, ratePct: 7, loc: 'mainland', vehicle: 'heloc' });
+    EXTRA_PROPS.push({ buyAge: 70, price: 800000, downPct: 25, ratePct: 7.18, loc: 'mainland', vehicle: 'heloc' });
     renderPropCards(); renderSection5();
   });
   ['polPremiumAnnual','credRate','polYears','withheld'].forEach(id => $(id).addEventListener('input', renderSection3));

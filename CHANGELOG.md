@@ -1,5 +1,16 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.50.0** — **Epic Life Ledger (owner-only), b31**: the Monte Carlo stress test now reports
+  income extracted and total wealth (legacy + income) — worst 1-in-10 / median / best 1-in-10 across
+  all 1,000 market histories, same treatment legacy already got, so "Max income" plans get the same
+  downside-risk visibility "Max legacy" plans always had. Also replaced round marketing-style rate
+  defaults with precisely-researched current figures: mortgage 6.43% (Freddie Mac PMMS weekly
+  survey), HELOC 7.46% (Bankrate national average), investment-property loan 7.18% (primary +
+  typical 0.75pt premium), home appreciation 4.44% (the same FRED Case-Shiller figure already cited
+  elsewhere in the tool for its volatility — this also fixes a real internal inconsistency where the
+  displayed default didn't match the tool's own sourced data). All sliders still fully adjustable;
+  step sizes tightened (0.01) so the precise real values are actually reachable, not just displayed.
+
 - **1.49.1** — **Epic Life Ledger (owner-only), b30**: fixed the ALIS stat-tile output boxes
   (Outcome/Legacy/Total tax paid/etc.) — longer titles like "401(k)→loan payoff" or "Losses carried
   to retirement" were overflowing their tile instead of wrapping to a second line (the base CSS rule
