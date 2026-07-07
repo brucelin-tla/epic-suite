@@ -178,6 +178,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
         <div style="overflow-x:auto"><table class="tbl" id="interactions"></table></div>
       </div>
       <div class="panel">
+        <div class="lbl">💵 Payout tracker — real, by pay cycle</div>
+        <div class="note" style="margin-bottom:9px">Payroll runs the 5th &amp; 25th (earned 1st–15th → pays the 25th; earned 16th–end → pays the 5th next month). This tracks who's owed what per cycle — check off once your team actually sends it (Venmo/PayPal/check); nothing here moves money automatically.</div>
+        <div style="overflow-x:auto"><table class="tbl" id="payoutTracker"></table></div>
+        <div class="note" id="payoutTrackerNote"></div>
+      </div>
+      <div class="panel">
         <div class="lbl">🎯 BDR booking quality — verified qualified bookings drive the $100</div>
         <div style="overflow-x:auto"><table class="tbl" id="bdrqual"></table></div>
         <div class="note">BDR earns $100 when a booking is <b>verified qualified</b> — BANT met (Budget + Authority required) + intent + it sits, confirmed by the closer with AI corroboration. Earned/locked at the qualified booking, paid from the $500 on close (TLA fronts). No-shows &amp; closer-disqualifies don't pay — that $100 rolls to the house. Watch <b>BANT-match</b> (BDR tags vs what the AI heard) for gaming.</div>
@@ -281,6 +287,51 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
     var when=r.data.last_synced_at?new Date(r.data.last_synced_at).toLocaleString():'never';
     el.textContent='Last synced: '+when+' — '+(r.data.last_status||'');
   }
+  // ── Real payout tracker (2026-07-07) — groups finalized commissions
+  // (status='paid', i.e. earned/locked — NOT yet necessarily disbursed) by
+  // earner + real pay cycle (5th/25th, owner-confirmed). Check = your payroll
+  // team actually sent that cycle's money; nothing here moves money itself.
+  var LEG_LABEL={leadgen:'Lead gen',bdr:'BDR',closer_3b:'Closer (3B)',closer_close:'Closer (close)'};
+  function payoutCycle(iso){
+    var d=new Date(iso), day=d.getDate(), y=d.getFullYear(), m=d.getMonth();
+    var out = day<=15 ? new Date(y,m,25) : new Date(y,m+1,5);
+    return {key:out.toISOString().slice(0,10), label:out.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})};
+  }
+  async function loadPayoutTracker(){
+    var tbl=document.getElementById('payoutTracker'), note=document.getElementById('payoutTrackerNote');
+    var r=await window.EPIC_SB.from('commissions').select('id,amount,earner_id,is_house,realized_at,payroll_processed').eq('status','paid').eq('is_house',false).not('earner_id','is',null);
+    if(r.error){ tbl.innerHTML=''; note.textContent='Could not load: '+r.error.message; return; }
+    var rows=r.data||[];
+    if(!rows.length){ tbl.innerHTML=''; note.textContent='No finalized commissions yet — nothing owed until a deal closes.'; return; }
+    var earnerIds=[...new Set(rows.map(function(x){return x.earner_id;}))];
+    var pr=await window.EPIC_SB.from('profiles').select('id,email').in('id',earnerIds);
+    var nameById={}; (pr.data||[]).forEach(function(p){ nameById[p.id]=p.email; });
+    var groups={};
+    rows.forEach(function(c){
+      var cyc=payoutCycle(c.realized_at||new Date().toISOString());
+      var key=c.earner_id+'|'+cyc.key;
+      if(!groups[key]) groups[key]={earner_id:c.earner_id, cycle:cyc.label, amount:0, ids:[], allProcessed:true, sortKey:cyc.key};
+      groups[key].amount+=Number(c.amount); groups[key].ids.push(c.id);
+      if(!c.payroll_processed) groups[key].allProcessed=false;
+    });
+    var list=Object.values(groups).sort(function(a,b){ return a.allProcessed-b.allProcessed || (a.sortKey<b.sortKey?1:-1); });
+    tbl.innerHTML='<tr><th>Who</th><th>Cycle</th><th>Amount</th><th>Sent</th></tr>'+list.map(function(g){
+      return '<tr><td>'+(nameById[g.earner_id]||g.earner_id)+'</td><td>'+g.cycle+'</td><td class="comm">$'+g.amount+'</td>'+
+        '<td><input type="checkbox" data-ids="'+g.ids.join(',')+'" class="payoutChk"'+(g.allProcessed?' checked':'')+'></td></tr>';
+    }).join('');
+    tbl.querySelectorAll('.payoutChk').forEach(function(cb){
+      cb.onchange=async function(){
+        var ids=cb.getAttribute('data-ids').split(',');
+        cb.disabled=true;
+        var sess=(await window.EPIC_SB.auth.getSession()).data.session;
+        var upd=cb.checked?{payroll_processed:true, payroll_processed_at:new Date().toISOString(), payroll_processed_by:sess&&sess.user.id}:{payroll_processed:false, payroll_processed_at:null, payroll_processed_by:null};
+        var res=await window.EPIC_SB.from('commissions').update(upd).in('id',ids);
+        if(res.error){ note.textContent='Could not update: '+res.error.message; cb.checked=!cb.checked; }
+        cb.disabled=false;
+      };
+    });
+    note.textContent=list.filter(function(g){return !g.allProcessed;}).length+' cycle(s) still owed.';
+  }
   document.getElementById('salesHubSyncBtn').onclick=async function(){
     var msg=document.getElementById('salesHubMsg'); var btn=this; btn.disabled=true; msg.textContent='Syncing from Sales Hub…';
     try{
@@ -317,7 +368,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
     }catch(e){ msg.textContent='Network error — try again.'; }
     btn.disabled=false;
   };
-  window.onEpicAuthed=function(){ loadTeam(); loadSuggestions(); loadSalesHubStatus(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
+  window.onEpicAuthed=function(){ loadTeam(); loadSuggestions(); loadSalesHubStatus(); loadPayoutTracker(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
 })();
 </script>
 <script>
@@ -420,7 +471,7 @@ async function loadSuggestions(){
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.39.0'; /*suite-build*/
+  var SUITE_BUILD='1.40.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

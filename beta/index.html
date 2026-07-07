@@ -263,13 +263,26 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
      as the per-tool "What's new" NOTES arrays elsewhere in the suite. ===== -->
 <script>
 (function(){
-  var ROADMAP=[
-   {emoji:'💰', text:'Real referral payment tracking — a $ value (not just points), a Paid/Pending flag, and a payout method for partners who aren\'t members.'},
-   {emoji:'✉️', text:'Real email sending from inside the tools — starting with one-click outreach templates for Referral Partners.'},
-   {emoji:'🏆', text:'A real referral leaderboard, once payment tracking gives it real numbers to show.'},
-  ];
+  var ROADMAP={
+   done:[
+    {emoji:'💰', text:'Real referral payment tracking — real $ paid/pending per referral, a real bi-monthly payout cycle (5th/25th), and an Admin payout tracker your team checks off as they actually send money.'},
+   ],
+   building:[
+    {emoji:'✉️', text:'Real email sending from inside the tools — starting with one-click outreach templates for Referral Partners.'},
+   ],
+   future:[
+    {emoji:'🏆', text:'A real referral leaderboard, now that payment tracking has real numbers to show.'},
+    {emoji:'💬', text:'Testimonial builder — guided prompts to help a partner draft their own referral story.'},
+    {emoji:'📄', text:'Cheat sheets & value-messaging resources for referral conversations.'},
+   ],
+  };
+  var SECTION_LABEL={done:'✅ Done', building:'🔨 Building now', future:'📋 Future plan'};
   var box=document.getElementById('roadmapList');
-  if(box) box.innerHTML=ROADMAP.map(function(r){return '<div>'+r.emoji+' '+r.text+'</div>';}).join('');
+  if(box) box.innerHTML=['done','building','future'].map(function(k){
+    if(!ROADMAP[k].length) return '';
+    return '<div style="margin-bottom:8px"><div style="font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:3px">'+SECTION_LABEL[k]+'</div>'+
+      ROADMAP[k].map(function(r){return '<div>'+r.emoji+' '+r.text+'</div>';}).join('')+'</div>';
+  }).join('');
 })();
 </script>
 
@@ -278,7 +291,7 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
      refresh past stale cache. Bump SUITE_BUILD in all tools on every release. ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.39.0'; /*suite-build*/
+  var SUITE_BUILD='1.40.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'live/version.json';
   var bar=null;

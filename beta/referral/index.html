@@ -78,9 +78,11 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
       <div class="stat"><b id="s-ref">—</b><span>referrals</span></div>
       <div class="stat"><b id="s-book" style="color:var(--accent)">—</b><span>booked</span></div>
       <div class="stat"><b id="s-won" style="color:var(--accent)">—</b><span>joined</span></div>
-      <div class="stat"><b id="s-pts" style="color:var(--gold)">—</b><span>earned</span></div>
+      <div class="stat"><b id="s-paid" style="color:var(--success)">—</b><span>paid</span></div>
+      <div class="stat"><b id="s-pending" style="color:var(--gold)">—</b><span>pending</span></div>
     </div>
   </header>
+  <div id="payoutNote" style="margin-bottom:12px;font-size:.76rem;color:var(--text2);text-align:center"></div>
 
   <!-- 🔐 member sign-in (magic link, no password) — shown until a session exists -->
   <div id="signin" class="panel" style="display:none;max-width:480px;margin:0 auto 12px">
@@ -226,12 +228,23 @@ async function loadData(){
   try{
     const [{data:refs,error:rErr},{data:comms},{data:bks}]=await Promise.all([
       SB.from('referrals').select('id,prospect_name,prospect_phone,prospect_email,relationship,route,created_at,deals(id,stage)').order('created_at',{ascending:false}),
-      SB.from('commissions').select('deal_id,amount,status'),
+      SB.from('commissions').select('deal_id,amount,status,realized_at,payroll_processed').eq('leg','leadgen'),
       SB.from('bookings').select('id,deal_id,slot_at,status').not('deal_id','is',null).not('status','in','(void,no_show,disqualified)')
     ]);
     if(rErr){ toast('Could not load referrals'); return; }
     const commByDeal={}; (comms||[]).forEach(c=>{ commByDeal[c.deal_id]=c; });
     BOOKING_BY_DEAL={}; (bks||[]).forEach(b=>{ BOOKING_BY_DEAL[b.deal_id]=b; });
+    // Real payout cadence (owner-confirmed 2026-07-07): TLA's payroll team pays
+    // out twice a month — earned 1st-15th pays the 25th of that month; earned
+    // 16th-end pays the 5th of the next month. This is a real, manual payout
+    // (Venmo/PayPal/check) — commissions.status='paid' means "earned/finalized",
+    // NOT "money sent"; payroll_processed is the actual "money sent" flag.
+    function payoutCycleDate(iso){
+      var d=new Date(iso), day=d.getDate();
+      var y=d.getFullYear(), m=d.getMonth();
+      var out = day<=15 ? new Date(y,m,25) : new Date(y,m+1,5);
+      return out.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    }
     let booked=0, joined=0, paid=0, pending=0;
     const rows=(refs||[]).map(r=>{
       const deal=(r.deals&&r.deals[0])||null;
@@ -240,8 +253,14 @@ async function loadData(){
       if(idx>=3) joined++;
       const c=deal?commByDeal[deal.id]:null;
       let earn='';
-      if(c){ if(c.status==='paid'){ paid+=Number(c.amount); earn='<div class="pts">✅ $'+c.amount+' paid</div>'; }
-             else if(c.status!=='void'){ pending+=Number(c.amount); if(idx>=3) earn='<div class="pts">⏳ $'+c.amount+' pending payout</div>'; } }
+      if(c){
+        // "Pending" = you haven't actually received the money yet — covers
+        // both "deal hasn't closed" and "closed, earned, payroll hasn't
+        // disbursed it yet". "Paid" = payroll_processed, cash actually sent.
+        if(c.status==='paid'&&c.payroll_processed){ paid+=Number(c.amount); earn='<div class="pts">✅ $'+c.amount+' paid</div>'; }
+        else if(c.status==='paid'){ pending+=Number(c.amount); earn='<div class="pts" style="color:var(--info)">💵 $'+c.amount+' earned — payout '+payoutCycleDate(c.realized_at)+'</div>'; }
+        else if(c.status!=='void'){ pending+=Number(c.amount); if(idx>=3) earn='<div class="pts">⏳ $'+c.amount+' — pays once the deal closes</div>'; }
+      }
       // Real "book the Discovery Call for them" (2026-07-07) — only while still
       // Submitted (idx===0) and a deal exists to attach the booking to.
       let bookBtn='';
@@ -269,7 +288,8 @@ async function loadData(){
     $('refList').querySelectorAll('[data-cancel]').forEach(function(b){ b.onclick=function(){ cancelReferralBooking(b.getAttribute('data-cancel'), false); }; });
     $('refList').querySelectorAll('[data-resched]').forEach(function(b){ b.onclick=function(){ cancelReferralBooking(b.getAttribute('data-resched'), true, b.getAttribute('data-book'), b.getAttribute('data-nm')); }; });
     $('s-ref').textContent=(refs||[]).length; $('s-book').textContent=booked; $('s-won').textContent=joined;
-    $('s-pts').textContent='$'+paid+(pending?(' (+$'+pending+')'):'');
+    $('s-paid').textContent='$'+paid; $('s-pending').textContent='$'+pending;
+    $('payoutNote').textContent='💵 Payouts run twice a month — earned the 1st–15th pays the 25th; earned the 16th–end pays the 5th of next month. Sent by the TLA team (Venmo/PayPal/check), not automatic.';
   }catch(e){ /* network blip — next poll */ }
 }
 
@@ -445,6 +465,9 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Referral Partner', SEEN='epic_referral_seen';
   var NOTES=[
+  {v:'2.4.0',d:'2026-07-07',n:[
+   "Real payout tracking: clear Paid vs. Pending amounts (split out in the stats bar), and a real payout cadence — earned the 1st–15th pays the 25th, earned the 16th–end pays the 5th of next month. Sent by the TLA team directly (Venmo/PayPal/check), not automatic — this just tells you what to expect and when.",
+  ]},
   {v:'2.3.0',d:'2026-07-07',n:[
    "Once you've booked a Discovery Call, this page now shows the real appointment time with ❌ Cancel and 🔁 Reschedule, both real (cancel actually cancels on Calendly; reschedule cancels then lets you pick a fresh slot).",
   ]},
@@ -534,7 +557,7 @@ body{padding-top:46px}
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.39.0'; /*suite-build*/
+  var SUITE_BUILD='1.40.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
