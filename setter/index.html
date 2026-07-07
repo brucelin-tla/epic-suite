@@ -201,7 +201,7 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
       </div>
 
       <div class="panel">
-        <div class="lbl">📅 Book the real Discovery Call — live on Miki's calendar</div>
+        <div class="lbl">📅 Book the real EPIC LIFE Strategy Session — live on Bruce's calendar</div>
         <div class="book">
           <div>
             <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px" id="calAvailNote">Loading real availability…</div>
@@ -392,7 +392,8 @@ function updateFit(){
 document.querySelectorAll('#qualChips .chip').forEach(c=>c.onclick=()=>{ var q=c.dataset.q; qual[q]=!qual[q]; c.classList.toggle('sel',qual[q]); updateFit(); if(calTime&&!calBooked)armConfirm(); });
 if($('intentChk'))$('intentChk').onchange=function(){ updateFit(); if(calTime&&!calBooked)armConfirm(); };
 // ── Real Calendly booking (2026-07-06): replaces the old fake closer/date/time
-// grid. Setter books the real "Discovery Call" slot (Miki's Calendly) live —
+// grid. Setter books the real "EPIC LIFE Strategy Session" slot (Bruce's
+// Calendly) live —
 // a real Calendly invitee gets created, a real `bookings` row gets written.
 // No auto-book on click anymore (it now has a real side effect — a real
 // calendar hold + a real email to the prospect) — picking a slot just arms
@@ -404,7 +405,7 @@ async function loadAvailability(){
     var r=await window.EPIC_SB.functions.invoke('calendly-availability',{body:{}});
     if(r.error||!r.data||!r.data.ok) throw new Error((r.data&&r.data.error)||r.error||'unknown error');
     AVAIL_SLOTS=r.data.slots||[];
-    $('calAvailNote').textContent=AVAIL_SLOTS.length?'Pick a real open slot on Miki\'s calendar:':'No real availability found in the next few days.';
+    $('calAvailNote').textContent=AVAIL_SLOTS.length?'Pick a real open slot on Bruce\'s calendar:':'No real availability found in the next few days.';
   }catch(e){ AVAIL_SLOTS=[]; $('calAvailNote').textContent='⚠️ Could not load real availability — '+e.message; console.error('loadAvailability',e); }
   renderDates();
 }
@@ -463,7 +464,7 @@ async function confirmBooking(){
     }
     calBooked=true; btn.style.display='none';
     $('bookStatus').className='cstatus ok';
-    $('bookStatus').innerHTML='✅ <b>Real Discovery Call booked</b> with Miki · '+calDate+' at '+new Date(calTime).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'})+
+    $('bookStatus').innerHTML='✅ <b>Real Strategy Session booked</b> with Bruce · '+calDate+' at '+new Date(calTime).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'})+
       (r.data.qualified?'<br><span style="color:#3C7E44">🟢 Qualified booking — your $100 locks when the closer verifies live on the call.</span>':'<br><span style="color:#CB7C2E">🟡 Booked, not yet qualified — BANT/intent bar not fully met.</span>');
     document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.o==='set'));
     toast('✅ Real booking confirmed on Calendly');
@@ -648,7 +649,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.35.0'; /*suite-build*/
+  var SUITE_BUILD='1.36.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

@@ -138,6 +138,25 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
   </div>
 </div>
 <div id="toast" class="toast"></div>
+<!-- 📅 Book the Discovery Call — real Calendly slots, real booking (2026-07-07) -->
+<div class="epic-modal hidden" id="bookModal">
+  <div class="epic-box" style="max-width:420px">
+    <h3 style="margin-bottom:2px">📅 Book the Discovery Call</h3>
+    <p id="bookModalWho" style="margin-bottom:10px"></p>
+    <div id="bookAvailNote" style="font-size:.78rem;color:var(--text2);margin-bottom:8px">Loading real availability…</div>
+    <div class="cal-dates" id="rCalDates" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px"></div>
+    <div class="cal-times" id="rCalTimes" style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px"></div>
+    <div id="bookStatus2" style="font-size:.78rem;color:var(--text2);margin-bottom:10px">Pick a day and time.</div>
+    <div class="epic-row"><button class="epic-cancel" id="bookCancel">Cancel</button><button class="epic-go" id="bookConfirm" style="background:var(--accent);color:#fff;display:none">✅ Confirm booking</button></div>
+  </div>
+</div>
+<style>
+#rCalDates .cal-date{text-align:center;padding:5px 2px;font-size:.63rem;border-radius:7px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;line-height:1.3}
+#rCalDates .cal-date .dow{display:block;font-weight:800;color:var(--text)}
+#rCalDates .cal-date.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+#rCalTimes .cal-time{padding:6px 10px;font-size:.74rem;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
+#rCalTimes .cal-time.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ===== REAL referral system (2026-07-03) — Supabase magic-link auth, real
@@ -205,7 +224,7 @@ SB.auth.onAuthStateChange(()=>{ refreshUI(); });
 async function loadData(){
   try{
     const [{data:refs,error:rErr},{data:comms}]=await Promise.all([
-      SB.from('referrals').select('id,prospect_name,relationship,route,created_at,deals(id,stage)').order('created_at',{ascending:false}),
+      SB.from('referrals').select('id,prospect_name,prospect_phone,prospect_email,relationship,route,created_at,deals(id,stage)').order('created_at',{ascending:false}),
       SB.from('commissions').select('deal_id,amount,status')
     ]);
     if(rErr){ toast('Could not load referrals'); return; }
@@ -220,15 +239,92 @@ async function loadData(){
       let earn='';
       if(c){ if(c.status==='paid'){ paid+=Number(c.amount); earn='<div class="pts">✅ $'+c.amount+' paid</div>'; }
              else if(c.status!=='void'){ pending+=Number(c.amount); if(idx>=3) earn='<div class="pts">⏳ $'+c.amount+' pending payout</div>'; } }
+      // Real "book the Discovery Call for them" (2026-07-07) — only while still
+      // Submitted (idx===0) and a deal exists to attach the booking to.
+      let bookBtn='';
+      if(deal&&idx===0){
+        if(r.prospect_phone&&r.prospect_email){ bookBtn='<button class="btn" style="margin-top:8px;padding:9px" data-book="'+deal.id+'" data-nm="'+esc(r.prospect_name)+'">📅 Book the Discovery Call</button>'; }
+        else { bookBtn='<div style="font-size:.7rem;color:var(--muted);margin-top:8px">Add their phone + email to book the Discovery Call directly.</div>'; }
+      }
       return '<div class="ref"><div class="top"><span class="rn">'+esc(r.prospect_name)+'</span><span class="badge '+(r.route==='closer'?'b-closer':'b-bdr')+'">'+(r.route==='closer'?'→ Closer':'→ BDR')+'</span></div>'+
         '<div class="meta">'+esc(r.relationship||'referral')+'</div>'+
-        '<div class="track">'+STAGES.map((s,i)=>'<span class="st'+(i<=idx?' on':'')+'">'+s+'</span>').join('')+'</div>'+earn+'</div>';
+        '<div class="track">'+STAGES.map((s,i)=>'<span class="st'+(i<=idx?' on':'')+'">'+s+'</span>').join('')+'</div>'+earn+bookBtn+'</div>';
     });
     $('refList').innerHTML=rows.length?rows.join(''):'<div style="font-size:.84rem;color:var(--text2);padding:8px 2px">No referrals yet — send your first one from the form. 👈</div>';
+    $('refList').querySelectorAll('[data-book]').forEach(function(b){ b.onclick=function(){ openBookModal(b.getAttribute('data-book'), b.getAttribute('data-nm')); }; });
     $('s-ref').textContent=(refs||[]).length; $('s-book').textContent=booked; $('s-won').textContent=joined;
     $('s-pts').textContent='$'+paid+(pending?(' (+$'+pending+')'):'');
   }catch(e){ /* network blip — next poll */ }
 }
+
+/* ---- 📅 book the Discovery Call for them (real Calendly, 2026-07-07) ---- */
+let R_SLOTS=null, rCalDate=null, rCalTime=null, rBookDealId=null, rBooked=false;
+function rSlotsByDay(){
+  var by={};
+  (R_SLOTS||[]).forEach(function(iso){
+    var d=new Date(iso);
+    var key=d.toLocaleDateString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric'});
+    (by[key]=by[key]||[]).push(iso);
+  });
+  return by;
+}
+function rRenderDates(){
+  var box=$('rCalDates'), by=rSlotsByDay(), days=Object.keys(by);
+  if(!days.length){ box.innerHTML=''; $('rCalTimes').innerHTML=''; return; }
+  box.innerHTML=days.map(function(k,i){
+    var parts=k.replace(',','').split(' ');
+    return '<button class="cal-date'+(i===0?' sel':'')+'" data-lbl="'+k+'"><span class="dow">'+parts[0]+'</span>'+(parts[1]||'')+'</button>';
+  }).join('');
+  box.querySelectorAll('.cal-date').forEach(function(b){ b.onclick=function(){ box.querySelectorAll('.cal-date').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel'); rCalDate=b.getAttribute('data-lbl'); rRenderTimes(); }; });
+  rCalDate=days[0]; rRenderTimes();
+}
+function rRenderTimes(){
+  var box=$('rCalTimes'), by=rSlotsByDay(), slots=by[rCalDate]||[];
+  box.innerHTML=slots.map(function(iso){
+    var label=new Date(iso).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'});
+    return '<button class="cal-time" data-iso="'+iso+'">'+label+'</button>';
+  }).join('');
+  box.querySelectorAll('.cal-time').forEach(function(b){ b.onclick=function(){
+    box.querySelectorAll('.cal-time').forEach(function(x){x.classList.remove('sel');}); b.classList.add('sel');
+    rCalTime=b.getAttribute('data-iso');
+    $('bookStatus2').textContent='Ready to book '+rCalDate+' at '+label(b)+'.';
+    $('bookConfirm').style.display='';
+  }; });
+  function label(b){ return new Date(b.getAttribute('data-iso')).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'}); }
+}
+async function openBookModal(dealId, name){
+  rBookDealId=dealId; rCalDate=null; rCalTime=null; rBooked=false;
+  $('bookModalWho').innerHTML='Booking a 30-min call for <b>'+esc(name)+'</b> — Miki will call them.';
+  $('bookConfirm').style.display='none'; $('bookStatus2').textContent='Pick a day and time.';
+  $('bookModal').classList.remove('hidden');
+  $('bookAvailNote').textContent='Loading real availability…';
+  try{
+    const r=await SB.functions.invoke('referral-availability',{body:{}});
+    if(r.error||!r.data||!r.data.ok) throw new Error((r.data&&r.data.error)||'unknown error');
+    R_SLOTS=r.data.slots||[];
+    $('bookAvailNote').textContent=R_SLOTS.length?'Pick a real open slot:':'No real availability found in the next few days.';
+  }catch(e){ R_SLOTS=[]; $('bookAvailNote').textContent='⚠️ Could not load availability — '+e.message; }
+  rRenderDates();
+}
+function closeBookModal(){ $('bookModal').classList.add('hidden'); }
+$('bookCancel').onclick=closeBookModal;
+$('bookModal').addEventListener('click',function(e){ if(e.target===$('bookModal')) closeBookModal(); });
+$('bookConfirm').onclick=async function(){
+  if(!rBookDealId||!rCalTime||rBooked) return;
+  var btn=$('bookConfirm'); btn.disabled=true; btn.textContent='Booking on Calendly…';
+  try{
+    const r=await SB.functions.invoke('referral-book',{body:{deal_id:rBookDealId, start_time:rCalTime}});
+    if(r.error||!r.data||!r.data.ok){
+      var msg=(r.data&&r.data.error)||null;
+      if(!msg&&r.error&&r.error.context&&typeof r.error.context.json==='function'){ try{ var b=await r.error.context.json(); msg=b&&(b.error||b.message);}catch(_){} }
+      throw new Error(msg||'unknown error');
+    }
+    rBooked=true;
+    $('bookStatus2').textContent='✅ Real Discovery Call booked!'; toast('📅 Discovery Call booked ✓');
+    setTimeout(function(){ closeBookModal(); loadData(); },900);
+  }catch(e){ $('bookStatus2').textContent='❌ Booking failed — '+e.message; toast('Could not book — see status'); }
+  btn.disabled=false; if(!rBooked) btn.textContent='✅ Confirm booking';
+};
 
 /* ---- submit ---- */
 $('submit').onclick=async ()=>{
@@ -318,6 +414,10 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Referral Partner', SEEN='epic_referral_seen';
   var NOTES=[
+  {v:'2.2.0',d:'2026-07-07',n:[
+   "New: 📅 Book the Discovery Call — for any referral that's still just Submitted, book the real 30-min call directly from this page (real Calendly slots, real booking, no separate step). Needs their phone + email on file first.",
+   "Booking one moves your tracker straight to Booked — no waiting on a sync.",
+  ]},
   {v:'2.1.0',d:'2026-07-03',n:[
    "New: a quick, optional \"read\" on the person you're referring — 4 simple yes/no/don't-know questions that help the team prep before they reach out. \"Don't know\" is a totally fine answer and never holds up your referral.",
   ]},
@@ -400,7 +500,7 @@ body{padding-top:46px}
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.35.0'; /*suite-build*/
+  var SUITE_BUILD='1.36.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

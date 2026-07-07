@@ -706,6 +706,10 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.36.0',d:'2026-07-07',n:[
+ "Setter now books the real EPIC LIFE Strategy Session directly onto Bruce's own Calendly (was Miki's Discovery Call) — owner decision: qualified cold leads go straight to the real closer.",
+ "Referral Partner: new 📅 Book the Discovery Call action — a partner can now book the real 30-min call for anyone they've referred, straight from their phone, onto Miki's real calendar. Moves their tracker to Booked immediately.",
+]},
 {v:'1.35.0',d:'2026-07-07',n:[
  "Fix: real leads with a very recent entry date were getting silently cut off Setter's queue — the query capped at 300 rows ordered by an internal sync timestamp, not the real lead date, so brand-new leads from the latest sync could fall past the cutoff and never appear. Raised the cap and fixed the ordering.",
  "Fix: Calendly booking errors now show the actual reason (e.g. what Calendly rejected) instead of a generic \"non-2xx status code\" message — added real error logging server-side too.",
