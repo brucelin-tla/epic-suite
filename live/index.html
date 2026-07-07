@@ -4,20 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EPIC Closer — Live Co-pilot Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#0a0e17;--bg2:#111827;--bg3:#1a2236;--surface:#1f2937;--surface2:#273349;
-  --border:#2d3a50;--text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;
-  --accent:#10b981;--accent2:#059669;--gold:#f59e0b;--red:#ef4444;--blue:#3b82f6;
+  --bg:#F6F7FA;--bg2:#FFFFFF;--bg3:#EEF0F5;--surface:#FFFFFF;--surface2:#F0F1F5;
+  --border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;
+  --accent:#253984;--accent2:#1D2E6B;--gold:#C4A95B;--ink:#121826;
+  --success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;
+  --warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;
+  --red:#87451D;--blue:#273FA8;
   --radius:12px;--radius-sm:8px;
+  --font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
 .wrap{max-width:1080px;margin:0 auto}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px;box-shadow:0 1px 3px rgba(18,24,38,.05)}
 a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
 .brand{display:flex;align-items:center;gap:9px}
-.brand h1{font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand h1{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--accent)}
 .stats{display:flex;gap:6px}
 .stat{text-align:center;padding:4px 11px;background:var(--surface);border-radius:var(--radius-sm)}
 .stat b{font-size:1.05rem;display:block;line-height:1.1}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
@@ -31,14 +37,14 @@ a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{col
 .qbody{flex:1;min-width:0}.qname{font-weight:700;font-size:.86rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qreason{font-size:.72rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .qcard.active .qreason{color:var(--accent)}
-.qscore{font-weight:800;font-size:.95rem}.qscore.hi{color:var(--accent)}.qscore.mid{color:var(--gold)}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:12px}
+.qscore{font-weight:800;font-size:.95rem}.qscore.hi{color:var(--accent)}.qscore.mid{color:var(--warn-badge)}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:12px;box-shadow:0 1px 3px rgba(18,24,38,.04)}
 .pd-head{display:flex;align-items:center;gap:11px;margin-bottom:0}
-.avatar{width:40px;height:40px;border-radius:50%;background:rgba(16,185,129,.16);color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700}
+.avatar{width:40px;height:40px;border-radius:50%;background:#DEE9FC;color:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700}
 .pd-head .nm{font-size:1.05rem;font-weight:700}.pd-head .sub{font-size:.78rem;color:var(--text2)}
 .pill{font-size:.7rem;font-weight:700;padding:3px 11px;border-radius:999px;display:inline-flex;align-items:center;gap:5px}
-.pill.idle{background:rgba(156,163,180,.15);color:var(--text2)}
-.pill.live{background:rgba(16,185,129,.15);color:var(--accent)}
+.pill.idle{background:#F0F1F5;color:var(--text2)}
+.pill.live{background:#DEE9FC;color:var(--accent)}
 .btn{padding:9px 15px;border:none;border-radius:var(--radius-sm);font-size:.85rem;font-weight:700;cursor:pointer;background:var(--surface2);color:var(--text);display:inline-flex;align-items:center;gap:6px}
 .btn:hover{filter:brightness(1.12)}.btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.call{background:var(--accent);color:#fff}.btn.end{background:var(--red);color:#fff}
@@ -46,23 +52,23 @@ a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{col
 .lbl{font-size:.66rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px;display:flex;align-items:center;gap:6px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;min-height:26px}
 .chip{font-size:.72rem;font-weight:600;padding:4px 11px;border-radius:999px;display:inline-flex;align-items:center;gap:5px;border:1px solid transparent;animation:pop .25s ease-out}
-.chip.pos{background:rgba(16,185,129,.15);color:#7ff0c8}
-.chip.soft{background:rgba(245,158,11,.15);color:#ffd58a}
-.chip.hard{background:rgba(239,68,68,.15);color:#ffb1b1}
-.chip.consent{background:rgba(239,68,68,.18);color:#ffb1b1;cursor:pointer;border-color:var(--red)}
-.chip.consent.done{background:rgba(16,185,129,.15);color:#7ff0c8;border-color:transparent;cursor:default}
+.chip.pos{background:#E1FBE8;color:#3C7E44}
+.chip.soft{background:#FCF4CB;color:#CB7C2E}
+.chip.hard{background:#FFFBEC;color:#87451D}
+.chip.consent{background:#FFFBEC;color:#87451D;cursor:pointer;border-color:var(--red)}
+.chip.consent.done{background:#E1FBE8;color:#3C7E44;border-color:transparent;cursor:default}
 .chip .new{color:var(--accent);font-weight:800}
 @keyframes pop{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
 .bant{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
 .bcell{padding:8px 9px;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);transition:.3s}
 .bcell .k{font-size:.72rem;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:4px}
 .bcell .v{font-size:.72rem;color:var(--text2);margin-top:3px;min-height:15px}
-.bcell.ok{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.5)}.bcell.ok .k,.bcell.ok .v{color:#7ff0c8}
-.bcell.warn{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.5)}.bcell.warn .k,.bcell.warn .v{color:#ffd58a}
+.bcell.ok{background:#E1FBE8;border-color:#3C7E44}.bcell.ok .k,.bcell.ok .v{color:#3C7E44}
+.bcell.warn{background:#FCF4CB;border-color:#CB7C2E}.bcell.warn .k,.bcell.warn .v{color:#CB7C2E}
 .closer{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--accent);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 11px}
 .closer .stage{font-weight:800}
-.obj{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.45);border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px}
-.obj .h{font-size:.74rem;font-weight:700;color:#ffd58a;display:flex;align-items:center;gap:5px;margin-bottom:8px}
+.obj{background:#FCF4CB;border:1px solid #CB7C2E;border-radius:var(--radius-sm);padding:10px 12px;margin-top:10px}
+.obj .h{font-size:.74rem;font-weight:700;color:#CB7C2E;display:flex;align-items:center;gap:5px;margin-bottom:8px}
 .obj .r{background:var(--surface);border-radius:var(--radius-sm);padding:7px 10px;margin-bottom:6px}
 .obj .r .t{font-size:.6rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text2);margin-bottom:2px;font-weight:700}
 .obj .r .x{font-size:.8rem}
@@ -70,25 +76,25 @@ a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{col
 .notes .n{animation:pop .25s}
 .disp{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .opt{padding:6px 12px;font-size:.78rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);cursor:pointer}
-.opt.sel{background:rgba(16,185,129,.15);border-color:var(--accent);color:#7ff0c8}
-.transcript{background:#06090f;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:.78rem;max-height:120px;overflow:auto;margin-top:4px}
+.opt.sel{background:#E1FBE8;border-color:var(--success);color:#3C7E44}
+.transcript{background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-size:.78rem;max-height:120px;overflow:auto;margin-top:4px}
 .tline{margin-bottom:4px}.tline .who{font-weight:700;color:var(--text2)}.tline.them .who{color:var(--accent)}.tline.you .who{color:var(--blue)}
 .hint{font-size:.74rem;color:var(--muted);text-align:center;margin-top:10px}
 .controls{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--accent);color:#7ff0c8;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--accent);color:#3C7E44;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none}
 .toast.show{opacity:1}
-.flag-alert{display:flex;align-items:flex-start;gap:8px;padding:8px 11px;background:rgba(245,158,11,.12);border-radius:var(--radius-sm);margin-top:9px;font-size:.76rem;color:#ffd58a;line-height:1.45}
+.flag-alert{display:flex;align-items:flex-start;gap:8px;padding:8px 11px;background:#FCF4CB;border-radius:var(--radius-sm);margin-top:9px;font-size:.76rem;color:#CB7C2E;line-height:1.45}
 .muted{color:var(--text2)}
-#updbar{position:fixed;top:0;left:0;right:0;z-index:999;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 14px;font-size:.85rem;font-weight:600;box-shadow:0 2px 12px rgba(0,0,0,.45)}
+#updbar{position:fixed;top:0;left:0;right:0;z-index:999;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;gap:14px;padding:10px 14px;font-size:.85rem;font-weight:600;box-shadow:0 2px 12px rgba(18,24,38,.14)}
 #updbar button{background:#fff;color:var(--blue);border:none;border-radius:6px;padding:6px 14px;font-weight:800;cursor:pointer}
 #updbar .x{cursor:pointer;opacity:.75;font-weight:400;font-size:1.1rem}
 body{padding-bottom:86px}
 @media(max-width:600px){body{padding-bottom:132px}}
 #bantBar{position:fixed;z-index:900;background:var(--bg2)}
-#bantBar.dock-bottom{left:0;right:0;bottom:0;border-top:1px solid var(--border);box-shadow:0 -4px 18px rgba(0,0,0,.5);padding:8px 12px}
+#bantBar.dock-bottom{left:0;right:0;bottom:0;border-top:1px solid var(--border);box-shadow:0 -4px 18px rgba(18,24,38,.22);padding:8px 12px}
 #bantBar.dock-bottom .bb-bar{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:10px}
 #bantBar.dock-bottom .bb-cells{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-#bantBar.dock-left{left:0;top:88px;width:196px;border:1px solid var(--border);border-left:none;border-radius:0 12px 12px 0;box-shadow:6px 0 20px rgba(0,0,0,.5);padding:10px}
+#bantBar.dock-left{left:0;top:88px;width:196px;border:1px solid var(--border);border-left:none;border-radius:0 12px 12px 0;box-shadow:6px 0 20px rgba(18,24,38,.22);padding:10px}
 #bantBar.dock-left .bb-bar{display:flex;flex-direction:column;gap:8px}
 #bantBar.dock-left .bb-cells{display:grid;grid-template-columns:1fr;gap:6px}
 #bantBar.dock-left .bb-ctl{order:-1;justify-content:flex-end}
@@ -102,9 +108,9 @@ body{padding-bottom:86px}
 @media(max-width:600px){#bantBar.dock-bottom .bb-cells{grid-template-columns:1fr 1fr}}
 .ph-compose .ph-cbtn{padding:8px 9px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--text);cursor:pointer;font-size:.9rem;line-height:1;flex:0 0 auto}
 .ph-compose .ph-cbtn:hover{border-color:var(--accent)}
-.ph-compose .ph-cbtn.on{background:rgba(239,68,68,.22);border-color:var(--red)}
-.ph-compose .ph-cbtn.ready{border-color:var(--accent);color:#7ff0c8}
-#chatbar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--bg2);border-top:1px solid var(--border);padding:9px 14px 11px;box-shadow:0 -4px 18px rgba(0,0,0,.5)}
+.ph-compose .ph-cbtn.on{background:#FFFBEC;border-color:var(--red)}
+.ph-compose .ph-cbtn.ready{border-color:var(--success);color:#3C7E44}
+#chatbar{position:fixed;left:0;right:0;bottom:0;z-index:900;background:var(--bg2);border-top:1px solid var(--border);padding:9px 14px 11px;box-shadow:0 -4px 18px rgba(18,24,38,.22)}
 #chatbar #aiStatus{max-width:1080px;margin:0 auto 6px;font-size:.72rem}
 #chatbar .inner{max-width:1080px;margin:0 auto;display:flex;gap:9px;align-items:center}
 #chatbar input{flex:1;padding:14px 16px;border-radius:11px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:1rem}
@@ -113,7 +119,7 @@ body{padding-bottom:86px}
 #chatbar #sendBtn:disabled{opacity:.5;cursor:not-allowed}
 #chatbar .kb{padding:14px 15px;border:1px solid var(--border);border-radius:11px;background:var(--surface);color:var(--text);cursor:pointer;font-size:1.05rem}
 #chatbar .kb:hover{border-color:var(--accent)}
-#chatbar .kb.on{background:rgba(239,68,68,.22);border-color:var(--red);color:#fff}
+#chatbar .kb.on{background:#FFFBEC;border-color:var(--red);color:#fff}
 @media(max-width:600px){#chatbar #sendBtn{padding:14px 16px}}
 .close-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 @media(max-width:640px){.close-grid{grid-template-columns:1fr}}
@@ -121,28 +127,28 @@ body{padding-bottom:86px}
 .ct{font-size:.82rem;font-weight:700;margin-bottom:8px}
 .slots{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .slot{padding:7px 11px;font-size:.78rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer}
-.slot.sel{background:rgba(16,185,129,.18);border-color:var(--accent);color:#7ff0c8}
+.slot.sel{background:#E1FBE8;border-color:var(--success);color:#3C7E44}
 .paybtn{width:100%;padding:10px;border:none;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer;margin-bottom:8px}
 .paybtn:disabled{opacity:.6;cursor:not-allowed}
 .cstatus{font-size:.76rem;color:var(--text2)}
-.cstatus.ok{color:#7ff0c8;font-weight:600}
+.cstatus.ok{color:#3C7E44;font-weight:600}
 .offer{font-size:.74rem;color:var(--text2);margin-bottom:8px}
 .mission{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:11px}
 .mhead{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;font-weight:700;margin-bottom:9px}
-.streak{font-size:.76rem;color:var(--gold);font-weight:700}
+.streak{font-size:.76rem;color:var(--warn-badge);font-weight:700}
 .goals{display:grid;grid-template-columns:1fr;gap:8px}
 @media(max-width:600px){.goals{grid-template-columns:1fr}}
 .goal .glabel{font-size:.74rem;color:var(--text2);margin-bottom:5px;display:flex;justify-content:space-between}
-.goal.done .glabel{color:#7ff0c8}
+.goal.done .glabel{color:#3C7E44}
 .bar{height:7px;background:var(--bg2);border-radius:999px;overflow:hidden}
 .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .4s}
 .callinfo{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:var(--text2);margin-top:9px;border-top:1px solid var(--border);padding-top:9px}
-.qok{color:var(--accent);font-weight:600}.qmid{color:var(--gold);font-weight:600}.qbad{color:var(--red);font-weight:600}
+.qok{color:var(--accent);font-weight:600}.qmid{color:var(--warn-badge);font-weight:600}.qbad{color:var(--red);font-weight:600}
 .phonecol{position:sticky;top:14px}
 .phone{background:#000;border-radius:26px;padding:9px 7px;border:1px solid #333;max-width:240px;margin:0 auto}
 .screen{background:#0d1117;border-radius:18px;min-height:470px;max-height:580px;overflow:hidden;display:flex;flex-direction:column}
-.ph-call{padding:11px;text-align:center;font-size:.78rem;font-weight:700;background:rgba(16,185,129,.16);color:#7ff0c8}
-.ph-call.ring{background:rgba(59,130,246,.18);color:#bcd4ff}
+.ph-call{padding:11px;text-align:center;font-size:.78rem;font-weight:700;background:#E1FBE8;color:#3C7E44}
+.ph-call.ring{background:#DEE9FC;color:#273FA8}
 .ph-appbar{padding:7px 10px;font-size:.72rem;font-weight:700;color:var(--text2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .ph-callbtn{font-size:.7rem;font-weight:800;padding:5px 13px;border-radius:999px;background:var(--accent);color:#fff;border:none;cursor:pointer}
 .ph-callbtn:hover{filter:brightness(1.1)}
@@ -151,19 +157,19 @@ body{padding-bottom:86px}
 .ph-callctl{display:flex;align-items:center;gap:4px;flex:0 0 auto}
 .ph-ctl{font-size:.82rem;padding:4px 6px;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;line-height:1}
 .ph-ctl:hover{border-color:var(--accent)}
-.ph-ctl.on{background:rgba(239,68,68,.22);border-color:var(--red)}
+.ph-ctl.on{background:#FFFBEC;border-color:var(--red)}
 .ph-msgs{flex:1;padding:10px;display:flex;flex-direction:column;gap:8px;overflow:auto}
 .ph-empty{color:var(--muted);font-size:.72rem;text-align:center;margin:auto;padding:20px}
 .bubble{max-width:88%;padding:8px 11px;border-radius:14px;font-size:.74rem;line-height:1.45}
 .bubble.them{align-self:flex-start;background:var(--surface2);border-bottom-left-radius:4px}
 .bubble.sys{align-self:center;background:transparent;color:var(--muted);font-size:.68rem}
-.bubble.pay{align-self:flex-start;background:rgba(59,130,246,.16);color:#bcd4ff;border-bottom-left-radius:4px}
-.bubble.ok{align-self:flex-start;background:rgba(16,185,129,.16);color:#7ff0c8;border-bottom-left-radius:4px}
-.bubble .lk{color:#7fb4ff;text-decoration:underline;word-break:break-all}
+.bubble.pay{align-self:flex-start;background:#DEE9FC;color:#273FA8;border-bottom-left-radius:4px}
+.bubble.ok{align-self:flex-start;background:#E1FBE8;color:#3C7E44;border-bottom-left-radius:4px}
+.bubble .lk{color:#273FA8;text-decoration:underline;word-break:break-all}
 .bubble .ttl{font-weight:700;display:block;margin-bottom:2px}
 /* rep's phone: outgoing texts + quick-send dock + compose */
 .bubble.me{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
-.bubble.me .lk{color:#dbe9ff}
+.bubble.me .lk{color:#c9d6f5}
 .ph-quick{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:8px;border-top:1px solid var(--border);background:var(--bg2)}
 .ph-quick button{display:flex;align-items:center;justify-content:center;gap:4px;padding:7px 4px;font-size:.68rem;font-weight:700;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer}
 .ph-quick button:hover{border-color:var(--accent)}
@@ -178,37 +184,37 @@ body{padding-bottom:86px}
 #phTimer{font-variant-numeric:tabular-nums}
 .bk-modes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
 .bkmode{padding:6px 9px;font-size:.7rem;border-radius:7px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
-.bkmode.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
+.bkmode.sel{background:#E1FBE8;border-color:var(--success);color:#3C7E44}
 /* ===== SAY THIS hero band — the loudest thing on screen during a call ===== */
-.hero{border:1.5px solid var(--accent);background:linear-gradient(180deg,rgba(16,185,129,.07),var(--surface))}
+.hero{border:1.5px solid var(--accent);background:linear-gradient(180deg,#DEE9FC,var(--surface))}
 .hero-top{display:flex;align-items:center;gap:8px;font-size:.74rem;margin-bottom:9px}
 .closer-badge{color:var(--accent);font-weight:800;letter-spacing:.2px}
 .closer-badge .stage{font-weight:800}
 .say{font-size:1.06rem;line-height:1.5;font-weight:600;color:var(--text);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px 15px;min-height:26px;transition:.2s}
-.say.cue{border-color:rgba(59,130,246,.6);box-shadow:0 0 0 1px rgba(59,130,246,.25)}
+.say.cue{border-color:#273FA8;box-shadow:0 0 0 1px #273FA8}
 .say .qmark{color:var(--blue);font-weight:800;margin-right:6px}
 .obj{margin-top:11px}
 /* keyboard hints on disposition + Log&Next */
 kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--text2);line-height:1}
 .opt{display:inline-flex;align-items:center;gap:7px}
-.opt.sel kbd{color:#7ff0c8;border-color:var(--accent)}
+.opt.sel kbd{color:#3C7E44;border-color:var(--success)}
 .btn.primary kbd{background:rgba(255,255,255,.22);border-color:transparent;color:#fff;margin-left:7px}
-.actionbar{border-color:rgba(59,130,246,.4)}
+.actionbar{border-color:#273FA8}
 /* not-qualified reason chips (pre-filled from heard signals) */
 .nq-reasons{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
 .rz{padding:6px 11px;font-size:.76rem;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer}
 .rz:hover{border-color:var(--red)}
-.rz.pre{border-style:dashed;border-color:rgba(245,158,11,.6);color:#ffd58a}
-.rz.sel{background:rgba(239,68,68,.18);border-color:var(--red);color:#ffb1b1}
+.rz.pre{border-style:dashed;border-color:#CB7C2E;color:#CB7C2E}
+.rz.sel{background:#FFFBEC;border-color:var(--red);color:#87451D}
 .hidden{display:none!important}
 /* ===== What's new / changelog ===== */
 #ver{cursor:pointer}
 .ver-badge{font-size:.68rem;padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);text-decoration:none}
 .ver-badge:hover{border-color:var(--accent);color:var(--text)}
-#ver.ver-new{color:#7ff0c8;text-decoration:none;background:rgba(16,185,129,.16);border-color:transparent;padding:3px 10px;border-radius:999px;font-weight:700;animation:pulseNew 1.7s ease-in-out infinite}
+#ver.ver-new{color:#3C7E44;text-decoration:none;background:#E1FBE8;border-color:transparent;padding:3px 10px;border-radius:999px;font-weight:700;animation:pulseNew 1.7s ease-in-out infinite}
 @keyframes pulseNew{0%,100%{opacity:1}50%{opacity:.5}}
-.cl-modal{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
-.cl-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);max-width:520px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.cl-modal{position:fixed;inset:0;z-index:1000;background:rgba(18,24,38,.5);display:flex;align-items:center;justify-content:center;padding:18px}
+.cl-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);max-width:520px;width:100%;max-height:82vh;overflow:auto;box-shadow:0 12px 40px rgba(18,24,38,.22)}
 .cl-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface)}
 .cl-head b{font-size:.98rem}
 .cl-x{cursor:pointer;color:var(--text2);font-size:1.1rem;padding:2px 6px}
@@ -223,7 +229,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 /* ===== v1.2.0: mini buttons, objection bank, history, note input ===== */
 .mini-btn{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer}
 .mini-btn:hover{border-color:var(--accent);color:var(--text)}
-.btn.vm{background:var(--bg3);color:#ffd58a;border:1px solid rgba(245,158,11,.4)}
+.btn.vm{background:var(--bg3);color:#CB7C2E;border:1px solid #CB7C2E}
 .obj-search{width:100%;padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.9rem}
 .obj-search:focus{outline:none;border-color:var(--accent)}
 .ob-q{font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:7px}
@@ -236,9 +242,9 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .hist-item .hd{color:var(--muted);min-width:52px;font-weight:600}
 .bcell{cursor:pointer}
 .bcell .v[contenteditable="true"]{outline:1px solid var(--accent);border-radius:4px;padding:0 3px;color:var(--text)}
-.bcell.bad{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.5)}
-.bcell.bad .k,.bcell.bad .v{color:#ffb1b1}
-.bant-menu{position:fixed;z-index:1100;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 34px rgba(0,0,0,.55);padding:5px;min-width:176px}
+.bcell.bad{background:#FFFBEC;border-color:#87451D}
+.bcell.bad .k,.bcell.bad .v{color:#87451D}
+.bant-menu{position:fixed;z-index:1100;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 12px 34px rgba(18,24,38,.24);padding:5px;min-width:176px}
 .bant-menu button{display:block;width:100%;text-align:left;padding:8px 11px;font-size:.8rem;border:none;background:transparent;color:var(--text);cursor:pointer;border-radius:7px}
 .bant-menu button:hover{background:var(--bg2)}
 #closer-stage{cursor:pointer}
@@ -253,7 +259,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .focus-chips{display:flex;gap:5px;flex-wrap:wrap}
 .focus-chip{font-size:.71rem;font-weight:600;padding:5px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer;transition:.12s}
 .focus-chip:hover{border-color:var(--accent);color:var(--text)}
-.focus-chip.on{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
+.focus-chip.on{background:#E1FBE8;border-color:var(--success);color:#3C7E44}
 .qhead .m{cursor:default}
 .qscore.low{color:var(--text2)}
 .qcard{cursor:pointer}
@@ -270,15 +276,15 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .content-item .ct-t{font-weight:700;font-size:.84rem}
 .content-item .ct-s{font-size:.7rem;color:var(--text2)}
 .cal-date .dow{display:block;font-weight:800;color:var(--text)}
-.cal-date.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
-.cal-date.sel .dow{color:#7ff0c8}
+.cal-date.sel{background:#E1FBE8;border-color:var(--success);color:#3C7E44}
+.cal-date.sel .dow{color:#3C7E44}
 .cal-times{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
 .cal-time{padding:6px 10px;font-size:.74rem;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer}
-.cal-time.sel{background:rgba(16,185,129,.18);border-color:var(--accent);color:#7ff0c8}
+.cal-time.sel{background:#E1FBE8;border-color:var(--success);color:#3C7E44}
 .plan-chips{display:flex;gap:5px;margin-bottom:8px}
 .plan{flex:1;padding:7px 4px;font-size:.72rem;font-weight:700;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
-.plan.sel{background:rgba(59,130,246,.18);border-color:var(--blue);color:#bcd4ff}
-.plan-rec{font-size:.76rem;color:#ffd58a;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);border-radius:8px;padding:7px 10px;margin-bottom:9px}
+.plan.sel{background:#DEE9FC;border-color:var(--blue);color:#273FA8}
+.plan-rec{font-size:.76rem;color:#CB7C2E;background:#FCF4CB;border:1px solid #CB7C2E;border-radius:8px;padding:7px 10px;margin-bottom:9px}
 .plan-price{font-weight:800;font-size:.98rem;margin-bottom:7px;color:var(--text)}
 .plan-incl{margin:0 0 4px;padding-left:17px;max-height:230px;overflow:auto}
 .plan-incl li{font-size:.77rem;color:var(--text2);margin-bottom:4px;line-height:1.4}
@@ -297,9 +303,9 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .cr-incl{margin:7px 0 0;padding-left:17px}
 .cr-incl li{font-size:.76rem;color:var(--text2);margin-bottom:3px;line-height:1.4}
 .close-ready{margin:10px 0;padding:7px 11px;border-radius:8px;font-size:.8rem;font-weight:700}
-.close-ready.ready{background:rgba(16,185,129,.14);color:#7ff0c8}
-.close-ready.qualify{background:rgba(245,158,11,.14);color:#ffd58a}
-.close-ready.walk{background:rgba(239,68,68,.14);color:#ffb1b1}
+.close-ready.ready{background:#E1FBE8;color:#3C7E44}
+.close-ready.qualify{background:#FCF4CB;color:#CB7C2E}
+.close-ready.walk{background:#FFFBEC;color:#87451D}
 .close-line{margin-bottom:11px}
 .cl-lbl{font-size:.64rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);font-weight:700;margin-bottom:4px}
 .cl-say{font-size:.9rem;line-height:1.5;color:var(--text);background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:9px 12px}
@@ -311,7 +317,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .email-link:hover{text-decoration:underline}
 .em-templates{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 .em-tpl{padding:7px 11px;font-size:.76rem;font-weight:700;border-radius:8px;background:var(--surface);border:1px solid var(--border);color:var(--text2);cursor:pointer}
-.em-tpl.sel{background:rgba(59,130,246,.18);border-color:var(--blue);color:#bcd4ff}
+.em-tpl.sel{background:#DEE9FC;border-color:var(--blue);color:#273FA8}
 .em-input,.em-body{width:100%;padding:9px 11px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.84rem;font-family:inherit;margin-bottom:8px}
 .em-input:focus,.em-body:focus{outline:none;border-color:var(--accent)}
 .em-body{line-height:1.5;resize:vertical}
@@ -324,7 +330,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 .bank-name{font-weight:800;font-size:1rem;margin-bottom:6px}
 .bank-drive,.bank-pitch{font-size:.8rem;color:var(--text2);line-height:1.5;margin-bottom:5px}
 .bank-drive b,.bank-pitch b{color:var(--text)}
-.bank-auto{font-size:.72rem;font-weight:700;color:#7ff0c8;background:rgba(16,185,129,.14);border:1px solid rgba(16,185,129,.35);border-radius:7px;padding:5px 9px;margin-bottom:8px}
+.bank-auto{font-size:.72rem;font-weight:700;color:#3C7E44;background:#E1FBE8;border:1px solid #3C7E44;border-radius:7px;padding:5px 9px;margin-bottom:8px}
 .mini-cta:hover{border-color:var(--accent)}
 .vid-choices{display:flex;gap:9px}
 .vidbtn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 10px;border-radius:12px;background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:700;font-size:.92rem}
@@ -334,6 +340,78 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
 </style>
 </head>
 <body>
+<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
+     magic-link mechanism as EPIC Referral Partner. Blocks this tool until a
+     real session exists; the client-side EPICBETA code below is a build
+     toggle, not identity — this is the actual security layer. ===== -->
+<style>
+#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
+#epicAuthGate.hidden{display:none}
+.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
+.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
+.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
+.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
+.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-box .epic-gate-btn{display:block;width:100%;padding:12px;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff;text-decoration:none;text-align:center;box-sizing:border-box}
+.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
+#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
+</style>
+<div id="epicAuthGate" class="hidden">
+  <div class="epic-auth-box">
+    <div id="epicGateNoSession">
+      <h2>🔐 Sign in required</h2>
+      <p>Sign in once from the EPIC Suite hub — it unlocks every tool your role can reach.</p>
+      <a class="epic-gate-btn" href="../">Go to EPIC Suite hub →</a>
+    </div>
+    <div id="epicGateNoAccess" style="display:none">
+      <h2>🔒 Not unlocked yet</h2>
+      <p id="epicGateNoAccessMsg"></p>
+      <a class="epic-gate-btn" href="../">← Back to EPIC Suite hub</a>
+    </div>
+  </div>
+</div>
+<span id="epicSignOut" style="display:none">sign out</span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  // Single sign-in point is the hub now (2026-07-05) — this tool never mints
+  // its own magic link, it only checks an existing session + role rank.
+  // Rank: owner(Admin)=5 > cs(Client Success)=4 > closer=3 > bdr(Setter)=2 >
+  // partner(Referral)=1. Higher rank unlocks this tool AND everything below it.
+  var TOOL_RANK=3; // Closer
+  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
+  var ROLE_LABEL={owner:'Admin', cs:'Client Success', closer:'Closer', bdr:'Setter', partner:'Referral Partner', rep:'Rep'};
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  var noSession=document.getElementById('epicGateNoSession'), noAccess=document.getElementById('epicGateNoAccess');
+  async function myRank(session){
+    if(!session) return -1;
+    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+    var role=r.data&&r.data.role;
+    return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
+  }
+  async function refresh(){
+    wrapEl=wrapEl||document.querySelector('.wrap');
+    var r=await SB.auth.getSession(), session=r.data.session;
+    var rank=await myRank(session);
+    var authorized=rank>=TOOL_RANK;
+    gate.classList.toggle('hidden', authorized);
+    noSession.style.display=session?'none':'';
+    noAccess.style.display=(session&&!authorized)?'':'none';
+    if(session&&!authorized){
+      var need=Object.keys(ROLE_RANK).find(function(k){return ROLE_RANK[k]===TOOL_RANK;});
+      document.getElementById('epicGateNoAccessMsg').textContent="Your role doesn't reach this tool yet — you need "+(ROLE_LABEL[need]||need)+' access or higher.';
+    }
+    if(wrapEl) wrapEl.style.visibility=authorized?'visible':'hidden';
+    signOutBtn.style.display=session?'':'none';
+    if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+  }
+  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
 <div class="wrap">
 
   <a href="../" class="back">← EPIC Suite</a> <button type="button" id="epicSuggBtn" class="epic-sugg-btn" style="display:none">💡 Suggest an improvement</button>
@@ -346,7 +424,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
       <div class="stat"><b id="s-conn" style="color:var(--accent)">7</b><span>connects</span></div>
       <div class="stat"><b id="s-book" style="color:var(--accent)">2</b><span>booked</span></div>
       <div class="stat"><b id="s-closed" style="color:var(--accent)">1</b><span>closed</span></div>
-      <div class="stat"><b id="s-rev" style="color:var(--gold)">$3.5k</b><span>revenue</span></div>
+      <div class="stat"><b id="s-rev" style="color:var(--warn-badge)">$3.5k</b><span>revenue</span></div>
       <div class="stat"><b id="s-queue">41</b><span>queue</span></div>
     </div>
   </header>
@@ -391,6 +469,16 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
           <span id="histToggle" class="hist-toggle">🕐 History (0) ▾</span>
         </div>
         <div id="histBox" class="hist-box hidden"></div>
+      </div>
+
+      <div class="panel" id="verifyPanel">
+        <div class="lbl">🤝 Verify the BDR's booking <span class="muted" style="text-transform:none;letter-spacing:0">· one tap releases (or voids) the BDR's $100</span></div>
+        <div id="verifyBody" style="font-size:.82rem;color:var(--text2);line-height:1.5"><b id="vBdr">Kai Rivera</b> tagged this booking <b style="color:var(--text)">BANT: 💰 Budget ✓ · 👤 Authority ✓ · 🎯 Need ✓</b> · ✅ intent confirmed. <span id="vAi">🤖 AI corroborating from the live call…</span></div>
+        <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
+          <button id="vQual" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:.85rem">✅ Qualified — release $100</button>
+          <button id="vNot" style="background:var(--bg2);color:#87451D;border:1px solid var(--red);border-radius:8px;padding:9px 15px;font-weight:800;cursor:pointer;font-size:.85rem">🚫 Not qualified — void</button>
+        </div>
+        <div id="vResult" style="font-size:.82rem;margin-top:10px"></div>
       </div>
 
       <!-- Signals & flags + BANT + live transcript — one box above the closer -->
@@ -544,6 +632,7 @@ kbd{font-family:inherit;font-size:.64rem;font-weight:800;background:var(--bg2);b
       <div class="offer" id="bkDesc"></div>
       <div class="cal-dates" id="calDates"></div>
       <div class="cal-times" id="calTimes"></div>
+      <button id="bookRealBtn" class="paybtn hidden" style="margin-top:2px">📅 Open the real 3B calendar (Calendly)</button>
       <div id="bookStatus" class="cstatus">Pick a day in the next 2 weeks, then a time.</div>
     </div>
   </div>
@@ -617,6 +706,54 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.33.0',d:'2026-07-06',n:[
+ "Setter: booking the Discovery Call appointment is now REAL — it creates an actual booking on Miki's live Calendly calendar (real available times, real confirmation), replacing the old fake closer/date/time picker and its fictional closer names (Ana/Marco/\"Next available\").",
+]},
+{v:'1.32.0',d:'2026-07-06',n:[
+ "Setter: the New tab now sorts strictly by when the lead actually entered the CRM (newest first), automatically — not by AI priority score, which isn't populated yet. Each card shows \"entered Xd ago.\"",
+ "Backend: real lead-entry dates now sync from Sales Hub (previously only a sync-batch timestamp was stored, which made every lead look equally \"new\"). Admin gets a one-click \"Sync now\" to refresh leads on demand.",
+]},
+{v:'1.31.0',d:'2026-07-06',n:[
+ "Setter: Fresh leads are now 3 real filter tabs — New, Callbacks, and No-shows — instead of one mixed list, each with a live count and a due-follow-up badge.",
+ "Setter: logging a Callback or No answer now saves a real follow-up (due tomorrow) instead of just updating on-screen counters, so a lead you need to re-call doesn't quietly disappear when you refresh.",
+ "Admin: the Latest suggestions panel now shows the real feed from every tool's 💡 suggestion box, with a one-click \"mark reviewed.\"",
+]},
+{v:'1.30.0',d:'2026-07-05',n:[
+ "Sign in once, from the EPIC Suite hub — every tool now unlocks based on your role instead of asking you to sign in separately each time. Roles rank Admin > Client Success > Closer > Setter > Referral Partner, and reaching a rank unlocks everything below it too. The hub shows a locked/unlocked chip on every tool so it's clear what you can open.",
+]},
+{v:'1.29.0',d:'2026-07-04',n:[
+ "Payment safety: beta now uses Stripe TEST-mode checkout links (no real charge) automatically — the live site keeps using real ones. Same flow either way, beta just shows a clear 🧪 TEST tag so nobody mistakes a beta test for a real close.",
+]},
+{v:'1.28.0',d:'2026-07-04',n:[
+ "Real sign-in everywhere. Setter, Closer, Client Success, and Admin now require the same one-tap email sign-in Referral Partner already had — no more shared demo codes.",
+ "Setter and Closer now show real Sales Hub leads (booked-call stages for Closer, fresh/needs-follow-up for Setter) instead of demo names, once you're signed in. Closer's scripted practice call stays exactly as-is for training — real leads get a plain live-call mode instead, no fake script.",
+ "Admin: a new Team panel to invite teammates and set their role, and owner-only access (real, not a shared code).",
+ "Real call data pipeline: your actual Zoom/Fathom sales calls now turn into structured data automatically — outcome, objections, next steps — matched to the right lead.",
+]},
+{v:'1.27.0',d:'2026-07-03',n:[
+ "Referral Partner: added an optional \"quick read\" on the person you're referring — 4 simple yes/no/don't-know questions (can they afford it, are they the decision-maker, do they actually need this, are they ready soon) to help the team prep. Fully optional — \"don't know\" is a fine answer and never holds up the referral.",
+]},
+{v:'1.26.0',d:'2026-07-03',n:[
+ "The Referral Partner tool is REAL. Members sign in with their email (one-tap magic link, no password), submit referrals from their phone, track each one Submitted → Booked → Joined, and see real earnings — $100 per referral who joins, live from the commission ledger. Referral submissions now create real deals in the backend; when you close one, the referrer's reward moves to payable automatically.",
+]},
+{v:'1.25.0',d:'2026-07-02',n:[
+ "Suite-wide 🔄 update prompt. Every tool (hub, Setter, Referral, Client Success, Admin — the Closer already had it) now checks the deployed build once a minute and whenever you come back to the tab; if a newer version shipped, a bar prompts 'Update now' and one tap refreshes past your phone's stale cache. No more running yesterday's build without knowing it.",
+]},
+{v:'1.24.0',d:'2026-07-02',n:[
+ "Live Paid status from Stripe. When you open a checkout, the link now carries a per-send reference; the moment the prospect pays, Stripe's webhook records it and your screen flips to ✅ Paid — auto-marking 🏆 Won, ticking Closed + Revenue — without you touching the Stripe dashboard. If the backend isn't deployed yet the poll simply never confirms and you mark Won manually, like before.",
+]},
+{v:'1.23.0',d:'2026-07-02',n:[
+ "Real book + charge — the Closer now fires your LIVE links, not demo ones. 💳 Pay link opens your real Stripe checkout for the chosen tier (Monthly / Annual / Pro) and copies it to send; 📅 Booking opens your real MyFICO 3B Calendly calendar. Important: sending a payment link is NOT a payment — mark 🏆 Won once Stripe confirms the money cleared (a live 'paid' status needs the Stripe webhook, coming with the backend). Flip LIVE_MODE off to demo again.",
+]},
+{v:'1.22.0',d:'2026-07-02',n:[
+ "Qualified-booking verification for the BDR's $100. The Setter now qualifies on BANT (Budget + Authority required) plus an intent check (prospect confirmed the slot); a booking only counts as qualified when both clear. The Closer verifies with one tap — ✅ Qualified / 🚫 Not qualified, with AI corroboration of the BANT — and that's what releases or voids the BDR's $100 (voided → rolls to the house). Admin dashboard adds a BDR booking-quality view: qualified-rate, BANT-match, no-shows, verified vs pending.",
+]},
+{v:'1.21.0',d:'2026-07-02',n:[
+ "Commission system + leaderboards. Each closed membership's $500 setup splits: $100 lead gen (referral partner, or TLA if ads-sourced), $100 BDR booking, $100 closer for the 3B, $200 closer for the membership. Every role now sees its own leaderboard + earnings, and the admin dashboard shows the full commission breakdown per deal.",
+]},
+{v:'1.20.0',d:'2026-07-02',n:[
+ "Beta is now a full parallel build of the entire EPIC Suite — the 🧪 chip takes you into a complete beta version of every tool (hub, Closer, Setter, Referral, Client Success) and back to Live in one tap.",
+]},
 {v:'1.19.2',d:'2026-07-02',n:[
  "Unified the header with the rest of the EPIC Suite — matching mixed-case title style and a ← EPIC Suite / 💡 Suggest row up top (look-only, nothing functional changed).",
 ]},
@@ -738,7 +875,7 @@ function updateRev(){ var e=$('s-rev'); if(e) e.textContent=fmtRev(revenue); }
 let currentFocus='all', curId=null, curTz='America/New_York', curTzL='ET', hawaiiOnly=false;
 
 /* the book of business — each prospect carries its segments + local time + caller ID */
-const QUEUE=[
+let QUEUE=[
  {id:'renee', ini:'RW', nm:'Renee Webb', sub:'Webb Logistics · Owner · 📍 Florida', reason:'Callback promised today', score:94, seg:['hot','callback'], loc:'📍 Florida', tz:'America/New_York', tzL:'ET', caller:'(305) 555-0142', hist:[
    {d:'Jun 24',t:'📞 Callback — promised to decide by today'},
    {d:'Jun 18',t:'✅ Connected — raised price, wanted to talk to her partner'},
@@ -781,6 +918,74 @@ const FOCUS=[
 function curProspectObj(){ return QUEUE.find(p=>p.id===curId)||QUEUE[0]; }
 function scoreCls(s){ return s>=85?'hi':(s>=75?'mid':'low'); }
 function filteredList(){ return QUEUE.filter(p=>(currentFocus==='all'||p.seg.indexOf(currentFocus)>=0) && (!hawaiiOnly || /Hawaii/.test(p.loc))).slice().sort((a,b)=>b.score-a.score); }
+
+// ── Real Sales Hub leads (2026-07-04): once signed in (real-auth gate above,
+// same pattern as EPIC Referral Partner / EPIC Setter), replace the demo
+// QUEUE with real booked-call prospects — stages 3./5./7. (Discovery Booked,
+// Whale Booked, 3B Report Booked). Setter already handles earlier-funnel
+// stages and no-show recovery; long-tail AE follow-up is its own cadence —
+// neither belongs in Closer's queue.
+//
+// IMPORTANT: the scripted ▶ Start call below (script/runCall/applyEffects)
+// is a fixed demo narrative (fake audio, fake BANT auto-fill) — it always
+// plays the same "Renee" conversation regardless of which prospect is
+// selected. Running it against a REAL prospect would show fabricated
+// dialogue attributed to a real person who never said it (owner-flagged
+// display-truth risk, 2026-07-04). So real leads use runRealCall() instead:
+// a plain connecting/connected call-timer UI with NO scripted transcript,
+// audio, or auto-filled BANT — the rep tracks BANT/signals/notes manually
+// while on their actual phone call. The demo stays fully intact and
+// untouched for training/onboarding (usingRealLeads stays false for it).
+const CLOSER_STAGE_PATTERNS=['3.%','5.%','7.%'];
+let usingRealLeads=false;
+function titleCase(s){ return (s||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
+function initialsFrom(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
+function shortStageLabel(stage){ return (stage||'Sales Hub lead').replace(/^\d+\.?\s*/,''); }
+function formatPhoneDisplay(p){ if(!p) return '—'; var d=p.replace(/\D/g,'').replace(/^1/,''); return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p; }
+async function loadCloserQueue(){
+  try{
+    if(!window.EPIC_SB) throw new Error('Not signed in yet');
+    var orFilter=CLOSER_STAGE_PATTERNS.map(function(p){return 'pipeline_stage.ilike.'+p;}).join(',');
+    var res=await window.EPIC_SB.from('prospects')
+      .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason')
+      .or(orFilter)
+      .order('priority_score',{ascending:false,nullsFirst:false})
+      .order('created_at',{ascending:true})
+      .limit(50);
+    if(res.error) throw new Error(res.error.message);
+    var rows=res.data||[];
+    if(rows.length===0){ usingRealLeads=false; toast('No live booked-call leads yet — showing demo'); return; }
+    QUEUE=rows.map(function(r){
+      var nm=titleCase(r.name);
+      return { id:r.id, ini:initialsFrom(nm), nm:nm,
+        sub:r.priority_reason||('Sales Hub · '+shortStageLabel(r.pipeline_stage)),
+        reason:r.priority_reason||shortStageLabel(r.pipeline_stage),
+        score:r.priority_score||50, seg:['live'], loc:'', tz:'America/Los_Angeles', tzL:'',
+        caller:formatPhoneDisplay(r.phone), hist:[] };
+    });
+    usingRealLeads=true;
+    curId=null; setFocus('all', true);
+    toast('Loaded '+QUEUE.length+' real booked-call leads from Sales Hub');
+  }catch(e){ usingRealLeads=false; toast('Could not load live leads — showing demo'); console.error('loadCloserQueue',e); }
+}
+window.onEpicAuthed=function(){ loadCloserQueue(); };
+async function runRealCall(){
+  const myToken=++runToken;
+  $('status').className='pill live'; $('status').innerHTML='● connecting…';
+  $('callBtn').className='btn end'; $('callBtn').innerHTML='⛔ End'; $('callBtn').disabled=false;
+  phCall('📲 Dialing…','ring');
+  await wait(900); if(myToken!==runToken) return;
+  $('status').innerHTML='🎙️ live — no script, track it yourself';
+  phOnCall();
+  bump('s-dials');
+  try{ setCloser('Manual','no auto-fill — tap BANT/signals/notes as you talk'); }catch(e){}
+  toast('Real call — tap BANT/signals/notes yourself, then log the outcome when done.');
+}
+function endRealCall(){
+  clearCallUI();
+  phEndCall(); phMsg('Call ended','sys');
+  toast('Logged — pick an outcome below and hit Log & Next.');
+}
 
 function pickVoice(){
   const vs=(window.speechSynthesis?speechSynthesis.getVoices():[])||[];
@@ -840,7 +1045,7 @@ function addChip(label,cls,isNew){
   try{renderClose()}catch(e){} try{autoBank()}catch(e){} try{autoOutcome()}catch(e){}
 }
 function flagAlert(tag,quote){
-  $('flagAlert').innerHTML='<div class="flag-alert">⚑ <div><b>Signal — '+tag+'.</b> Heard: “'+quote+'.” Added to profile (soft flag). <span style="color:#ffd58a;cursor:pointer">undo</span></div></div>';
+  $('flagAlert').innerHTML='<div class="flag-alert">⚑ <div><b>Signal — '+tag+'.</b> Heard: “'+quote+'.” Added to profile (soft flag). <span style="color:#CB7C2E;cursor:pointer">undo</span></div></div>';
 }
 function showObjection(){
   $('objBox').innerHTML=
@@ -924,7 +1129,7 @@ async function runCall(){
 }
 function bump(id){$(id).textContent=parseInt($(id).textContent)+1; try{updateMission();}catch(e){}}
 
-$('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; setPhCallBtn(); runCall(); };
+$('startBtn').onclick=()=>{ if(started)return; started=true; $('startBtn').disabled=true; setPhCallBtn(); if(usingRealLeads){ runRealCall(); } else { runCall(); } };
 function syncMute(){ $('muteBtn').textContent=muted?'🔇 Voice off':'🔊 Voice on'; var pm=$('phMute'); if(pm){ pm.textContent=muted?'🔇':'🔊'; pm.classList.toggle('on',muted); } }
 function toggleMute(){ muted=!muted; if(muted){ if('speechSynthesis'in window)speechSynthesis.cancel(); if(curAudio){try{curAudio.pause()}catch(e){}} } syncMute(); }
 $('muteBtn').onclick=toggleMute;
@@ -1014,7 +1219,7 @@ function resetDemo(){
   try{ updateMission(); }catch(e){}
   toast('Demo reset — ready to start again');
 }
-$('callBtn').onclick=resetDemo;
+$('callBtn').onclick=()=>{ if(usingRealLeads){ endRealCall(); } else { resetDemo(); } };
 
 /* ===== Outcome selection + the sacred log→next loop ===== */
 var outcomeManual=false, dealPaid=false;
@@ -1357,16 +1562,83 @@ function confirmBooking(){
 }
 renderCalDates();
 
+/* ===== LIVE links — real destinations so the closer can actually book + charge.
+   No backend: payment is a customer-completed Stripe LINK (PCI-safe), booking is
+   the real Calendly 3B call. Sending a link is NOT a payment — the closer marks
+   🏆 Won once Stripe confirms. Set LIVE_MODE=false to demo (simulated send). ===== */
+const LIVE_MODE = true;
+// This exact file is deployed to BOTH /beta/ and the live root — same source,
+// different URL path. Detect which one we're actually running on so beta never
+// fires a real Stripe charge just because someone's testing a UI change there.
+const IS_BETA = location.pathname.indexOf('/beta/') > -1;
+// Real Stripe Payment Links (live mode) — only ever used on the live build.
+const LIVE_PAY = {
+  monthly: 'https://buy.stripe.com/dRm00j93BgjA1GTfVp3wQ00',
+  annual:  'https://buy.stripe.com/dRmcN52Fd8R899l38D3wQ03',
+  pro:     'https://buy.stripe.com/3cI4gz7Zx4ASbhtbF93wQ04'
+};
+// Stripe TEST-mode Payment Links — completing one does NOT move real money.
+// Fill these in once created in the Stripe Dashboard (toggle to Test mode
+// first, mirror the same 3 tiers/prices as LIVE_PAY) — see this repo's
+// NIGHTLY_QUEUE.md for the full setup checklist. Left blank until then: the
+// beta build will show a clear "test link not set up yet" state rather than
+// silently falling back to a real charge.
+const TEST_PAY = {
+  monthly: 'https://buy.stripe.com/test_bJe5kD9Zh3Mtf9Xd2qaR204',
+  annual:  'https://buy.stripe.com/test_4gM7sL8Vd4Qxf9X6E2aR202',
+  pro:     'https://buy.stripe.com/test_aFaeVd5J1beV5znd2qaR205'
+};
+const LIVE = {
+  book3b: 'https://calendly.com/d/cvbp-8nf-n3s/myfico-3b-call-with-tla',
+  pay: IS_BETA ? TEST_PAY : LIVE_PAY,
+  // paid-status poll → Supabase Edge Function fed by the Stripe webhook.
+  // Publishable key only (browser-safe); truth comes from Stripe, not the client.
+  statusUrl: 'https://widdgynledwpqaqndtvz.supabase.co/functions/v1/payment-status',
+  statusKey: 'sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ'
+};
+function copyLink(u){ try{ navigator.clipboard&&navigator.clipboard.writeText(u); }catch(e){} }
+
+/* Poll payment-status with the checkout's client_reference_id until Stripe
+   confirms (webhook → payments row). Sent → ✅ Paid → auto-Won, live. */
+let payPollId=null;
+function stopPayPoll(){ if(payPollId){ clearInterval(payPollId); payPollId=null; } }
+function startPayPoll(ref, pl, nm){
+  stopPayPoll();
+  var started=Date.now();
+  payPollId=setInterval(async function(){
+    if(Date.now()-started > 45*60*1000){ stopPayPoll(); return; } // give up after 45 min
+    try{
+      var r=await fetch(LIVE.statusUrl+'?ref='+encodeURIComponent(ref),
+        {headers:{apikey:LIVE.statusKey, Authorization:'Bearer '+LIVE.statusKey}});
+      if(!r.ok) return;                    // fn not deployed yet / transient — keep manual flow
+      var j=await r.json();
+      if(j && j.paid){
+        stopPayPoll();
+        // Server-confirmed livemode (from which webhook secret verified the
+        // signature) is the authoritative test/live signal, not just the URL
+        // path — belt-and-suspenders in case IS_BETA and reality ever disagree.
+        var testTag=(j.livemode===false)?'🧪 TEST — ':'';
+        setPay(testTag+'✅ Paid — '+esc(pl.short)+' ('+esc(pl.label)+') · confirmed by Stripe','ok');
+        phMsg(testTag+'<span class="ttl">Payment received ✅</span>Welcome to EPIC LIFE '+pl.label+' — '+pl.short+'.','ok');
+        toast(testTag?'Test payment received 🧪':'Payment received 🎉');
+        $('s-closed').textContent=parseInt($('s-closed').textContent,10)+1;
+        revenue+=pl.collect; updateRev();
+        dealPaid=true; try{ selectOutcome('won'); }catch(e){}
+      }
+    }catch(e){ /* network blip — next tick */ }
+  }, 5000);
+}
+
 /* payment plans — rep picks the tier before sending the link */
 const PLANS={
-  monthly:{label:'Monthly', price:'$800 to start, then $300/mo', short:'$800 to start · $300/mo', link:'pay.tla.co/r/epic-mo', collect:800, tag:'12-mo commitment', incl:[
+  monthly:{label:'Monthly', price:'$800 to start, then $300/mo', short:'$800 to start · $300/mo', link:LIVE.pay.monthly, collect:800, tag:'12-mo commitment', incl:[
     'Credit Audit & Protection Plan','Credit Builder Program','Personal Debt Exit Strategy','Family Income Protection Strategy',
     'EPIC LIFE Portal + assigned Coach','Banking Relationship Coaching','Liability Holding Company structuring','Business Insurance Review',
     'Monthly webinars + EPIC Saturday workshops']},
-  annual:{label:'Annual', price:'$3,500 to start, then $3,000/yr', short:'$3,500 to start · $3,000/yr', link:'pay.tla.co/r/epic-yr', collect:3500, tag:'Best value · save $600/yr', incl:[
+  annual:{label:'Annual', price:'$3,500 to start, then $3,000/yr', short:'$3,500 to start · $3,000/yr', link:LIVE.pay.annual, collect:3500, tag:'Best value · save $600/yr', incl:[
     'Everything in Monthly, plus:','5× referral points on every enrollment','Priority support & workshop access','Exclusive annual member events',
     'Personal Credit & Cashflow Management','Personal Debt Paydown Plan','Access to Capital — Personal LOCs & HELOCs','On-demand video library']},
-  pro:{label:'Pro', price:'$9,700/yr', short:'$9,700/yr (billed annually)', link:'pay.tla.co/r/epic-pro', collect:9700, tag:'Premium', incl:[
+  pro:{label:'Pro', price:'$9,700/yr', short:'$9,700/yr (billed annually)', link:LIVE.pay.pro, collect:9700, tag:'Premium', incl:[
     'Everything in Annual, plus:','Agency website + pro email + business phone','Google Business Profile, D-U-N-S, Nav monitoring','Brand presence + basic SEO',
     'Business Credit & Cashflow Management','Bookkeeping + Tax Review (business & personal)','Custom Real Estate Strategy','Turnkey & off-market property access','RE lending vendors + deal calculators']}
 };
@@ -1375,6 +1647,26 @@ function setPlan(p){ curPlan=p; document.querySelectorAll('#planChips .plan').fo
   var pl=PLANS[p], d=$('planDesc'); if(d) d.innerHTML='<div class="plan-price">'+pl.price+' <span class="muted" style="font-weight:500;font-size:.72rem">· '+pl.tag+'</span></div><ul class="plan-incl">'+pl.incl.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'; }
 document.querySelectorAll('#planChips .plan').forEach(b=>b.onclick=()=>setPlan(b.dataset.p));
 setPlan('monthly');
+
+/* LIVE_MODE booking: hide the demo date grid, open the REAL Calendly 3B call. */
+if(LIVE_MODE){
+  ['calDates','calTimes'].forEach(id=>{ var e=$(id); if(e) e.classList.add('hidden'); });
+  var _brb=$('bookRealBtn');
+  if(_brb){
+    _brb.classList.remove('hidden');
+    var _bs=$('bookStatus'); if(_bs) _bs.textContent='Pick the booking type above, then open the calendar.';
+    _brb.onclick=function(){
+      var nm=curProspectObj().nm, cb=(typeof bkMode!=='undefined'&&bkMode==='callback');
+      try{ window.open(LIVE.book3b,'_blank','noopener'); }catch(e){}
+      copyLink(LIVE.book3b);
+      $('bookStatus').className='cstatus ok';
+      $('bookStatus').innerHTML='📅 Opened the real 3B calendar + copied the link — book <b>'+esc(nm)+'</b> in Calendly.';
+      phMsg('📅 Here’s the link to book your <b>MyFICO 3B call</b>:<br><span class="lk">'+esc(LIVE.book3b)+'</span>','me');
+      try{ selectOutcome(cb?'callback':'booked'); }catch(e){}
+      toast('3B calendar opened');
+    };
+  }
+}
 
 /* recommend the most relevant tier from what we know about the prospect */
 function recommendTier(){
@@ -1432,9 +1724,33 @@ function renderClose(){
 renderClose();
 
 async function sendPaymentLink(){
+  const nm=curProspectObj().nm, pl=PLANS[curPlan];
+  if(LIVE_MODE){
+    // Beta build + no test link configured yet: refuse rather than silently
+    // opening a broken URL (or worse, falling back to a real charge).
+    if(IS_BETA && !pl.link){
+      setPay('🧪 Test payment link not set up yet for '+esc(pl.label)+' — see NIGHTLY_QUEUE.md.','');
+      toast('Test Stripe link not configured — nothing sent');
+      return;
+    }
+    // Real close: open + copy the Stripe checkout, tagged with a per-send
+    // reference so the Stripe webhook can flip this screen to ✅ Paid live.
+    // (If the webhook backend isn't deployed yet, the poll just never confirms
+    // and you mark 🏆 Won manually — nothing breaks.) In beta this is a Stripe
+    // TEST-mode link — same flow, no real money moves.
+    var testTag=IS_BETA?'🧪 TEST — ':'';
+    var ref=(crypto.randomUUID?crypto.randomUUID():('ref-'+Date.now()+'-'+Math.random().toString(36).slice(2)));
+    var url=pl.link+(pl.link.indexOf('?')>-1?'&':'?')+'client_reference_id='+ref;
+    try{ window.open(url,'_blank','noopener'); }catch(e){}
+    copyLink(url);
+    phMsg(testTag+'💳 Your secure checkout for EPIC LIFE '+pl.label+' — '+pl.short+':<br><span class="lk">'+esc(url)+'</span>','me');
+    setPay(testTag+'💳 '+esc(pl.label)+' checkout opened + copied — send it to '+esc(nm)+'. Watching Stripe for the payment…','');
+    startPayPoll(ref, pl, nm);
+    try{ setBkMode('closed'); }catch(e){}
+    return;
+  }
   if($('payBtn').disabled){ toast('Payment link already sent'); return; }
   $('payBtn').disabled=true;
-  const nm=curProspectObj().nm, pl=PLANS[curPlan];
   setPay('📲 '+pl.label+' link sent to '+nm+'…','');
   phMsg('💳 Your secure checkout for EPIC LIFE '+pl.label+' — '+pl.short+':<br><span class="lk">'+pl.link+'</span>','me');
   await wait(1600); setPay('👀 '+nm+' opened the payment page…','');
@@ -1445,7 +1761,7 @@ async function sendPaymentLink(){
   dealPaid=true; try{ selectOutcome('won'); }catch(e){}
   try{ setBkMode('closed'); }catch(e){}
 }
-$('payBtn').onclick=()=>{ if($('payBtn').disabled){ toast('Payment link already sent'); return; } var pl=PLANS[curPlan], nm=curProspectObj().nm; maybeConfirm(sendPaymentLink,'Send payment link','Text <b>'+esc(nm)+'</b> the <b>'+pl.label+'</b> checkout link — '+pl.short+'?','Send link'); };
+$('payBtn').onclick=()=>{ if(!LIVE_MODE && $('payBtn').disabled){ toast('Payment link already sent'); return; } var pl=PLANS[curPlan], nm=curProspectObj().nm; var liveWord=IS_BETA?'🧪 TEST (no real charge)':'real'; var msg=LIVE_MODE?('Open the '+liveWord+' <b>'+pl.label+'</b> Stripe checkout ('+pl.short+') and copy it to send to <b>'+esc(nm)+'</b>?'):('Text <b>'+esc(nm)+'</b> the <b>'+pl.label+'</b> checkout link — '+pl.short+'?'); maybeConfirm(sendPaymentLink,LIVE_MODE?'Open checkout':'Send payment link',msg,LIVE_MODE?'Open + copy':'Send link'); };
 
 /* ===== Rep phone: call timer + text thread + quick-send dock ===== */
 let callTimerId=null, callSecs=0;
@@ -1594,7 +1910,7 @@ $('phInput').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefau
 
 /* Call / End button on the phone itself */
 function setPhCallBtn(){ var b=$('phCallBtn'); if(!b)return; b.className='ph-callbtn'+(started?' end':''); b.textContent=started?'⛔ End':'📞 Call'; }
-$('phCallBtn').onclick=()=>{ if(started){ resetDemo(); } else { $('startBtn').click(); setPhCallBtn(); } };
+$('phCallBtn').onclick=()=>{ if(started){ if(usingRealLeads){ endRealCall(); } else { resetDemo(); } } else { $('startBtn').click(); setPhCallBtn(); } };
 setPhCallBtn();
 
 /* ===== timezone / quiet-hours guard + caller-ID + daily mission ===== */
@@ -1666,14 +1982,14 @@ try{ if(localStorage.getItem('cockpit_seen_v')!==APP_VERSION){ $('ver').classLis
 
 <!-- ===== EPIC Suite: beta toggle chip (self-contained; Closer keeps its own What's-new) ===== -->
 <style>
-#epicChip{position:fixed;top:9px;right:12px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(0,0,0,.4);user-select:none;white-space:nowrap}
+#epicChip{position:fixed;top:9px;right:12px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(18,24,38,.12);user-select:none;white-space:nowrap}
 #epicChip:hover{border-color:var(--accent);color:var(--text)}
-#epicChip.beta{background:rgba(245,158,11,.18);border-color:var(--gold);color:#ffd58a;animation:epicPulse 2s ease-in-out infinite}
+#epicChip.beta{background:#FCF4CB;border-color:var(--gold);color:#CB7C2E;animation:epicPulse 2s ease-in-out infinite}
 @keyframes epicPulse{0%,100%{opacity:1}50%{opacity:.6}}
 body{padding-top:46px}
-.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(18,24,38,.5);display:flex;align-items:center;justify-content:center;padding:18px}
 .epic-modal.hidden{display:none}
-.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.5);text-align:left}
+.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(18,24,38,.22);text-align:left}
 .epic-box h3{font-size:1.05rem;margin-bottom:6px}
 .epic-box p{font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5}
 .epic-box input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:1rem;letter-spacing:2px;text-align:center;text-transform:uppercase}
@@ -1681,14 +1997,16 @@ body{padding-top:46px}
 .epic-err{color:var(--red);font-size:.76rem;margin-top:8px;min-height:16px;text-align:center}
 .epic-row{display:flex;gap:8px;margin-top:14px}
 .epic-row button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:800;font-size:.85rem;cursor:pointer}
-.epic-go{background:var(--gold);color:#1a1200}.epic-cancel{background:var(--surface2);color:var(--text)}
+.epic-go{background:var(--gold);color:#121826}.epic-cancel{background:var(--surface2);color:var(--text)}
 </style>
 <script>
 (function(){
   var CODE='EPICBETA', KEY='epic_mode';
   var E=window.EPIC=window.EPIC||{};
-  E.isBeta=function(){try{return localStorage.getItem(KEY)==='beta'}catch(e){return false}};
-  function setMode(x){try{localStorage.setItem(KEY,x)}catch(e){}}
+  var FILE=/\.html?$/i.test(location.pathname);
+  E.isBeta=function(){ if(/\/beta(\/|$)/.test(location.pathname)) return true; if(FILE){try{return localStorage.getItem(KEY)==='beta'}catch(e){}} return false; };
+  function gotoBeta(){ try{localStorage.setItem(KEY,'beta')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/(live|setter|referral|success)\/$/,'')+'beta/'; }
+  function gotoLive(){ try{localStorage.setItem(KEY,'live')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/beta\/(live\/|setter\/|referral\/|success\/)?$/,''); }
   var chip=document.createElement('div'); chip.id='epicChip';
   function paint(){ if(E.isBeta()){chip.className='beta';chip.textContent='🧪 BETA · back to Live';chip.title="You're on the beta build — tap to return to Live";}
     else{chip.className='';chip.textContent='🟢 Live · try beta';chip.title='Tap to enter the beta preview (code required)';} }
@@ -1698,8 +2016,8 @@ body{padding-top:46px}
   function showM(){m.classList.remove('hidden');var i=m.querySelector('#epicCodeIn');i.value='';m.querySelector('#epicErr').textContent='';setTimeout(function(){i.focus()},30);}
   function hideM(){m.classList.add('hidden');}
   function submitM(){var v=(m.querySelector('#epicCodeIn').value||'').trim().toUpperCase();
-    if(v===CODE){setMode('beta');location.reload();}else{m.querySelector('#epicErr').textContent="That code didn't match. Try again.";}}
-  chip.onclick=function(){ if(E.isBeta()){setMode('live');location.reload();} else {showM();} };
+    if(v===CODE){gotoBeta();}else{m.querySelector('#epicErr').textContent="That code didn't match. Try again.";}}
+  chip.onclick=function(){ if(E.isBeta()){gotoLive();} else {showM();} };
   document.body.appendChild(chip); document.body.appendChild(m);
   m.addEventListener('click',function(e){if(e.target===m)hideM();});
   m.querySelector('#epicCancel').onclick=hideM; m.querySelector('#epicGo').onclick=submitM;
@@ -1713,7 +2031,7 @@ body{padding-top:46px}
 .epic-sugg-btn:hover{border-color:var(--accent);color:var(--text)}
 .epic-sugg-ta{width:100%;min-height:120px;padding:11px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical}
 .epic-sugg-ta:focus{outline:none;border-color:var(--accent)}
-.epic-sugg-ok{background:var(--accent);color:#062a1e}
+.epic-sugg-ok{background:var(--accent);color:#fff}
 </style>
 <script>
 (function(){
@@ -1722,7 +2040,7 @@ body{padding-top:46px}
   var ROLE='EPIC Closer';
   function say(t){ try{ if(typeof toast==='function'){toast(t);return;} }catch(e){}
     var d=document.createElement('div'); d.textContent=t;
-    d.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--accent);color:#7ff0c8;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;z-index:1400';
+    d.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--accent);color:#3C7E44;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;z-index:1400';
     document.body.appendChild(d); setTimeout(function(){d.remove();},2400); }
   var m=document.createElement('div'); m.className='epic-modal hidden';
   m.innerHTML='<div class="epic-box"><h3>💡 Share an idea</h3><p>What would make <b>'+ROLE+'</b> better? Your suggestion goes straight to Bruce for review.</p><textarea class="epic-sugg-ta" id="epicSuggTa" placeholder="An idea, a bug, or something confusing…"></textarea><div class="epic-err" id="epicSuggErr"></div><div class="epic-row"><button class="epic-cancel" id="epicSuggCancel">Cancel</button><button class="epic-go epic-sugg-ok" id="epicSuggSend">Send to Bruce</button></div></div>';
@@ -1745,6 +2063,27 @@ body{padding-top:46px}
   document.body.appendChild(m);
   m.addEventListener('click',function(e){ if(e.target===m) hide(); });
   m.querySelector('#epicSuggCancel').onclick=hide; m.querySelector('#epicSuggSend').onclick=send;
+})();
+</script>
+
+<!-- role leaderboard + your commission (demo) -->
+<script>
+(function(){var w=document.querySelector('.wrap');if(!w)return;
+var TITLE='🏆 Top closers — commission this month';
+var YOU='You (Ana): $1,200 earned · $300 per closed deal ($100 3B booked + $200 membership)';
+var B=[{n:'Ana Vega (Sr)',s:'4 closed',p:'$1,200'},{n:'Devin Lu',s:'3 closed',p:'$900'}];
+var p=document.createElement('div');p.className='panel';p.style.marginTop='12px';
+p.innerHTML='<div class="lbl">'+TITLE+'</div>'+B.map(function(l,i){return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="width:20px;height:20px;border-radius:50%;'+(i===0?'background:#FCF4CB;color:var(--gold)':'background:var(--bg2);color:var(--text2)')+';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800">'+(i+1)+'</span><div style="flex:1;min-width:0"><b style="font-size:.85rem">'+l.n+'</b> <span style="font-size:.66rem;color:var(--text2)">· '+l.s+'</span></div><span style="font-weight:800;color:#3C7E44">'+l.p+'</span></div>';}).join('')+'<div style="margin-top:9px;font-size:.76rem;color:var(--gold);font-weight:700">'+YOU+'</div>';
+w.appendChild(p);})();
+</script>
+
+<!-- verify-the-booking control (releases the BDR's $100) -->
+<script>
+(function(){var q=document.getElementById('vQual'),n=document.getElementById('vNot'),r=document.getElementById('vResult'),ai=document.getElementById('vAi');
+if(!q)return;
+setTimeout(function(){ if(ai) ai.innerHTML='🤖 <b style="color:#3C7E44">AI corroborated the BANT</b> (matches the BDR\'s tags).'; },1400);
+q.onclick=function(){ r.style.color='#3C7E44'; r.innerHTML='✓ <b>Verified qualified.</b> BDR <b>Kai Rivera</b> credited <b>$100</b> — booking marked Qualified. (Fires on show + this confirm.)'; q.disabled=true;n.disabled=true;q.style.opacity=.55;n.style.opacity=.55; };
+n.onclick=function(){ r.style.color='#87451D'; r.innerHTML='🚫 <b>Marked not qualified</b> — no BDR commission; the $100 stays with the house (TLA). Logged against the BDR\'s qualified-rate.'; q.disabled=true;n.disabled=true;q.style.opacity=.55;n.style.opacity=.55; };
 })();
 </script>
 </body>

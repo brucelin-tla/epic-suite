@@ -4,31 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EPIC Suite — Team Life Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;--text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--red:#ef4444;--blue:#3b82f6;--purple:#a78bfa;--radius:16px}
+:root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:16px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
 .wrap{max-width:900px;width:100%;text-align:center}
 .logo{font-size:2.4rem;margin-bottom:4px}
-h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--blue),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--accent)}
 .tag{color:var(--text2);font-size:.95rem;margin:6px 0 26px}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:620px){.cards{grid-template-columns:1fr}}
-.card{display:block;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:left;transition:.15s;position:relative}
-.card:hover{transform:translateY(-3px)}
+.card{display:block;text-decoration:none;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;text-align:left;transition:.15s;position:relative;box-shadow:0 1px 3px rgba(18,24,38,.05)}
+.card:hover{transform:translateY(-3px);box-shadow:0 6px 20px rgba(18,24,38,.09)}
 .card .role{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text2);margin-bottom:10px}
-.card .vt{font-size:1.35rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:9px}
+.card .vt{font-size:1.35rem;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:9px;color:var(--ink)}
 .card p{color:var(--text2);font-size:.86rem;line-height:1.55;margin-bottom:16px;min-height:64px}
 .go{font-weight:700;font-size:.9rem}
 .card.closer:hover{border-color:var(--accent)}.card.closer .go{color:var(--accent)}
-.card.setter:hover{border-color:var(--gold)}.card.setter .go{color:var(--gold)}
-.card.ref:hover{border-color:var(--blue)}.card.ref .go{color:var(--blue)}
-.card.cs:hover{border-color:var(--purple)}.card.cs .go{color:var(--purple)}
-.card .live{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:rgba(16,185,129,.16);color:#7ff0c8}
+.card.setter:hover{border-color:var(--gold)}.card.setter .go{color:var(--warn-badge)}
+.card.ref:hover{border-color:var(--info)}.card.ref .go{color:var(--info)}
+.card.cs:hover{border-color:var(--success)}.card.cs .go{color:var(--success)}
+.card .live{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--success-bg);color:var(--success)}
 .beta{display:inline-block;margin-top:6px;font-size:.72rem;color:var(--muted);text-decoration:none}.beta:hover{color:var(--text2)}
 .foot{color:var(--muted);font-size:.78rem;margin-top:26px;line-height:1.7}
 .flow{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:6px;font-size:.72rem;color:var(--text2)}
 .flow b{color:var(--text)}
+.card.locked{opacity:.5;cursor:not-allowed;filter:grayscale(.6)}
+.card.locked:hover{transform:none;box-shadow:0 1px 3px rgba(18,24,38,.05)}
+.card .lock-badge{position:absolute;top:16px;right:16px;font-size:.62rem;font-weight:800;padding:3px 9px;border-radius:999px;background:var(--surface2);color:var(--text2)}
+#adminLink.locked{opacity:.5;cursor:not-allowed}
+#epicSignedInBar{max-width:520px;margin:0 auto 18px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.8rem}
+#epicSignedInBar .who{color:var(--text2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#epicSignedInBar .who b{color:var(--text)}
+#epicSignedInBar .out{color:var(--info);cursor:pointer;font-weight:700;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -36,29 +46,44 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
   <div class="logo">⚡</div>
   <h1>EPIC Suite</h1>
   <p class="tag">Team Life Academy — one workspace per role, one funnel end-to-end</p>
+
+  <!-- Single sign-in point for the whole suite (2026-07-05) — every tool
+       checks the session this establishes instead of minting its own link. -->
+  <div class="epic-auth-box" id="epicHubSignIn" style="max-width:420px;margin:0 auto 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;text-align:left;box-shadow:0 1px 3px rgba(18,24,38,.05)">
+    <h2 style="font-size:1.05rem;margin-bottom:8px;color:var(--ink)">🔐 Sign in</h2>
+    <p style="font-size:.85rem;color:var(--text2);margin-bottom:12px;line-height:1.55">Enter the email you use with Team Life Academy — we'll send a one-tap sign-in link. This unlocks every tool your role can reach, right here on the hub.</p>
+    <input id="epicHubEmail" type="email" placeholder="you@email.com" autocomplete="email" style="width:100%;padding:11px 13px;border-radius:8px;border:1px solid var(--border);font-size:1rem;margin-bottom:10px;box-sizing:border-box">
+    <button id="epicHubSend" style="width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:var(--accent);color:#fff">Email me a sign-in link</button>
+    <div id="epicHubMsg" style="font-size:.8rem;color:var(--text2);margin-top:10px;min-height:18px"></div>
+  </div>
+  <div id="epicSignedInBar" style="display:none">
+    <span class="who">Signed in as <b id="epicWhoEmail"></b> · <span id="epicWhoRole"></span></span>
+    <span class="out" id="epicSignOutHub">Sign out</span>
+  </div>
+
   <div class="cards">
-    <a class="card ref" id="card-ref" href="referral/">
+    <a class="card ref" id="card-ref" href="referral/" data-rank="1">
       <span class="live">🟢 Live</span>
       <div class="role">Referral Partner</div>
       <div class="vt">🤝 EPIC Referral Partner</div>
       <p>Refer the people you care about — warm ones go straight to a closer, cold ones to a setter — and earn referral points as they win.</p>
       <div class="go">Open Referral →</div>
     </a>
-    <a class="card setter" id="card-setter" href="setter/">
+    <a class="card setter" id="card-setter" href="setter/" data-rank="2">
       <span class="live">🟢 Live</span>
       <div class="role">BDR / Setter</div>
       <div class="vt">🎯 EPIC Setter</div>
       <p>Dial the lead list, quick-qualify who's worth a closer's time, and book the strategy appointment straight onto a closer's calendar.</p>
       <div class="go">Open Setter →</div>
     </a>
-    <a class="card closer" id="card-closer" href="live/">
+    <a class="card closer" id="card-closer" href="live/" data-rank="3">
       <span class="live" id="closerBadge">🟢 Live</span>
       <div class="role">Closer</div>
       <div class="vt">📞 EPIC Closer</div>
       <p>Live AI calling co-pilot — work the ranked queue, get the next line, qualify, handle objections, and close on the call.</p>
       <div class="go">Open Closer →</div>
     </a>
-    <a class="card cs" id="card-cs" href="success/">
+    <a class="card cs" id="card-cs" href="success/" data-rank="4">
       <span class="live">🟢 Live</span>
       <div class="role">Client Success</div>
       <div class="vt">🌟 EPIC Client Success</div>
@@ -69,42 +94,45 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
   <div class="foot">
     The EPIC funnel:
     <div class="flow"><b>Referral Partner</b> refers → 🎯 <b>BDR / Setter</b> books → 📞 <b>Closer</b> closes → 🌟 <b>Client Success</b> onboards</div>
+    <div style="margin-top:16px"><a id="adminLink" href="admin/" data-rank="5" style="cursor:pointer;color:var(--muted);font-size:.72rem;text-decoration:none" title="Admin dashboard — global view">🔒 Admin</a></div>
   </div>
 </div>
 
 <!-- ===== EPIC Suite: beta toggle chip + routing (self-contained) ===== -->
 <style>
-#epicChip{position:fixed;top:12px;right:14px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(0,0,0,.4);user-select:none;white-space:nowrap}
+#epicChip{position:fixed;top:12px;right:14px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(18,24,38,.12);user-select:none;white-space:nowrap}
 #epicChip:hover{border-color:var(--accent);color:var(--text)}
-#epicChip.beta{background:rgba(245,158,11,.18);border-color:var(--gold);color:#ffd58a;animation:epicPulse 2s ease-in-out infinite}
+#epicChip.beta{background:var(--warn-badge-bg);border-color:var(--gold);color:var(--warn-badge);animation:epicPulse 2s ease-in-out infinite}
 @keyframes epicPulse{0%,100%{opacity:1}50%{opacity:.6}}
-.card .live.betabadge{background:rgba(245,158,11,.16);color:#ffd58a}
-.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+.card .live.betabadge{background:var(--warn-badge-bg);color:var(--warn-badge)}
+.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(18,24,38,.5);display:flex;align-items:center;justify-content:center;padding:18px}
 .epic-modal.hidden{display:none}
-.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.5);text-align:left}
-.epic-box h3{font-size:1.05rem;margin-bottom:6px}
+.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(18,24,38,.22);text-align:left}
+.epic-box h3{font-size:1.05rem;margin-bottom:6px;color:var(--ink)}
 .epic-box p{font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5}
 .epic-box input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:1rem;letter-spacing:2px;text-align:center;text-transform:uppercase}
 .epic-box input:focus{outline:none;border-color:var(--gold)}
 .epic-err{color:var(--red);font-size:.76rem;margin-top:8px;min-height:16px;text-align:center}
 .epic-row{display:flex;gap:8px;margin-top:14px}
 .epic-row button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:800;font-size:.85rem;cursor:pointer}
-.epic-go{background:var(--gold);color:#1a1200}.epic-cancel{background:var(--surface2);color:var(--text)}
+.epic-go{background:var(--gold);color:var(--ink)}.epic-cancel{background:var(--surface2);color:var(--text)}
 </style>
 <script>
 (function(){
   var CODE='EPICBETA', KEY='epic_mode';
   var E=window.EPIC=window.EPIC||{};
-  E.isBeta=function(){try{return localStorage.getItem(KEY)==='beta'}catch(e){return false}};
-  function setMode(x){try{localStorage.setItem(KEY,x)}catch(e){}}
-  // ---- route the Closer card + tag to the current mode ----
+  var FILE=/\.html?$/i.test(location.pathname);
+  E.isBeta=function(){ if(/\/beta(\/|$)/.test(location.pathname)) return true; if(FILE){try{return localStorage.getItem(KEY)==='beta'}catch(e){}} return false; };
+  function gotoBeta(){ try{localStorage.setItem(KEY,'beta')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/(live|setter|referral|success)\/$/,'')+'beta/'; }
+  function gotoLive(){ try{localStorage.setItem(KEY,'live')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/beta\/(live\/|setter\/|referral\/|success\/)?$/,''); }
+  // ---- reflect the current mirror (live vs the /beta/ mirror) on the hub ----
   function applyMode(){
     var beta=E.isBeta();
-    var c=document.getElementById('card-closer'); if(c) c.setAttribute('href', beta?'beta/':'live/');
+    /* Closer card always links to live/ — in the /beta/ mirror that folder holds the beta closer */
     document.querySelectorAll('.card .live').forEach(function(b){ b.textContent=beta?'🧪 Beta':'🟢 Live'; b.classList.toggle('betabadge',beta); });
     var t=document.querySelector('.tag');
     if(t){ t.innerHTML=beta
-      ? "Team Life Academy — 🧪 <b style=\"color:#ffd58a\">beta preview</b> across the suite · tap the chip to return to Live"
+      ? "Team Life Academy — 🧪 <b style=\"color:#CB7C2E\">beta preview</b> across the suite · tap the chip to return to Live"
       : "Team Life Academy — one workspace per role, one funnel end-to-end"; }
   }
   applyMode();
@@ -118,12 +146,130 @@ h1{font-size:1.9rem;font-weight:800;background:linear-gradient(135deg,var(--acce
   function showM(){m.classList.remove('hidden');var i=m.querySelector('#epicCodeIn');i.value='';m.querySelector('#epicErr').textContent='';setTimeout(function(){i.focus()},30);}
   function hideM(){m.classList.add('hidden');}
   function submitM(){var v=(m.querySelector('#epicCodeIn').value||'').trim().toUpperCase();
-    if(v===CODE){setMode('beta');location.reload();}else{m.querySelector('#epicErr').textContent="That code didn't match. Try again.";}}
-  chip.onclick=function(){ if(E.isBeta()){setMode('live');location.reload();} else {showM();} };
+    if(v===CODE){gotoBeta();}else{m.querySelector('#epicErr').textContent="That code didn't match. Try again.";}}
+  chip.onclick=function(){ if(E.isBeta()){gotoLive();} else {showM();} };
   document.body.appendChild(chip); document.body.appendChild(m);
   m.addEventListener('click',function(e){if(e.target===m)hideM();});
   m.querySelector('#epicCancel').onclick=hideM; m.querySelector('#epicGo').onclick=submitM;
   m.querySelector('#epicCodeIn').addEventListener('keydown',function(e){if(e.key==='Enter')submitM();});
+})();
+</script>
+
+<!-- ===== EPIC Suite: single sign-in point + role-rank chip gating (2026-07-05) =====
+     Sign in ONCE here (magic link, emailRedirectTo points at this exact hub
+     URL — the only redirect target the whole suite ever needs). Every other
+     tool checks the resulting session (same origin → shared localStorage,
+     Supabase's default) plus profiles.role to decide unlocked vs locked; the
+     hub additionally paints each card/link locked or open so a rep sees at a
+     glance what their role can reach. Rank: owner(Admin)=5 > cs(Client
+     Success)=4 > closer=3 > bdr(Setter)=2 > partner(Referral)=1 — higher rank
+     unlocks that tool AND everything below it. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
+  var ROLE_LABEL={owner:'Admin', cs:'Client Success', closer:'Closer', bdr:'Setter', partner:'Referral Partner', rep:'Rep (no tool yet)'};
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var signInBox=document.getElementById('epicHubSignIn'), signedInBar=document.getElementById('epicSignedInBar');
+  var whoEmail=document.getElementById('epicWhoEmail'), whoRole=document.getElementById('epicWhoRole');
+  var gated=document.querySelectorAll('[data-rank]');
+
+  async function myRoleAndRank(session){
+    if(!session) return {role:null, rank:-1};
+    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+    var role=r.data&&r.data.role;
+    return {role:role||null, rank:(role&&(role in ROLE_RANK))?ROLE_RANK[role]:0};
+  }
+
+  function paintGate(el, unlocked){
+    el.classList.toggle('locked', !unlocked);
+    if(el.id==='adminLink'){
+      el.textContent=unlocked?'⚙️ Admin':'🔒 Admin';
+      return;
+    }
+    var badge=el.querySelector('.live'), go=el.querySelector('.go');
+    if(!unlocked){
+      if(badge && !badge.dataset.origText){ badge.dataset.origText=badge.textContent; }
+      if(badge) badge.textContent='🔒 Locked';
+      if(badge){ badge.classList.remove('betabadge'); badge.classList.add('lock-badge'); }
+      if(go && !go.dataset.origText){ go.dataset.origText=go.textContent; }
+      if(go) go.textContent='Reach '+(ROLE_LABEL[gated_need(el)]||'a higher role')+' to unlock';
+    } else {
+      if(badge && badge.dataset.origText){ badge.textContent=badge.dataset.origText; badge.classList.remove('lock-badge'); }
+      if(go && go.dataset.origText){ go.textContent=go.dataset.origText; }
+    }
+  }
+  function gated_need(el){
+    var need=+el.dataset.rank;
+    return Object.keys(ROLE_RANK).find(function(k){return ROLE_RANK[k]===need;});
+  }
+
+  async function refresh(){
+    var r=await SB.auth.getSession(), session=r.data.session;
+    var ra=await myRoleAndRank(session);
+    signInBox.style.display=session?'none':'';
+    signedInBar.style.display=session?'flex':'none';
+    if(session){
+      whoEmail.textContent=session.user.email;
+      whoRole.textContent=ra.role?(ROLE_LABEL[ra.role]||ra.role)+' access':'no role assigned yet — ask an admin';
+    }
+    gated.forEach(function(el){ paintGate(el, session ? (ra.rank>=+el.dataset.rank) : false); });
+    // Prevent navigating into a locked tool (belt-and-suspenders — the tool's
+    // own gate would also block it, this just avoids the pointless round trip).
+    gated.forEach(function(el){
+      el.onclick=function(e){
+        var unlocked=session && ra.rank>=+el.dataset.rank;
+        if(!unlocked){ e.preventDefault(); }
+      };
+    });
+  }
+  document.getElementById('epicHubSend').onclick=async function(){
+    var email=(document.getElementById('epicHubEmail').value||'').trim();
+    var msg=document.getElementById('epicHubMsg');
+    if(!/.+@.+\..+/.test(email)){ msg.textContent='Enter a valid email.'; return; }
+    var btn=document.getElementById('epicHubSend'); btn.disabled=true; msg.textContent='Sending…';
+    var r=await SB.auth.signInWithOtp({email, options:{emailRedirectTo: location.origin+location.pathname}});
+    btn.disabled=false;
+    msg.textContent=r.error?('Could not send: '+r.error.message):'📬 Check your email and tap the sign-in link.';
+  };
+  document.getElementById('epicSignOutHub').onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
+
+<!-- ===== EPIC Suite: update prompt — every deploy bumps version.json (the SUITE
+     build); pages compare their embedded SUITE_BUILD and prompt the rep to
+     refresh past stale cache. Bump SUITE_BUILD in all tools on every release. ===== -->
+<script>
+(function(){
+  var SUITE_BUILD='1.33.0'; /*suite-build*/
+  var FILE=location.protocol==='file:';
+  var REL=FILE?'version.json':'live/version.json';
+  var bar=null;
+  function show(v){
+    if(bar) return;
+    bar=document.createElement('div');
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#DEE9FC;border-top:1px solid #273FA8;color:#273FA8;font:700 .85rem system-ui,sans-serif;box-shadow:0 -2px 10px rgba(18,24,38,.08)';
+    bar.appendChild(document.createTextNode('🔄 New version available.'));
+    var b=document.createElement('button'); b.textContent='Update now';
+    b.style.cssText='background:#253984;color:#fff;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
+    b.onclick=function(){ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
+    var x=document.createElement('span'); x.textContent='✕'; x.title='dismiss';
+    x.style.cssText='cursor:pointer;opacity:.7;padding:0 6px';
+    x.onclick=function(){ bar.remove(); bar=null; };
+    bar.appendChild(b); bar.appendChild(x); document.body.appendChild(bar);
+  }
+  async function check(){
+    try{
+      var r=await fetch(REL+'?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok) return; var j=await r.json();
+      if(j&&j.v&&j.v!==SUITE_BUILD) show(j.v);
+    }catch(e){}
+  }
+  check(); setInterval(check,60000);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
 })();
 </script>
 </body>

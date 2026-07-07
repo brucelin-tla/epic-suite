@@ -4,56 +4,61 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EPIC Setter — Book appointments for the closers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0a0e17;--bg2:#111827;--surface:#1f2937;--surface2:#273349;--border:#2d3a50;--text:#e8ecf2;--text2:#9ca3b4;--muted:#6b7280;--accent:#10b981;--gold:#f59e0b;--red:#ef4444;--blue:#3b82f6;--radius:12px;--radius-sm:8px}
+:root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:12px;--radius-sm:8px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
 .wrap{max-width:1080px;margin:0 auto}
 a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px}
-.brand h1{font-size:1.05rem;font-weight:800;background:linear-gradient(135deg,var(--gold),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px;box-shadow:0 1px 3px rgba(18,24,38,.05)}
+.brand h1{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--warn-badge)}
 .brand .sub{font-size:.72rem;color:var(--text2)}
-.stats{display:flex;gap:6px}.stat{text-align:center;padding:4px 11px;background:var(--surface);border-radius:var(--radius-sm)}
-.stat b{font-size:1.05rem;display:block;line-height:1.1}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
+.stats{display:flex;gap:6px}.stat{text-align:center;padding:4px 11px;background:var(--sand,#F7F3E8);border-radius:var(--radius-sm)}
+.stat b{font-size:1.05rem;display:block;line-height:1.1;color:var(--ink)}.stat span{font-size:.62rem;color:var(--text2);text-transform:uppercase;letter-spacing:.4px}
 .grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:14px;align-items:start}
 @media(max-width:820px){.grid{grid-template-columns:1fr}}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:12px}
-.lbl{font-size:.66rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:12px;box-shadow:0 1px 3px rgba(18,24,38,.04)}
+.lbl{font-size:.66rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600}
 .qhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:.82rem}.qhead .m{color:var(--text2);font-size:.72rem}
+.tabrow{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.tabbtn{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:9px 11px;font-size:.8rem;font-weight:700;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left}
+.tabbtn.active{background:var(--warn-badge-bg);border-color:var(--gold);color:var(--warn-badge)}
+.tabn{font-size:.68rem;font-weight:800;background:var(--surface2);color:var(--text2);padding:2px 7px;border-radius:999px}
+.tabbtn.active .tabn{background:#fff;color:var(--warn-badge)}
+.tabdue{font-size:.62rem;font-weight:800;color:#87451D;background:#FFFBEC;padding:2px 7px;border-radius:999px}
 .qcard{display:flex;gap:9px;align-items:center;padding:9px 11px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);margin-bottom:7px;cursor:pointer}
-.qcard.active{background:var(--surface2);border-color:var(--gold)}
+.qcard.active{background:var(--warn-badge-bg);border-color:var(--gold)}
 .qbody{flex:1;min-width:0}.qname{font-weight:700;font-size:.86rem}.qreason{font-size:.72rem;color:var(--text2)}
-.qsrc{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--bg2);color:var(--text2)}
+.qsrc{font-size:.6rem;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--surface2);color:var(--text2)}
 .pd-head{display:flex;align-items:center;gap:11px}
-.avatar{width:40px;height:40px;border-radius:50%;background:rgba(245,158,11,.16);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:700}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--warn-badge-bg);color:var(--warn-badge);display:flex;align-items:center;justify-content:center;font-weight:700}
 .nm{font-size:1.05rem;font-weight:700}.psub{font-size:.78rem;color:var(--text2)}
-.pill{margin-left:auto;font-size:.7rem;font-weight:700;padding:4px 11px;border-radius:999px;background:rgba(245,158,11,.15);color:#ffd58a}
+.pill{margin-left:auto;font-size:.7rem;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--warn-badge-bg);color:var(--warn-badge)}
 .callinfo{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:var(--text2);margin-top:9px;border-top:1px solid var(--border);padding-top:9px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{font-size:.76rem;font-weight:600;padding:7px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
-.chip.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}
-.chip.no.sel{background:rgba(239,68,68,.16);border-color:var(--red);color:#ffb1b1}
+.chip.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+.chip.no.sel{background:var(--warning-bg);border-color:var(--warning);color:var(--warning)}
 .say{font-size:.95rem;line-height:1.5;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:var(--radius-sm);padding:11px 13px}
 .fitbar{margin:9px 0;font-size:.82rem;font-weight:700}
-.fit-hot{color:#7ff0c8}.fit-mid{color:#ffd58a}.fit-no{color:#ffb1b1}
+.fit-hot{color:var(--success)}.fit-mid{color:var(--warn-badge)}.fit-no{color:var(--warning)}
 .book{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:560px){.book{grid-template-columns:1fr}}
-.closers{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
-.closer{padding:7px 11px;font-size:.78rem;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
-.closer.sel{background:rgba(59,130,246,.18);border-color:var(--blue);color:#bcd4ff}
 .cal-dates{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px}
 .cal-date{text-align:center;padding:5px 2px;font-size:.63rem;border-radius:7px;background:var(--bg2);border:1px solid var(--border);color:var(--text2);cursor:pointer;line-height:1.3}
 .cal-date .dow{display:block;font-weight:800;color:var(--text)}.cal-date.wknd{opacity:.55}
-.cal-date.sel{background:rgba(16,185,129,.16);border-color:var(--accent);color:#7ff0c8}.cal-date.sel .dow{color:#7ff0c8}
+.cal-date.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}.cal-date.sel .dow{color:var(--success)}
 .cal-times{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
 .cal-time{padding:6px 10px;font-size:.74rem;border-radius:8px;background:var(--bg2);border:1px solid var(--border);color:var(--text);cursor:pointer}
-.cal-time.sel{background:rgba(16,185,129,.18);border-color:var(--accent);color:#7ff0c8}
-.cstatus{font-size:.78rem;color:var(--text2)}.cstatus.ok{color:#7ff0c8;font-weight:600}
+.cal-time.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}
+.cstatus{font-size:.78rem;color:var(--text2)}.cstatus.ok{color:var(--success);font-weight:600}
 .disp{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
 .opt{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;font-size:.8rem;border-radius:var(--radius-sm);background:var(--bg2);border:1px solid var(--border);cursor:pointer}
-.opt.sel{background:rgba(16,185,129,.15);border-color:var(--accent);color:#7ff0c8}
+.opt.sel{background:var(--success-bg);border-color:var(--success);color:var(--success)}
 kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:2px 6px;color:var(--text2)}
-.btn{padding:10px 16px;border:none;border-radius:var(--radius-sm);font-weight:800;font-size:.9rem;cursor:pointer;background:var(--gold);color:#1a1200;margin-left:auto}
-.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--gold);color:#ffd58a;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none}
+.btn{padding:10px 16px;border:none;border-radius:var(--radius-sm);font-weight:800;font-size:.9rem;cursor:pointer;background:var(--gold);color:var(--ink);margin-left:auto}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#fff;border:1px solid var(--gold);color:var(--warn-badge);padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;opacity:0;transition:.3s;pointer-events:none;box-shadow:0 4px 16px rgba(18,24,38,.14)}
 .toast.show{opacity:1}
 /* ── mobile-first (Setter is used mostly on phones) ── */
 @media(max-width:640px){
@@ -62,8 +67,8 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
   .brand h1{font-size:1.2rem}.brand .sub{font-size:.78rem}
   .stats{width:100%;gap:6px}.stat{flex:1;padding:7px 4px}.stat b{font-size:1.1rem}
   .say{font-size:1rem}
+  .tabbtn{font-size:.86rem;padding:12px 13px}
   .chip{font-size:.88rem;padding:11px 14px}
-  .closer{font-size:.86rem;padding:11px 13px}
   .cal-date{padding:8px 2px;font-size:.66rem}
   .cal-time{padding:10px 13px;font-size:.84rem}
   .disp{gap:8px}
@@ -73,21 +78,98 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 </style>
 </head>
 <body>
+<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
+     magic-link mechanism as EPIC Referral Partner. Blocks this tool until a
+     real session exists; the client-side EPICBETA code below is a build
+     toggle, not identity — this is the actual security layer. Also replaces
+     the interim unauthenticated `setter-queue` Edge Function read (see
+     loadQueue() below): now that there's a real session, the browser reads
+     `prospects` directly — RLS already requires `authenticated`. ===== -->
+<style>
+#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
+#epicAuthGate.hidden{display:none}
+.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
+.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
+.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
+.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
+.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
+.epic-auth-box .epic-gate-btn{display:block;width:100%;padding:12px;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff;text-decoration:none;text-align:center;box-sizing:border-box}
+.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
+#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
+</style>
+<div id="epicAuthGate" class="hidden">
+  <div class="epic-auth-box">
+    <div id="epicGateNoSession">
+      <h2>🔐 Sign in required</h2>
+      <p>Sign in once from the EPIC Suite hub — it unlocks every tool your role can reach.</p>
+      <a class="epic-gate-btn" href="../">Go to EPIC Suite hub →</a>
+    </div>
+    <div id="epicGateNoAccess" style="display:none">
+      <h2>🔒 Not unlocked yet</h2>
+      <p id="epicGateNoAccessMsg"></p>
+      <a class="epic-gate-btn" href="../">← Back to EPIC Suite hub</a>
+    </div>
+  </div>
+</div>
+<span id="epicSignOut" style="display:none">sign out</span>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  // Single sign-in point is the hub now (2026-07-05) — this tool never mints
+  // its own magic link, it only checks an existing session + role rank.
+  // Rank: owner(Admin)=5 > cs(Client Success)=4 > closer=3 > bdr(Setter)=2 >
+  // partner(Referral)=1. Higher rank unlocks this tool AND everything below it.
+  var TOOL_RANK=2; // Setter
+  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
+  var ROLE_LABEL={owner:'Admin', cs:'Client Success', closer:'Closer', bdr:'Setter', partner:'Referral Partner', rep:'Rep'};
+  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
+  window.EPIC_SB=SB;
+  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
+  var noSession=document.getElementById('epicGateNoSession'), noAccess=document.getElementById('epicGateNoAccess');
+  async function myRank(session){
+    if(!session) return -1;
+    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
+    var role=r.data&&r.data.role;
+    return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
+  }
+  async function refresh(){
+    wrapEl=wrapEl||document.querySelector('.wrap');
+    var r=await SB.auth.getSession(), session=r.data.session;
+    var rank=await myRank(session);
+    var authorized=rank>=TOOL_RANK;
+    gate.classList.toggle('hidden', authorized);
+    noSession.style.display=session?'none':'';
+    noAccess.style.display=(session&&!authorized)?'':'none';
+    if(session&&!authorized){
+      var need=Object.keys(ROLE_RANK).find(function(k){return ROLE_RANK[k]===TOOL_RANK;});
+      document.getElementById('epicGateNoAccessMsg').textContent="Your role doesn't reach this tool yet — you need "+(ROLE_LABEL[need]||need)+' access or higher.';
+    }
+    if(wrapEl) wrapEl.style.visibility=authorized?'visible':'hidden';
+    signOutBtn.style.display=session?'':'none';
+    if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+  }
+  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
+  SB.auth.onAuthStateChange(function(){ refresh(); });
+  refresh();
+})();
+</script>
 <div class="wrap">
   <a class="back" href="../">← EPIC Suite</a> <button type="button" id="epicSuggBtn" class="epic-sugg-btn" style="display:none">💡 Suggest an improvement</button>
   <header>
     <div class="brand"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h1>🎯 EPIC Setter</h1><span id="ver">v…</span></div><div class="sub">Book qualified appointments for the closers</div></div>
     <div class="stats">
-      <div class="stat"><b id="s-dials">18</b><span>dials</span></div>
-      <div class="stat"><b id="s-conv" style="color:var(--gold)">6</b><span>convos</span></div>
-      <div class="stat"><b id="s-set" style="color:var(--accent)">3</b><span>sets</span></div>
-      <div class="stat"><b id="s-queue">54</b><span>queue</span></div>
+      <div class="stat"><b id="s-dials">0</b><span>dials</span></div>
+      <div class="stat"><b id="s-conv" style="color:var(--gold)">0</b><span>convos</span></div>
+      <div class="stat"><b id="s-set" style="color:var(--accent)">0</b><span>sets</span></div>
+      <div class="stat"><b id="s-due" style="color:#CB7C2E">0</b><span>due</span></div>
+      <div class="stat"><b id="s-queue">—</b><span>queue</span></div>
     </div>
   </header>
 
   <div class="grid">
     <div>
-      <div class="qhead"><b>Fresh leads</b><span class="m" id="qCount">—</span></div>
+      <div id="tabRow" class="tabrow"></div>
+      <div class="qhead"><span class="m" id="qCount">—</span></div>
       <div id="queueList"></div>
     </div>
 
@@ -107,32 +189,29 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
       </div>
 
       <div class="panel">
-        <div class="lbl">✅ Quick-qualify · is this worth a closer's time?</div>
+        <div class="lbl">✅ BANT qualify · Budget + Authority are required for a booking to count</div>
         <div class="chips" id="qualChips">
-          <span class="chip" data-q="owner">Owner / decision-maker</span>
-          <span class="chip" data-q="interest">Real interest</span>
-          <span class="chip" data-q="afford">Can afford ~$300/mo</span>
-          <span class="chip no" data-q="tire">Tire-kicker</span>
+          <span class="chip" data-q="budget">💰 Budget · affords $500 + $300/mo</span>
+          <span class="chip" data-q="authority">👤 Authority · decision-maker (or partner joins)</span>
+          <span class="chip" data-q="need">🎯 Need · real problem EPIC solves</span>
+          <span class="chip" data-q="timeline">⏰ Timeline · ready to start soon</span>
         </div>
-        <div class="fitbar" id="fitBar">Tap what you hear — the fit meter updates.</div>
+        <label id="intentWrap" style="display:flex;align-items:center;gap:8px;margin:11px 0 0;font-size:.82rem;color:var(--text);cursor:pointer;font-weight:600"><input type="checkbox" id="intentChk" style="width:16px;height:16px"> ✅ Intent — prospect <b>confirmed the slot</b> (accepted the time)</label>
+        <div class="fitbar" id="fitBar">Tap what you hear. Budget + Authority are required to qualify.</div>
       </div>
 
       <div class="panel">
-        <div class="lbl">📅 Book the closer appointment</div>
+        <div class="lbl">📅 Book the real Discovery Call — live on Miki's calendar</div>
         <div class="book">
           <div>
-            <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px">Assign a closer</div>
-            <div class="closers" id="closers">
-              <button class="closer sel" data-c="Renee (Sr)">Ana — Sr closer</button>
-              <button class="closer" data-c="Marco">Marco</button>
-              <button class="closer" data-c="Next available">Next available</button>
-            </div>
+            <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px" id="calAvailNote">Loading real availability…</div>
             <div class="cal-dates" id="calDates"></div>
             <div class="cal-times" id="calTimes"></div>
           </div>
           <div>
             <div style="font-size:.72rem;color:var(--text2);margin-bottom:6px">Appointment</div>
-            <div id="bookStatus" class="cstatus">Pick a closer, day, and time.</div>
+            <div id="bookStatus" class="cstatus">Pick a day and time, then confirm.</div>
+            <button class="btn" id="confirmBookBtn" style="display:none;width:100%;margin-top:9px">✅ Confirm real booking</button>
           </div>
         </div>
       </div>
@@ -154,57 +233,244 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 <script>
 const $=id=>document.getElementById(id);
 function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1900);}
-const LEADS=[
- {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Bell HVAC · Owner · 📍 Georgia',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago'},
- {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Reyes Salon · Owner · 📍 Arizona',src:'Referral',reason:'Referred by a member',phone:'(602) 555-0132',when:'referred yesterday'},
- {id:'leilani',ini:'LK',nm:'Leilani Kane',sub:'Kane Bakery · Owner · 📍 Hawaii',src:'New lead',reason:'Webinar signup',phone:'(808) 555-0177',when:'watched the webinar'},
- {id:'darnell',ini:'DW',nm:'Darnell White',sub:'White Detailing · Owner · 📍 Ohio',src:'Cold list',reason:'Opted-in list',phone:'(614) 555-0155',when:'on the 1,500 list'},
- {id:'grace',ini:'GT',nm:'Grace Tan',sub:'Tan Consulting · Owner · 📍 Nevada',src:'Ad',reason:'Clicked the ad',phone:'(702) 555-0143',when:'clicked FB ad'}
+// ── Real Sales Hub leads, split into 3 real filter tabs (2026-07-06) ──
+// Stage strings below are Sales Hub's own real pipeline-stage text, read
+// straight off live prospects data (not guessed) — sales-hub-sync writes
+// pipeline_stage verbatim from the CRM. "New leads/referrals": today this
+// tab only shows brand-new Sales Hub leads — warm referrals live in a
+// separate referrals/deals table that isn't joined into this queue yet
+// (a real gap, not faked here as if it were covered).
+const TABS=[
+ {key:'new', label:'🆕 New', stages:['1. New Lead']},
+ {key:'callback', label:'☎️ Callbacks', stages:['2. Contacted - Need Call back']},
+ {key:'noshow', label:'🚫 No-shows', stages:['4 Discovery Call - No Show','6. Whale - No Show','8. 3B Report - No Show']}
 ];
-let cur=0, qual={}, closer='Ana — Sr closer', calDate=null, calTime=null;
+const ALL_STAGES=TABS.reduce(function(a,t){return a.concat(t.stages);},[]);
+function tabFor(stage){ var t=TABS.filter(function(t){return t.stages.indexOf(stage)>-1;})[0]; return t?t.key:'new'; }
+// outcome → real call_logs.outcome + whether it opens a real follow-up
+const OUTCOME_MAP={set:'booked',callback:'connected',nofit:'not_interested',noans:'no_answer'};
+function followupDue(outcomeKey){
+  if(outcomeKey!=='callback'&&outcomeKey!=='noans') return null;
+  var d=new Date(); d.setDate(d.getDate()+1); d.setHours(9,0,0,0); return d.toISOString();
+}
+const DEMO_LEADS=[
+ {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Demo lead — live data unavailable',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago',tab:'new',due_at:null,entered_at:new Date(Date.now()-2*3600e3).toISOString(),isDemo:true},
+ {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Demo lead — live data unavailable',src:'Callback',reason:'Asked for a callback',phone:'(602) 555-0132',when:'contacted yesterday',tab:'callback',due_at:null,entered_at:new Date(Date.now()-86400e3).toISOString(),isDemo:true}
+];
+let ALL_LEADS=DEMO_LEADS.slice();
+let FOLLOWUPS={}; // prospect_id -> open follow_ups row {id,due_at}
+let activeTab='new', cur=0, qual={}, calDate=null, calTime=null;
+function initials(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
+function titleCase(name){ return (name||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
+function shortStage(stage){ return (stage||'Sales Hub lead').replace(/^\d+\.?\s*/,''); }
+function formatPhone(p){ if(!p) return '—'; var d=p.replace(/\D/g,'').replace(/^1/,''); return d.length===10?'('+d.slice(0,3)+') '+d.slice(3,6)+'-'+d.slice(6):p; }
+function relTime(iso){ if(!iso) return 'no contact on file'; var days=Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(days<0) return 'just now'; if(days===0) return 'today'; if(days===1) return '1 day ago'; if(days<30) return days+' days ago';
+  var mo=Math.floor(days/30); return mo+(mo===1?' month ago':' months ago'); }
+function dueLabel(iso){ if(!iso) return null; var ms=new Date(iso).getTime()-Date.now();
+  if(ms<=0) return '🔴 overdue'; var days=Math.ceil(ms/86400000); return days<=1?'🟡 due today':'📅 due in '+days+'d'; }
+async function loadQueue(){
+  try{
+    if(!window.EPIC_SB) throw new Error('Not signed in yet');
+    var res=await window.EPIC_SB.from('prospects')
+      .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason,created_at,lead_entered_at')
+      .in('pipeline_stage',ALL_STAGES)
+      .order('priority_score',{ascending:false,nullsFirst:false})
+      .order('created_at',{ascending:true})
+      .limit(300);
+    if(res.error) throw new Error(res.error.message);
+    var rows=res.data||[];
+    var fu=await window.EPIC_SB.from('follow_ups').select('id,prospect_id,due_at').eq('done',false);
+    FOLLOWUPS={};
+    if(!fu.error) (fu.data||[]).forEach(function(f){
+      var ex=FOLLOWUPS[f.prospect_id];
+      if(!ex||new Date(f.due_at||0)<new Date(ex.due_at||0)) FOLLOWUPS[f.prospect_id]=f;
+    });
+    if(rows.length===0){ ALL_LEADS=DEMO_LEADS; toast('No live Sales Hub leads in queue — showing demo'); }
+    else { ALL_LEADS=rows.map(function(r){ var nm=titleCase(r.name); var f=FOLLOWUPS[r.id];
+      var entered=r.lead_entered_at||r.created_at; // real CRM entry date once synced; falls back until a re-sync backfills it
+      return {
+      id:r.id, ini:initials(nm), nm:nm,
+      sub:r.priority_reason||('Sales Hub · '+shortStage(r.pipeline_stage)),
+      src:shortStage(r.pipeline_stage), reason:r.priority_reason||shortStage(r.pipeline_stage),
+      phone:formatPhone(r.phone), when:relTime(r.last_contact_at),
+      tab:tabFor(r.pipeline_stage), due_at:f?f.due_at:null, entered_at:entered, isDemo:false
+    };}); }
+  }catch(e){ ALL_LEADS=DEMO_LEADS; toast('Could not load live leads — showing demo'); console.error('loadQueue',e); }
+  renderTabs(); setTab(activeTab);
+}
+window.onEpicAuthed=function(){ loadQueue(); loadAvailability(); };
+function currentLeads(){
+  var arr=ALL_LEADS.filter(function(l){return l.tab===activeTab;});
+  if(activeTab==='new'){
+    // New tab is always strict entry-order (newest lead first), automatically —
+    // based on when the lead actually entered the CRM (lead_entered_at), not
+    // AI priority — so a lead that's been sitting never gets buried under one
+    // that just scored higher.
+    arr.sort(function(a,b){ return new Date(b.entered_at||0)-new Date(a.entered_at||0); });
+  } else if(activeTab==='callback'||activeTab==='noshow'){
+    arr.sort(function(a,b){
+      var ad=a.due_at?new Date(a.due_at).getTime():Infinity, bd=b.due_at?new Date(b.due_at).getTime():Infinity;
+      return ad-bd;
+    });
+  }
+  return arr;
+}
+function renderTabs(){
+  var box=$('tabRow'); if(!box) return;
+  var now=Date.now();
+  box.innerHTML=TABS.map(function(t){
+    var members=ALL_LEADS.filter(function(l){return l.tab===t.key;});
+    var due=members.filter(function(l){return l.due_at&&new Date(l.due_at).getTime()<=now;}).length;
+    return '<button class="tabbtn'+(t.key===activeTab?' active':'')+'" data-t="'+t.key+'">'+
+      '<span>'+t.label+'</span><span><span class="tabn">'+members.length+'</span>'+(due?' <span class="tabdue">'+due+' due</span>':'')+'</span></button>';
+  }).join('');
+  box.querySelectorAll('.tabbtn').forEach(function(b){ b.onclick=function(){ setTab(b.getAttribute('data-t')); }; });
+}
+function setTab(key){
+  activeTab=key; cur=0; renderTabs(); renderQueue(); selectLead();
+  var now=Date.now();
+  $('s-due').textContent=ALL_LEADS.filter(function(l){return l.due_at&&new Date(l.due_at).getTime()<=now;}).length;
+}
 function renderQueue(){
-  $('queueList').innerHTML=LEADS.map((l,i)=>'<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+'</div></div><span class="qsrc">'+l.src+'</span></div>').join('');
+  var LEADS=currentLeads();
+  $('queueList').innerHTML=LEADS.map(function(l,i){
+    var dl=dueLabel(l.due_at);
+    var extra=activeTab==='new'?(' · entered '+relTime(l.entered_at)):(dl?' · '+dl:'');
+    return '<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+extra+'</div></div><span class="qsrc">'+l.src+'</span></div>';
+  }).join('');
   document.querySelectorAll('.qcard').forEach(c=>c.onclick=()=>{cur=+c.dataset.i;selectLead();});
   $('qCount').textContent=LEADS.length+' to work';
+  $('s-queue').textContent=LEADS.length;
 }
 function selectLead(){
+  var LEADS=currentLeads();
+  if(LEADS.length===0){ $('pAvatar').textContent='—'; $('pName').textContent='Queue empty'; $('pSub').textContent='Nothing in this list right now — nice work.'; $('pSrc').textContent=''; $('pPhone').textContent='—'; $('pWhen').textContent=''; return; }
   var l=LEADS[cur]; $('pAvatar').textContent=l.ini; $('pName').textContent=l.nm; $('pSub').textContent=l.sub;
   $('pSrc').textContent=l.src; $('pPhone').textContent=l.phone; $('pWhen').textContent=l.when;
   qual={}; document.querySelectorAll('#qualChips .chip').forEach(c=>c.classList.remove('sel'));
+  if($('intentChk'))$('intentChk').checked=false;
   updateFit(); document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
-  calDate=null; calTime=null; renderDates(); $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a closer, day, and time.';
+  calDate=null; calTime=null; calBooked=false; renderDates();
+  $('confirmBookBtn').style.display='none'; $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a day and time, then confirm.';
   document.querySelectorAll('.qcard').forEach((c,i)=>c.classList.toggle('active',i===cur));
 }
+// ── Real tracking: every logged outcome writes a real call_logs row; a
+// callback or no-answer also opens a real follow_ups row (due tomorrow
+// 9am by default) so it resurfaces here instead of silently vanishing.
+// Writable by any authenticated rep (RLS: rep_id = auth.uid()), not just
+// the owner — this works the same way once real BDR accounts exist.
+async function persistOutcome(lead,outcomeKey){
+  if(!window.EPIC_SB||lead.isDemo) return;
+  try{
+    var sess=(await window.EPIC_SB.auth.getSession()).data.session;
+    if(!sess) return;
+    var me=sess.user.id;
+    await window.EPIC_SB.from('call_logs').insert({prospect_id:lead.id, rep_id:me, outcome:OUTCOME_MAP[outcomeKey]||'connected'});
+    var open=FOLLOWUPS[lead.id];
+    if(open) await window.EPIC_SB.from('follow_ups').update({done:true}).eq('id',open.id);
+    var due=followupDue(outcomeKey);
+    if(due) await window.EPIC_SB.from('follow_ups').insert({prospect_id:lead.id, rep_id:me, due_at:due, action:outcomeKey==='noans'?'Retry — no answer':'Callback requested'});
+  }catch(e){ console.error('persistOutcome',e); toast('⚠️ Logged locally — could not save to the real record'); }
+}
+function isQualified(){ return !!(qual.budget && qual.authority && (qual.need||qual.timeline)); }
+function hasIntent(){ return !!($('intentChk')&&$('intentChk').checked); }
 function updateFit(){
-  var pos=(qual.owner?1:0)+(qual.interest?1:0)+(qual.afford?1:0), no=qual.tire?1:0;
   var el=$('fitBar');
-  if(no){ el.className='fitbar fit-no'; el.textContent='🙅 Likely not a fit — don\'t waste the closer\'s time.'; }
-  else if(pos>=2){ el.className='fitbar fit-hot'; el.textContent='🔥 Strong fit — set the appointment.'; }
-  else if(pos>=1){ el.className='fitbar fit-mid'; el.textContent='🟡 Warming — qualify a bit more, then set.'; }
-  else { el.className='fitbar'; el.textContent='Tap what you hear — the fit meter updates.'; }
+  if(!qual.budget||!qual.authority){ el.className='fitbar fit-no'; el.textContent='🔴 Not qualified — Budget + Authority are required before a booking counts.'; }
+  else if(!isQualified()){ el.className='fitbar fit-mid'; el.textContent='🟡 Almost — add Need or Timeline to clear the BANT bar.'; }
+  else if(!hasIntent()){ el.className='fitbar fit-mid'; el.textContent='🟡 BANT met — now confirm intent (prospect accepts the slot) for a qualified booking.'; }
+  else { el.className='fitbar fit-hot'; el.textContent='🟢 Qualified booking — BANT met + intent confirmed. Book it; the closer verifies live on the call.'; }
 }
-document.querySelectorAll('#qualChips .chip').forEach(c=>c.onclick=()=>{ var q=c.dataset.q; qual[q]=!qual[q]; c.classList.toggle('sel',qual[q]); updateFit(); });
-document.querySelectorAll('#closers .closer').forEach(b=>b.onclick=()=>{ document.querySelectorAll('#closers .closer').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); closer=b.dataset.c; maybeBook(); });
-const CAL_TIMES=['9:00 am','10:30 am','1:00 pm','2:30 pm','4:00 pm'];
+document.querySelectorAll('#qualChips .chip').forEach(c=>c.onclick=()=>{ var q=c.dataset.q; qual[q]=!qual[q]; c.classList.toggle('sel',qual[q]); updateFit(); if(calTime&&!calBooked)armConfirm(); });
+if($('intentChk'))$('intentChk').onchange=function(){ updateFit(); if(calTime&&!calBooked)armConfirm(); };
+// ── Real Calendly booking (2026-07-06): replaces the old fake closer/date/time
+// grid. Setter books the real "Discovery Call" slot (Miki's Calendly) live —
+// a real Calendly invitee gets created, a real `bookings` row gets written.
+// No auto-book on click anymore (it now has a real side effect — a real
+// calendar hold + a real email to the prospect) — picking a slot just arms
+// the Confirm button; booking only fires on an explicit click.
+let AVAIL_SLOTS=[], calBooked=false;
+async function loadAvailability(){
+  $('calAvailNote').textContent='Loading real availability…';
+  try{
+    var r=await window.EPIC_SB.functions.invoke('calendly-availability',{body:{}});
+    if(r.error||!r.data||!r.data.ok) throw new Error((r.data&&r.data.error)||r.error||'unknown error');
+    AVAIL_SLOTS=r.data.slots||[];
+    $('calAvailNote').textContent=AVAIL_SLOTS.length?'Pick a real open slot on Miki\'s calendar:':'No real availability found in the next few days.';
+  }catch(e){ AVAIL_SLOTS=[]; $('calAvailNote').textContent='⚠️ Could not load real availability — '+e.message; console.error('loadAvailability',e); }
+  renderDates();
+}
+function slotsByDay(){
+  var by={};
+  AVAIL_SLOTS.forEach(function(iso){
+    var d=new Date(iso);
+    var key=d.toLocaleDateString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric'});
+    (by[key]=by[key]||[]).push(iso);
+  });
+  return by;
+}
 function renderDates(){
-  var box=$('calDates'),dows=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],base=new Date(),h='';
-  for(var i=0;i<14;i++){var d=new Date(base.getTime()+i*864e5),g=d.getDay(),md=(d.getMonth()+1)+'/'+d.getDate(),wk=(g===0||g===6)?' wknd':'';h+='<button class="cal-date'+wk+'" data-lbl="'+dows[g]+' '+md+'"><span class="dow">'+dows[g]+'</span>'+md+'</button>';}
-  box.innerHTML=h; $('calTimes').innerHTML='';
+  var box=$('calDates'), by=slotsByDay(), days=Object.keys(by);
+  if(!days.length){ box.innerHTML=''; $('calTimes').innerHTML=''; return; }
+  box.innerHTML=days.map(function(k,i){
+    var parts=k.replace(',','').split(' '); // en-US locale format is "Tue, 7/7"
+    return '<button class="cal-date'+(i===0?' sel':'')+'" data-lbl="'+k+'"><span class="dow">'+parts[0]+'</span>'+(parts[1]||'')+'</button>';
+  }).join('');
   box.querySelectorAll('.cal-date').forEach(b=>b.onclick=()=>{box.querySelectorAll('.cal-date').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');calDate=b.dataset.lbl;renderTimes();});
+  calDate=days[0]; renderTimes();
 }
-function renderTimes(){ var box=$('calTimes'); box.innerHTML=CAL_TIMES.map(t=>'<button class="cal-time" data-t="'+t+'">'+t+'</button>').join('');
-  box.querySelectorAll('.cal-time').forEach(b=>b.onclick=()=>{box.querySelectorAll('.cal-time').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');calTime=b.dataset.t;maybeBook();}); }
-function maybeBook(){ if(!calDate||!calTime) return; $('bookStatus').className='cstatus ok';
-  $('bookStatus').innerHTML='✅ 20-min strategy call booked with <b>'+closer+'</b> · <b>'+calDate+' · '+calTime+'</b><br><span style="color:var(--text2);font-weight:400">'+LEADS[cur].nm+' + closer · confirmation texted · shows in the closer\'s queue</span>';
-  document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.o==='set')); toast('Appointment set — handed to '+closer);
+function renderTimes(){
+  var box=$('calTimes'), by=slotsByDay(), slots=by[calDate]||[];
+  box.innerHTML=slots.map(function(iso){
+    var label=new Date(iso).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'});
+    return '<button class="cal-time" data-iso="'+iso+'">'+label+'</button>';
+  }).join('');
+  box.querySelectorAll('.cal-time').forEach(b=>b.onclick=()=>{
+    box.querySelectorAll('.cal-time').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');
+    calTime=b.getAttribute('data-iso'); armConfirm();
+  });
 }
+function armConfirm(){
+  if(!calTime||calBooked) return;
+  var ok=isQualified()&&hasIntent();
+  $('bookStatus').className='cstatus';
+  $('bookStatus').textContent='Ready to book '+calDate+' at the selected time — '+(ok?'🟢 qualified (BANT + intent met)':'🟡 not yet qualified — you can still book, but no BDR commission until it qualifies.');
+  $('confirmBookBtn').style.display='';
+}
+async function confirmBooking(){
+  var LEADS=currentLeads(), lead=LEADS[cur];
+  if(!lead||!calTime) return;
+  if(lead.isDemo){ toast('This is a demo lead — real booking needs a real Sales Hub lead.'); return; }
+  var btn=$('confirmBookBtn'); btn.disabled=true; btn.textContent='Booking on Calendly…';
+  try{
+    var r=await window.EPIC_SB.functions.invoke('calendly-book',{body:{prospect_id:lead.id, start_time:calTime, bant:qual, intent:hasIntent()}});
+    if(r.error||!r.data||!r.data.ok) throw new Error((r.data&&r.data.error)||r.error||'unknown error');
+    calBooked=true; btn.style.display='none';
+    $('bookStatus').className='cstatus ok';
+    $('bookStatus').innerHTML='✅ <b>Real Discovery Call booked</b> with Miki · '+calDate+' at '+new Date(calTime).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'})+
+      (r.data.qualified?'<br><span style="color:#3C7E44">🟢 Qualified booking — your $100 locks when the closer verifies live on the call.</span>':'<br><span style="color:#CB7C2E">🟡 Booked, not yet qualified — BANT/intent bar not fully met.</span>');
+    document.querySelectorAll('.opt').forEach(o=>o.classList.toggle('sel',o.dataset.o==='set'));
+    toast('✅ Real booking confirmed on Calendly');
+  }catch(e){
+    $('bookStatus').className='cstatus'; $('bookStatus').textContent='❌ Booking failed — '+e.message;
+    toast('Could not book — see status');
+    console.error('confirmBooking',e);
+  }
+  btn.disabled=false; if(!calBooked) btn.textContent='✅ Confirm real booking';
+}
+$('confirmBookBtn').onclick=confirmBooking;
 document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');});
 function bump(id){$(id).textContent=+$(id).textContent+1;}
 function logNext(){
   var sel=document.querySelector('.opt.sel'); if(!sel){toast('Pick an outcome (1–4)');return;}
+  var LEADS=currentLeads(), lead=LEADS[cur];
   bump('s-dials'); if(sel.dataset.o!=='noans')bump('s-conv'); if(sel.dataset.o==='set')bump('s-set');
-  var qn=$('s-queue'); qn.textContent=Math.max(0,+qn.textContent-1);
-  cur=(cur+1)%LEADS.length; selectLead(); toast('Logged ✓ · next lead');
+  if(lead){
+    persistOutcome(lead, sel.dataset.o);
+    var idx=ALL_LEADS.indexOf(lead); if(idx>-1) ALL_LEADS.splice(idx,1);
+  }
+  cur=0; renderTabs(); renderQueue(); selectLead(); toast('Logged ✓ · next lead');
 }
 $('nextBtn').onclick=logNext;
 document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName))return;
@@ -212,43 +478,45 @@ document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test((document.acti
   if(m[e.key]){var o=document.querySelector('.opt[data-o="'+m[e.key]+'"]');document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');e.preventDefault();}
   else if(e.key==='Enter'){logNext();e.preventDefault();}
 });
-renderQueue(); renderDates(); selectLead();
+renderDates(); renderTabs(); renderQueue(); selectLead(); // loadQueue() itself fires from window.onEpicAuthed once signed in
 </script>
 
 <!-- ===== EPIC Suite: beta toggle + What's new (self-contained) ===== -->
 <style>
-#epicChip{position:fixed;top:9px;right:12px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(0,0,0,.4);user-select:none;white-space:nowrap}
+#epicChip{position:fixed;top:9px;right:12px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(18,24,38,.12);user-select:none;white-space:nowrap}
 #epicChip:hover{border-color:var(--accent);color:var(--text)}
-#epicChip.beta{background:rgba(245,158,11,.18);border-color:var(--gold);color:#ffd58a;animation:epicPulse 2s ease-in-out infinite}
+#epicChip.beta{background:var(--warn-badge-bg);border-color:var(--gold);color:var(--warn-badge);animation:epicPulse 2s ease-in-out infinite}
 @keyframes epicPulse{0%,100%{opacity:1}50%{opacity:.6}}
 body{padding-top:46px}
-.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:18px}
+.epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(18,24,38,.5);display:flex;align-items:center;justify-content:center;padding:18px}
 .epic-modal.hidden{display:none}
-.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(0,0,0,.5);text-align:left}
-.epic-box h3{font-size:1.05rem;margin-bottom:6px}
+.epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(18,24,38,.22);text-align:left}
+.epic-box h3{font-size:1.05rem;margin-bottom:6px;color:var(--ink)}
 .epic-box p{font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5}
 .epic-box input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:1rem;letter-spacing:2px;text-align:center;text-transform:uppercase}
 .epic-box input:focus{outline:none;border-color:var(--gold)}
 .epic-err{color:var(--red);font-size:.76rem;margin-top:8px;min-height:16px;text-align:center}
 .epic-row{display:flex;gap:8px;margin-top:14px}
 .epic-row button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:800;font-size:.85rem;cursor:pointer}
-.epic-go{background:var(--gold);color:#1a1200}.epic-cancel{background:var(--surface2);color:var(--text)}
+.epic-go{background:var(--gold);color:var(--ink)}.epic-cancel{background:var(--surface2);color:var(--text)}
 .epicv-box{max-width:520px;max-height:82vh;overflow:auto}
 .epicv-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.epicv-head b{font-size:.98rem}.epic-x{cursor:pointer;color:var(--text2);font-size:1.1rem}
+.epicv-head b{font-size:.98rem;color:var(--ink)}.epic-x{cursor:pointer;color:var(--text2);font-size:1.1rem}
 .epicv-entry{padding:12px 0;border-bottom:1px solid var(--border)}.epicv-entry:last-child{border-bottom:none}
 .epicv-v{font-weight:800;color:var(--accent)}.epicv-d{font-size:.72rem;color:var(--muted);margin-left:8px}
 .epicv-entry ul{margin:8px 0 0;padding-left:18px}.epicv-entry li{font-size:.82rem;color:var(--text2);margin-bottom:6px;line-height:1.5}
 #ver{cursor:pointer;font-size:.68rem;padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text2);white-space:nowrap;text-decoration:none}
 #ver:hover{border-color:var(--accent);color:var(--text)}
-#ver.new{color:#7ff0c8;background:rgba(16,185,129,.16);border-color:transparent;font-weight:700;animation:epicPulse 1.7s ease-in-out infinite}
+#ver.new{color:var(--success);background:var(--success-bg);border-color:transparent;font-weight:700;animation:epicPulse 1.7s ease-in-out infinite}
 </style>
 <script>
 (function(){
   var CODE='EPICBETA', KEY='epic_mode';
   var E=window.EPIC=window.EPIC||{};
-  E.isBeta=function(){try{return localStorage.getItem(KEY)==='beta'}catch(e){return false}};
-  function setMode(x){try{localStorage.setItem(KEY,x)}catch(e){}}
+  var FILE=/\.html?$/i.test(location.pathname);
+  E.isBeta=function(){ if(/\/beta(\/|$)/.test(location.pathname)) return true; if(FILE){try{return localStorage.getItem(KEY)==='beta'}catch(e){}} return false; };
+  function gotoBeta(){ try{localStorage.setItem(KEY,'beta')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/(live|setter|referral|success)\/$/,'')+'beta/'; }
+  function gotoLive(){ try{localStorage.setItem(KEY,'live')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/beta\/(live\/|setter\/|referral\/|success\/)?$/,''); }
   var chip=document.createElement('div'); chip.id='epicChip';
   function paint(){ if(E.isBeta()){chip.className='beta';chip.textContent='🧪 BETA · back to Live';chip.title="You're on the beta build — tap to return to Live";}
     else{chip.className='';chip.textContent='🟢 Live · try beta';chip.title='Tap to enter the beta preview (code required)';} }
@@ -258,8 +526,8 @@ body{padding-top:46px}
   function showM(){m.classList.remove('hidden');var i=m.querySelector('#epicCodeIn');i.value='';m.querySelector('#epicErr').textContent='';setTimeout(function(){i.focus()},30);}
   function hideM(){m.classList.add('hidden');}
   function submitM(){var v=(m.querySelector('#epicCodeIn').value||'').trim().toUpperCase();
-    if(v===CODE){setMode('beta');location.reload();}else{m.querySelector('#epicErr').textContent="That code didn't match. Try again.";}}
-  chip.onclick=function(){ if(E.isBeta()){setMode('live');location.reload();} else {showM();} };
+    if(v===CODE){gotoBeta();}else{m.querySelector('#epicErr').textContent="That code didn't match. Try again.";}}
+  chip.onclick=function(){ if(E.isBeta()){gotoLive();} else {showM();} };
   document.body.appendChild(chip); document.body.appendChild(m);
   m.addEventListener('click',function(e){if(e.target===m)hideM();});
   m.querySelector('#epicCancel').onclick=hideM; m.querySelector('#epicGo').onclick=submitM;
@@ -267,6 +535,22 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Setter', SEEN='epic_setter_seen';
   var NOTES=[
+  {v:'1.4.0',d:'2026-07-06',n:[
+   "Book the closer appointment is now REAL — it books the actual Discovery Call slot on Miki's live Calendly calendar, no more fake date grid. Pick a real open day/time, confirm, and it creates a real Calendly booking on the spot.",
+   "Removed the fake closer picker (Ana/Marco/Next available were demo names) — Discovery Call only has one real host today.",
+  ]},
+  {v:'1.3.0',d:'2026-07-06',n:[
+   "New tab now sorts strictly by when the lead actually entered the CRM (newest first), automatically — no more relying on AI priority score, which isn't populated yet. Each card shows \"entered Xd ago.\"",
+  ]},
+  {v:'1.2.0',d:'2026-07-06',n:[
+   "Fresh leads are now 3 real filter tabs on the left — New, Callbacks, and No-shows (Discovery/Whale/3B) — instead of one mixed list. Each tab shows a live count.",
+   "Real follow-up tracking: logging Callback or No answer now saves a real due-tomorrow follow-up, and the Callbacks/No-shows tabs sort the most overdue lead first — a 🔴/🟡/📅 due badge shows on the card. A \"due\" counter up top shows how many are overdue right now, so nothing falls through the cracks.",
+   "Every outcome you log (Set / Callback / Not a fit / No answer) now saves a real call record, not just an on-screen tally — the dials/convos/sets counters start at 0 each session instead of a pre-filled demo number.",
+  ]},
+  {v:'1.1.0',d:'2026-07-04',n:[
+   "Real sign-in required (same one-tap email link as Referral Partner) — no more shared beta code for access.",
+   "The queue is now real Sales Hub leads once you're signed in — fresh + needs-follow-up stages, ranked by an AI priority score. Falls back to demo cards only if the live feed can't load.",
+  ]},
   {v:'1.0.1',d:'2026-07-02',n:[
    "Optimized for mobile — bigger tap targets, a full-width Log & Next button, and a cleaner one-column layout.",
   ]},
@@ -298,7 +582,7 @@ body{padding-top:46px}
 .epic-sugg-btn:hover{border-color:var(--accent);color:var(--text)}
 .epic-sugg-ta{width:100%;min-height:120px;padding:11px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical}
 .epic-sugg-ta:focus{outline:none;border-color:var(--accent)}
-.epic-sugg-ok{background:var(--accent);color:#062a1e}
+.epic-sugg-ok{background:var(--accent);color:#fff}
 </style>
 <script>
 (function(){
@@ -307,7 +591,7 @@ body{padding-top:46px}
   var ROLE='EPIC Setter';
   function say(t){ try{ if(typeof toast==='function'){toast(t);return;} }catch(e){}
     var d=document.createElement('div'); d.textContent=t;
-    d.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--accent);color:#7ff0c8;padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;z-index:1400';
+    d.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:#fff;border:1px solid var(--accent);color:var(--accent);padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;z-index:1400;box-shadow:0 4px 16px rgba(18,24,38,.14)';
     document.body.appendChild(d); setTimeout(function(){d.remove();},2400); }
   var m=document.createElement('div'); m.className='epic-modal hidden';
   m.innerHTML='<div class="epic-box"><h3>💡 Share an idea</h3><p>What would make <b>'+ROLE+'</b> better? Your suggestion goes straight to Bruce for review.</p><textarea class="epic-sugg-ta" id="epicSuggTa" placeholder="An idea, a bug, or something confusing…"></textarea><div class="epic-err" id="epicSuggErr"></div><div class="epic-row"><button class="epic-cancel" id="epicSuggCancel">Cancel</button><button class="epic-go epic-sugg-ok" id="epicSuggSend">Send to Bruce</button></div></div>';
@@ -330,6 +614,51 @@ body{padding-top:46px}
   document.body.appendChild(m);
   m.addEventListener('click',function(e){ if(e.target===m) hide(); });
   m.querySelector('#epicSuggCancel').onclick=hide; m.querySelector('#epicSuggSend').onclick=send;
+})();
+</script>
+
+<!-- role leaderboard + your commission (demo) -->
+<script>
+(function(){var w=document.querySelector('.wrap');if(!w)return;
+var TITLE='🏆 Top BDRs — booking commission this month';
+var YOU='You: $200 earned · 2 bookings closed · $100 per qualified booking that closes';
+var B=[{n:'Kai Rivera',s:'2 booked→closed',p:'$200'},{n:'Mia Tan',s:'2 booked→closed',p:'$200'},{n:'Jordan Poe',s:'1 booked→closed',p:'$100'}];
+var p=document.createElement('div');p.className='panel';p.style.marginTop='12px';
+p.innerHTML='<div class="lbl">'+TITLE+'</div>'+B.map(function(l,i){return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="width:20px;height:20px;border-radius:50%;'+(i===0?'background:#FCF4CB;color:#CB7C2E':'background:var(--surface2);color:var(--text2)')+';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800">'+(i+1)+'</span><div style="flex:1;min-width:0"><b style="font-size:.85rem">'+l.n+'</b> <span style="font-size:.66rem;color:var(--text2)">· '+l.s+'</span></div><span style="font-weight:800;color:#3C7E44">'+l.p+'</span></div>';}).join('')+'<div style="margin-top:9px;font-size:.76rem;color:#CB7C2E;font-weight:700">'+YOU+'</div>';
+w.appendChild(p);})();
+</script>
+
+<!-- ===== EPIC Suite: update prompt — compares embedded SUITE_BUILD vs the deploy's
+     version.json and prompts the rep to refresh past stale cache. Bump SUITE_BUILD
+     in every tool on every release (it's the suite build, not this tool's version). ===== -->
+<script>
+(function(){
+  var SUITE_BUILD='1.33.0'; /*suite-build*/
+  var FILE=location.protocol==='file:';
+  var REL=FILE?'version.json':'../live/version.json';
+  var bar=null;
+  function show(v){
+    if(bar) return;
+    bar=document.createElement('div');
+    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#DEE9FC;border-top:1px solid #273FA8;color:#273FA8;font:700 .85rem system-ui,sans-serif;box-shadow:0 -2px 10px rgba(18,24,38,.08)';
+    bar.appendChild(document.createTextNode('🔄 New version available.'));
+    var b=document.createElement('button'); b.textContent='Update now';
+    b.style.cssText='background:#253984;color:#fff;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
+    b.onclick=function(){ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
+    var x=document.createElement('span'); x.textContent='✕'; x.title='dismiss';
+    x.style.cssText='cursor:pointer;opacity:.7;padding:0 6px';
+    x.onclick=function(){ bar.remove(); bar=null; };
+    bar.appendChild(b); bar.appendChild(x); document.body.appendChild(bar);
+  }
+  async function check(){
+    try{
+      var r=await fetch(REL+'?t='+Date.now(),{cache:'no-store'});
+      if(!r.ok) return; var j=await r.json();
+      if(j&&j.v&&j.v!==SUITE_BUILD) show(j.v);
+    }catch(e){}
+  }
+  check(); setInterval(check,60000);
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
 })();
 </script>
 </body>
