@@ -170,7 +170,7 @@
   .alis-rec-why { font-size: 13.5px; color: var(--ink-soft); margin-top: 10px; }
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(108px, 1fr)); gap: 8px; margin-top: 10px; }
   .stat-tile { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px; }
-  .stat-tile .stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-soft); white-space: nowrap; }
+  .stat-tile .stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-soft); white-space: normal; overflow-wrap: break-word; }
   .stat-tile .stat-val { display: block; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 15px; font-weight: 700; color: var(--go); margin-top: 2px; }
   .stat-tile.risk .stat-val { color: var(--risk); }
   .takeaway { font-size: 13.5px; color: var(--ink); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
@@ -289,7 +289,6 @@
 
     .stat-grid { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); }
     .stat-tile { padding: 7px 8px; }
-    .stat-tile .stat-label { white-space: normal; }
 
     .float-panel { padding: 10px 12px; }
     .float-cta { padding: 10px 12px; font-size: 12.5px; }
@@ -406,12 +405,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b29</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b30</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b30</span><p class="topic-exp" style="margin-top:2px;">Fixed the ALIS output tiles (Outcome/Legacy/Total tax paid, etc.) — longer titles like "401(k)→loan payoff" or "Losses carried to retirement" were overflowing their little boxes instead of wrapping to a second line. Now they wrap cleanly at every screen size.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b29</span><p class="topic-exp" style="margin-top:2px;">Three fixes from real use. (1) Added a "+ Add my tax withholding on top" switch on the policy premium — since the policy no longer automatically counted redirected withholding, the tax bill was often showing as paid mostly out of pocket instead of through a policy loan; flip the switch to add your real withholding on top of the premium and see the loan actually cover it (and the effect on the full retirement projection). (2) Made the whole page work on a phone: the playbook now shows as stacked cards instead of a table, both charts stay crisp instead of shrinking to tiny text, and buttons/sliders/spacing are sized for a touch screen. (3) Trimmed the walls of text — shorter, plainer explainer paragraphs throughout, and the long compliance/assumption disclosures now collapse behind a "tap to see" line instead of sitting open on the page (nothing was removed, just tucked away until you want it).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b28</span><p class="topic-exp" style="margin-top:2px;">Fixed a real blank-screen bug: a signed-in owner could load this page and see nothing but a dark screen — the sign-in check itself was working fine, but a timing race meant the page occasionally never revealed the actual content. Same bug already found and fixed on the rest of EPIC Suite the same day; now fixed here too. Also added a safety message if the page ever genuinely fails to load (network issue, etc.) instead of leaving an unexplained blank screen.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b27</span><p class="topic-exp" style="margin-top:2px;">The 401(k)-into-the-policy move now works the way it's actually done in the field. Real designs run a fixed, level premium every year — you can't just drop extra 401(k) money in as premium without risking the policy's own funding pattern and the 7-pay MEC test. So instead: when the tax math favors pulling 401(k) money out early (same rule as before — today's rate beats the projected RMD-age rate), the withdrawal now pays down the <b>outstanding policy loan</b> that ordinary lifestyle draws already built up, rather than becoming new premium. No MEC exposure, no premium-schedule change — just less debt against the policy going forward. The playbook and the ALIS card now describe it as a loan payoff, not a conversion. Honest note: this is still a greedy, year-by-year rule (an advisor can't see future returns either) — it fires more as the loan's own carrying cost pulls further ahead of the 401(k)'s growth rate, and can occasionally net a small loss in a thin-margin year. Real advisor judgment, not a global optimizer.</p></div>

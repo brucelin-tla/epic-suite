@@ -1,5 +1,12 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.49.1** — **Epic Life Ledger (owner-only), b30**: fixed the ALIS stat-tile output boxes
+  (Outcome/Legacy/Total tax paid/etc.) — longer titles like "401(k)→loan payoff" or "Losses carried
+  to retirement" were overflowing their tile instead of wrapping to a second line (the base CSS rule
+  had `white-space:nowrap`, only overridden under the mobile breakpoint added in b29 — the bug was
+  present at every screen width, not just phones). Now wraps cleanly everywhere; verified zero
+  overflowing labels at both 375px and 1280px.
+
 - **1.49.0** — **Epic Life Ledger (owner-only), b29**: three fixes from real use. (1) The policy
   premium no longer automatically counted a member's redirected tax withholding, so the "tax bill
   paid out of pocket instead" line was often large even when the intent was to cover it via policy
