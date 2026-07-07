@@ -1,5 +1,12 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.43.0** — **Epic Life Ledger (owner-only)**: policy design now knows the insured's age AND sex,
+  calibrated from six real AIUL 26 illustrations (Standard non-smoker, both sexes, ages 30/45/60).
+  The auto-sized death benefit uses the real face-per-premium curve (shrinks with age, higher for
+  women) instead of a flat age-30-male ratio; new Male/Female toggle; new Target premium line (the
+  commission basis) exposed for commission tooling. Confirmed the cost-of-insurance sex difference is
+  <0.5% of cash value once the correct face is used, so no separate female mortality table was needed.
+
 - **1.42.0** — **Epic Life Ledger** added as a new owner-only tool (🔒 Ledger on the hub, next to
   Admin) — the full life-cycle wealth calculator, gated by the same real Supabase Auth +
   `profiles.role='owner'` check as the Admin dashboard. Also fixed a real gap in that shared gate

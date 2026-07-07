@@ -320,12 +320,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b24</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b25</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b25</span><p class="topic-exp" style="margin-top:2px;">The policy design now knows the insured's <b>age and sex</b>, calibrated from six real AIUL&nbsp;26 illustrations (Standard non-smoker, both sexes, ages 30/45/60). The auto-sized death benefit uses the real face-per-premium curve — it shrinks with age and runs higher for women — instead of a flat age-30 male ratio (an older member was getting too much face, overstating cost). New <b>Male/Female toggle</b> up top. Added a <b>Target premium</b> line (the commission basis — set by age, sex and base face, scaling with funding) so commission can be figured from the plan; exposed for later commission tooling. Confirmed from the same six: the cost-of-insurance difference between the sexes is under 0.5% of cash value once the correct face is used, so the calibration stays a single table (no separate change needed).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b24</span><p class="topic-exp" style="margin-top:2px;">Crediting assumption now comes as three labeled, defensible stories with one-click buttons: <b>6.40% honest long-run</b> (what the real 0% floor / 11.65% cap produces over the full 1928–2025 market record — the new default), <b>7.12% carrier illustration</b> (their current illustrated rate, calibrated to the stronger recent era), and <b>8.56% last-14-years actual</b> (what the carrier's first IUL really credited on average, 2011–2025). The slider still fine-tunes; the buttons make the choice of story explicit instead of hiding it in a default.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b23</span><p class="topic-exp" style="margin-top:2px;">The policy is now ONE question: how much goes in each year. Everything else designs itself the way a real accumulation case does — the death benefit auto-sizes from what each candidate plan actually pays in (23× premium, 20/80 base/supplemental, real illustration ratios), the contract's overfunding limit scales with it, and ALIS now tries BOTH loan types and keeps the winner (shown on the plan card). Crediting default raised to the carrier's current illustrated 7.12% (their 14-year actual average was 8.56%). Fixed Index loan corrected to its real current 5.00% charge. The stress test gained a full indexed-account shoot-out: all six real S&P/Nasdaq accounts — caps, multipliers, bonuses and charges exactly as published — through the same 1,000 market histories, ALIS naming the winner, with the honest note that multiplier accounts pay a certain charge for a boost that only sometimes shows up. Agent calibration (cost-of-insurance %, 45% ≈ Standard non-smoker) moved into a collapsed Agent settings block.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b22</span><p class="topic-exp" style="margin-top:2px;">The policy now carries its REAL costs, straight from the actual AIUL 26 contract: an age-based cost of insurance on the true net amount at risk (the contract's own rate table), face-amount charges in policy years 1–15, the new overfunding charge on premium above the contract limit, and the Fixed Index loan updated to its real terms (5.5% guaranteed charge + 0.65% guaranteed bonus on the collateral). The cost model was calibrated against a real client illustration and matches its cash values within about 1% across 20 years. Policy-heavy numbers came DOWN as a result — that's honesty arriving, not performance leaving. Set the face amounts from a real illustration in the "policy's real costs" section; face $0 switches the chassis off. Also: the "optimistic upper bound" warning is finally retired — the two pieces it flagged (no cost of insurance, no fee data) are now modeled.</p></div>
@@ -372,6 +373,10 @@
             <div class="control"><label>Current annual tax withheld <span class="val" id="v-withheld">$32,000</span></label><input type="range" id="withheld" min="0" max="200000" step="1000" value="32000"></div>
           </div>
           <div class="side-controls">
+            <div class="toggle-row">
+              <button type="button" class="toggle-btn active" id="btn-sexM">Male</button>
+              <button type="button" class="toggle-btn" id="btn-sexF">Female</button>
+            </div>
             <div class="control"><label>Current age <span class="val" id="v-currentAge">45</span></label><input type="range" id="currentAge" min="20" max="70" step="1" value="45"></div>
             <div class="control"><label>Retirement age <span class="val" id="v-retireAge">65</span></label><input type="range" id="retireAge" min="40" max="75" step="1" value="65"></div>
             <div class="control"><label>Age to pass down estate <span class="val" id="v-planAge">90</span></label><input type="range" id="planAge" min="78" max="120" step="1" value="90"></div>
@@ -480,7 +485,7 @@
 
       <div class="topic">
         <div class="topic-h">The policy's real costs — from the actual contract</div>
-        <p class="topic-exp">The accumulation policy's full cost chassis, straight from the carrier's AIUL&nbsp;26 contract: an age-based <b>cost of insurance</b> charged on the net amount at risk (the gap between the death benefit and the cash value), <b>face-amount charges</b> in policy years 1–15, an <b>overfunding charge</b> on premium paid above the contract's advance-contribution limit, and the $20/mo admin fee (always on). <b>Nothing to set here</b> — the death benefit sizes itself from the premiums each plan actually pays (the way a real accumulation design does: total face ≈ 23× the planned annual premium, 20% base / 80% supplemental, sized so guideline premiums ≈ the funding), and the contract limit scales with it. Running close to the MEC line is by design — a premium that would cross it simply gets refunded by the carrier, so the plan degrades gracefully. <b>Protection IUL</b> stays separate — its premium is a cash bill, sized to clear the debt at death.</p>
+        <p class="topic-exp">The accumulation policy's full cost chassis, straight from the carrier's AIUL&nbsp;26 contract: an age-based <b>cost of insurance</b> charged on the net amount at risk (the gap between the death benefit and the cash value), <b>face-amount charges</b> in policy years 1–15, an <b>overfunding charge</b> on premium paid above the contract's advance-contribution limit, and the $20/mo admin fee (always on). <b>Nothing to set here</b> — the death benefit sizes itself from the premiums each plan actually pays, the way a real accumulation design does: a min-non-MEC face at 20% base / 80% supplemental, where the face-per-premium ratio comes from real illustrations and depends on the insured's <b>age and sex</b> (younger and female both buy more face per dollar — set them up top). The contract limit and the commission target premium scale with it. Running close to the MEC line is by design — a premium that would cross it simply gets refunded by the carrier, so the plan degrades gracefully. <b>Protection IUL</b> stays separate — its premium is a cash bill, sized to clear the debt at death.</p>
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Protection IUL — annual premium <span class="val" id="v-protPremium">$0</span></label><input type="range" id="protPremium" min="0" max="20000" step="250" value="0"></div>
@@ -492,8 +497,9 @@
           </div>
           <div class="side-results">
             <div class="ledger">
-              <div class="lline"><span>Death benefit — sized automatically <span class="lbl-sub">≈23× the plan's year-1 policy funding, 20/80 base/supplemental — grows if ALIS routes more contribution into the policy</span></span><span class="amt" id="s-autoFace">–</span></div>
+              <div class="lline"><span>Death benefit — sized automatically <span class="lbl-sub">Min-non-MEC face for the insured's age & sex, 20/80 base/supplemental — grows if ALIS routes more contribution into the policy</span></span><span class="amt" id="s-autoFace">–</span></div>
               <div class="lline"><span>Advance contribution limit <span class="lbl-sub">Scales with the face amount (contract Section 1) — premium above limit × policy years pays the overfunding charge</span></span><span class="amt" id="s-autoAcl">–</span></div>
+              <div class="lline"><span>Target premium <span class="lbl-sub" id="s-targetPremSub">The commission basis (not what the member pays) — set by age, sex and the base face; scales with funding</span></span><span class="amt" id="s-targetPrem">–</span></div>
               <div class="lline"><span>Year-1 cost of insurance <span class="lbl-sub">Age-based rate × net amount at risk × %-of-maximum — recomputed every year as both age and cash value move</span></span><span class="amt" id="s-coiYr1">–</span></div>
               <div class="lline"><span>Face-amount charges <span class="lbl-sub">Policy years 1–15 only, then $0 — supplemental face is charged at about half the base rate</span></span><span class="amt" id="s-faceCharge">–</span></div>
               <div class="lline"><span>Overfunding charge, year 1 <span class="lbl-sub">0.72%/yr on cumulative premium above the limit × policy years — new on AIUL 26, it specifically taxes front-loaded funding</span></span><span class="amt" id="s-accCharge">–</span></div>
@@ -1186,15 +1192,36 @@
   // male 30, $50,000/yr premium → $1,174,665 total face where the Guideline Annual Premium lands
   // at $49,983 ≈ the premium; 7-pay MEC limit $66,104 sits safely above). Face = ratio × planned
   // annual premium, split 20% base / 80% supplemental (supplemental costs ~half per $1,000).
-  // TODO: the ratio SHRINKS with age (same premium buys less face when older, same cost-to-
-  // overfund ratio) — age curve pending more illustration data from Bruce; until then this is the
-  // age-30 ratio, flat. The advance-contribution limit scales with face (specimen: $12,001 per
-  // $1.1M face).
-  const FACE_PER_PREMIUM = 23.49, FACE_BASE_SHARE = 0.20, ACL_PER_FACE = 12001/1100000;
+  // Face-per-premium ratio by ISSUE AGE and SEX — from 6 real AIUL 26 illustrations (Standard
+  // non-smoker, $50k/yr, min-non-MEC design): the ratio SHRINKS with age (an older insured buys
+  // less death benefit for the same premium at the same cost-to-overfund) and runs HIGHER for
+  // women (lower mortality → a larger min-non-MEC face for the same premium). The 20/80 base/
+  // supplemental split was EXACT across all six. Linear interpolation between the 30/45/60
+  // anchors; clamped outside 30–60 (conservative — slightly overstates face, hence COI, past 60).
+  const FACE_RATIO = { male:{30:23.49,45:17.98,60:14.54}, female:{30:27.83,45:18.57,60:15.95} };
+  const FACE_BASE_SHARE = 0.20, ACL_PER_FACE = 12001/1100000;
+  function interpAgeSex(tbl, age, sex){
+    const t = tbl[sex] || tbl.male;
+    if (age <= 30) return t[30];
+    if (age >= 60) return t[60];
+    return age <= 45 ? t[30] + (t[45]-t[30])*(age-30)/15 : t[45] + (t[60]-t[45])*(age-45)/15;
+  }
+  function facePerPremium(age, sex){ return interpAgeSex(FACE_RATIO, age, sex); }
   function mkPolCost(annualPolPremium){
-    const F = FACE_PER_PREMIUM * Math.max(annualPolPremium, 0);
+    const F = facePerPremium(+$('currentAge').value, sex) * Math.max(annualPolPremium, 0);
     return { faceBase: FACE_BASE_SHARE * F, faceSuppl: (1 - FACE_BASE_SHARE) * F,
              coiPct: +$('coiPct').value, acl: Math.max(ACL_PER_FACE * F, 1) };
+  }
+  // Target premium — the commission basis, NOT what the member pays. From the same 6 illustrations
+  // ($50k/yr): both face and its base component scale linearly with premium at a fixed age/sex, so
+  // target premium scales linearly too — interpolate the $50k anchor by age/sex, then scale by the
+  // real premium. (Sex COI note: applying the male COI-rate table to women is intentional and
+  // <0.5% — verified against these illustrations, the sex effect on cash value is dominated by the
+  // sex-specific FACE size above, which the tool already uses; a separate female mortality table
+  // would move results below the tool's own calibration noise.)
+  const TARGET_AT50K = { male:{30:2585.52,45:4154.75,60:7004.09}, female:{30:2486.64,45:3365.40,60:6143.17} };
+  function targetPremium(age, sex, annualPremium){
+    return interpAgeSex(TARGET_AT50K, age, sex) * (Math.max(annualPremium,0)/50000);
   }
 
   // --- The real indexed-account menu (AIUL 26, from the illustration's Indexed Account Parameters
@@ -1274,6 +1301,7 @@
   }
 
   let filingStatus = 'single';
+  let sex = 'male';   // drives the age/sex face-ratio + target-premium tables (insured's sex, not filing status)
   let loanType = 'auto';        // 'auto' = ALIS runs both loan types on the plan and keeps the winner
   let LOAN_RESOLVED = 'index';  // the concrete type the last plan run resolved 'auto' to
   let strActive = false;
@@ -2598,6 +2626,15 @@
       if (pcC && pcC.faceBase + pcC.faceSuppl > 0.5){
         $('s-autoFace').textContent = fmt0.format(Math.round(pcC.faceBase + pcC.faceSuppl)) + '  (' + fmtCompact(pcC.faceBase) + ' base + ' + fmtCompact(pcC.faceSuppl) + ' suppl)';
         $('s-autoAcl').textContent = fmt0.format(Math.round(pcC.acl)) + '/yr';
+        // Target premium (commission basis) on the SAME issued design: it scales with the plan's
+        // effective year-1 policy funding — the member's stated premium PLUS whatever contribution
+        // ALIS routes into the policy (that's what sized the face). Exposed for commission math.
+        const effFund = P.annualPremium + annualContrib * chosenAlloc.fr.policy;
+        const tgt = targetPremium(currentAge, sex, effFund);
+        $('s-targetPrem').textContent = fmt0.format(Math.round(tgt)) + '/yr';
+        window.EPIC_LEDGER_DESIGN = { sex, age: currentAge, effFund,
+          faceBase: pcC.faceBase, faceSuppl: pcC.faceSuppl, faceTotal: pcC.faceBase + pcC.faceSuppl,
+          targetPremium: tgt, plannedPremium: P.annualPremium };
         // Year-1 cost readout on the SAME design (the plan pays these from its first build year)
         const cvNow = P.startCV, pyNow = Math.max(P.polYears, 1), cumNow = (P.cumPremStart || 0) + P.annualPremium + annualContrib * chosenAlloc.fr.policy;
         const db = Math.max(pcC.faceBase + pcC.faceSuppl, dbFactor(currentAge) * cvNow);
@@ -2611,9 +2648,11 @@
       } else {
         $('s-autoFace').textContent = TOOLS.policy ? 'none — no premium set' : 'policy not in the plan';
         $('s-autoAcl').textContent = '—';
+        $('s-targetPrem').textContent = '—';
         $('s-coiYr1').textContent = TOOLS.policy ? 'chassis off — no premium' : '—';
         $('s-faceCharge').textContent = '—';
         $('s-accCharge').textContent = '—';
+        window.EPIC_LEDGER_DESIGN = null;
       }
     }
     const results = chosenAlloc.runs;
@@ -2959,6 +2998,8 @@
     };
   }
 
+  $('btn-sexM').addEventListener('click', () => { sex='male'; $('btn-sexM').classList.add('active'); $('btn-sexF').classList.remove('active'); renderSection3(); });
+  $('btn-sexF').addEventListener('click', () => { sex='female'; $('btn-sexF').classList.add('active'); $('btn-sexM').classList.remove('active'); renderSection3(); });
   $('btn-single').addEventListener('click', () => { filingStatus='single'; $('btn-single').classList.add('active'); $('btn-mfj').classList.remove('active'); renderSection2(); renderSection5(); });
   $('btn-mfj').addEventListener('click', () => { filingStatus='mfj'; $('btn-mfj').classList.add('active'); $('btn-single').classList.remove('active'); renderSection2(); renderSection5(); });
   const setLoanBtns = () => ['autoLoan','indexLoan','washLoan'].forEach(k =>
