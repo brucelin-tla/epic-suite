@@ -320,12 +320,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b25</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b26</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b26</span><p class="topic-exp" style="margin-top:2px;">Added the <b>enhanced target premium</b> (1.25× target — the payout basis when year-1 client premium exceeds target, which an overfunded design like this one usually does), tucked into a collapsed "Agent — commission basis" panel under Target premium since it's agent-only. Shows the enhanced number, the year-1 client premium, and which basis actually applies for this plan. Honest note: because the face auto-sizes to whatever premium is entered, target premium is always a small share (5–14%) of the funding that sized its own face — so Enhanced applies at essentially any premium above $0, not just occasionally. That's a structural consequence of the auto-sizing design, not a bug; "Standard" is there for completeness if the face-sizing model changes later.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b25</span><p class="topic-exp" style="margin-top:2px;">The policy design now knows the insured's <b>age and sex</b>, calibrated from six real AIUL&nbsp;26 illustrations (Standard non-smoker, both sexes, ages 30/45/60). The auto-sized death benefit uses the real face-per-premium curve — it shrinks with age and runs higher for women — instead of a flat age-30 male ratio (an older member was getting too much face, overstating cost). New <b>Male/Female toggle</b> up top. Added a <b>Target premium</b> line (the commission basis — set by age, sex and base face, scaling with funding) so commission can be figured from the plan; exposed for later commission tooling. Confirmed from the same six: the cost-of-insurance difference between the sexes is under 0.5% of cash value once the correct face is used, so the calibration stays a single table (no separate change needed).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b24</span><p class="topic-exp" style="margin-top:2px;">Crediting assumption now comes as three labeled, defensible stories with one-click buttons: <b>6.40% honest long-run</b> (what the real 0% floor / 11.65% cap produces over the full 1928–2025 market record — the new default), <b>7.12% carrier illustration</b> (their current illustrated rate, calibrated to the stronger recent era), and <b>8.56% last-14-years actual</b> (what the carrier's first IUL really credited on average, 2011–2025). The slider still fine-tunes; the buttons make the choice of story explicit instead of hiding it in a default.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b23</span><p class="topic-exp" style="margin-top:2px;">The policy is now ONE question: how much goes in each year. Everything else designs itself the way a real accumulation case does — the death benefit auto-sizes from what each candidate plan actually pays in (23× premium, 20/80 base/supplemental, real illustration ratios), the contract's overfunding limit scales with it, and ALIS now tries BOTH loan types and keeps the winner (shown on the plan card). Crediting default raised to the carrier's current illustrated 7.12% (their 14-year actual average was 8.56%). Fixed Index loan corrected to its real current 5.00% charge. The stress test gained a full indexed-account shoot-out: all six real S&P/Nasdaq accounts — caps, multipliers, bonuses and charges exactly as published — through the same 1,000 market histories, ALIS naming the winner, with the honest note that multiplier accounts pay a certain charge for a boost that only sometimes shows up. Agent calibration (cost-of-insurance %, 45% ≈ Standard non-smoker) moved into a collapsed Agent settings block.</p></div>
@@ -500,6 +501,12 @@
               <div class="lline"><span>Death benefit — sized automatically <span class="lbl-sub">Min-non-MEC face for the insured's age & sex, 20/80 base/supplemental — grows if ALIS routes more contribution into the policy</span></span><span class="amt" id="s-autoFace">–</span></div>
               <div class="lline"><span>Advance contribution limit <span class="lbl-sub">Scales with the face amount (contract Section 1) — premium above limit × policy years pays the overfunding charge</span></span><span class="amt" id="s-autoAcl">–</span></div>
               <div class="lline"><span>Target premium <span class="lbl-sub" id="s-targetPremSub">The commission basis (not what the member pays) — set by age, sex and the base face; scales with funding</span></span><span class="amt" id="s-targetPrem">–</span></div>
+              <details class="agent-settings" style="margin: 2px 0 4px;">
+                <summary style="cursor:pointer; font-size:.78rem; color:var(--ink-soft);">Agent — commission basis</summary>
+                <div class="lline" style="margin-top:8px;"><span>Enhanced target premium <span class="lbl-sub">1.25× target — the payout basis if year-1 client premium exceeds target (typical for an overfunded design like this one)</span></span><span class="amt" id="s-targetPremEnh">–</span></div>
+                <div class="lline"><span>Year-1 client premium, this plan <span class="lbl-sub">The actual funding this design puts into the policy in year 1</span></span><span class="amt" id="s-clientPremYr1">–</span></div>
+                <div class="lline total"><span id="s-commBasisLbl">Commission basis used</span><span class="amt" id="s-commBasis">–</span></div>
+              </details>
               <div class="lline"><span>Year-1 cost of insurance <span class="lbl-sub">Age-based rate × net amount at risk × %-of-maximum — recomputed every year as both age and cash value move</span></span><span class="amt" id="s-coiYr1">–</span></div>
               <div class="lline"><span>Face-amount charges <span class="lbl-sub">Policy years 1–15 only, then $0 — supplemental face is charged at about half the base rate</span></span><span class="amt" id="s-faceCharge">–</span></div>
               <div class="lline"><span>Overfunding charge, year 1 <span class="lbl-sub">0.72%/yr on cumulative premium above the limit × policy years — new on AIUL 26, it specifically taxes front-loaded funding</span></span><span class="amt" id="s-accCharge">–</span></div>
@@ -2632,9 +2639,21 @@
         const effFund = P.annualPremium + annualContrib * chosenAlloc.fr.policy;
         const tgt = targetPremium(currentAge, sex, effFund);
         $('s-targetPrem').textContent = fmt0.format(Math.round(tgt)) + '/yr';
+        // Enhanced target premium: 1.25x target, paid instead of plain target when year-1 client
+        // premium (effFund — the actual funding this design puts into the policy) exceeds target.
+        // Bruce's overfunded designs typically clear this bar, so ENHANCED is the common case, not
+        // the exception. Agent-only — tucked behind the collapsed details above.
+        const tgtEnh = tgt * 1.25;
+        const enhancedApplies = effFund > tgt;
+        const commBasis = enhancedApplies ? tgtEnh : tgt;
+        $('s-targetPremEnh').textContent = fmt0.format(Math.round(tgtEnh)) + '/yr';
+        $('s-clientPremYr1').textContent = fmt0.format(Math.round(effFund)) + '/yr';
+        $('s-commBasisLbl').innerHTML = 'Commission basis used — <b>' + (enhancedApplies ? 'Enhanced ✓' : 'Standard') + '</b>';
+        $('s-commBasis').textContent = fmt0.format(Math.round(commBasis)) + '/yr';
         window.EPIC_LEDGER_DESIGN = { sex, age: currentAge, effFund,
           faceBase: pcC.faceBase, faceSuppl: pcC.faceSuppl, faceTotal: pcC.faceBase + pcC.faceSuppl,
-          targetPremium: tgt, plannedPremium: P.annualPremium };
+          targetPremium: tgt, targetPremiumEnhanced: tgtEnh, enhancedApplies, commissionBasis: commBasis,
+          plannedPremium: P.annualPremium };
         // Year-1 cost readout on the SAME design (the plan pays these from its first build year)
         const cvNow = P.startCV, pyNow = Math.max(P.polYears, 1), cumNow = (P.cumPremStart || 0) + P.annualPremium + annualContrib * chosenAlloc.fr.policy;
         const db = Math.max(pcC.faceBase + pcC.faceSuppl, dbFactor(currentAge) * cvNow);
@@ -2649,6 +2668,10 @@
         $('s-autoFace').textContent = TOOLS.policy ? 'none — no premium set' : 'policy not in the plan';
         $('s-autoAcl').textContent = '—';
         $('s-targetPrem').textContent = '—';
+        $('s-targetPremEnh').textContent = '—';
+        $('s-clientPremYr1').textContent = '—';
+        $('s-commBasisLbl').textContent = 'Commission basis used';
+        $('s-commBasis').textContent = '—';
         $('s-coiYr1').textContent = TOOLS.policy ? 'chassis off — no premium' : '—';
         $('s-faceCharge').textContent = '—';
         $('s-accCharge').textContent = '—';

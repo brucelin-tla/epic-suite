@@ -1,5 +1,12 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.44.0** — **Epic Life Ledger (owner-only)**: added the enhanced target premium (1.25× target —
+  the payout basis when year-1 client premium exceeds target), tucked into a collapsed "Agent —
+  commission basis" panel since only agents need it. Shows target, enhanced target, year-1 client
+  premium, and which basis actually applies. Structural finding worth knowing: because the death
+  benefit auto-sizes to whatever premium is entered, Enhanced applies at essentially any funding
+  level above $0, not just occasionally — that's a consequence of the auto-sizing design, not a bug.
+
 - **1.43.0** — **Epic Life Ledger (owner-only)**: policy design now knows the insured's age AND sex,
   calibrated from six real AIUL 26 illustrations (Standard non-smoker, both sexes, ages 30/45/60).
   The auto-sized death benefit uses the real face-per-premium curve (shrinks with age, higher for
