@@ -104,7 +104,8 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
   <div class="foot">
     The EPIC funnel:
     <div class="flow"><b>Referral Partner</b> refers → 🎯 <b>BDR / Setter</b> books → 📞 <b>Closer</b> closes → 🌟 <b>Client Success</b> onboards</div>
-    <div style="margin-top:16px"><a id="adminLink" href="admin/" data-rank="5" style="cursor:pointer;color:var(--muted);font-size:.72rem;text-decoration:none" title="Admin dashboard — global view">🔒 Admin</a></div>
+    <div style="margin-top:16px"><a id="adminLink" href="admin/" data-rank="5" style="cursor:pointer;color:var(--muted);font-size:.72rem;text-decoration:none" title="Admin dashboard — global view">🔒 Admin</a>
+    <a id="ledgerLink" href="ledger/" data-rank="5" style="cursor:pointer;color:var(--muted);font-size:.72rem;text-decoration:none;margin-left:14px" title="Epic Life Ledger — owner-only">🔒 Ledger</a></div>
   </div>
 </div>
 
@@ -198,6 +199,7 @@ h1{font-family:var(--font-display);font-size:2.1rem;font-weight:700;color:var(--
       el.textContent=unlocked?'⚙️ Admin':'🔒 Admin';
       return;
     }
+    if(el.id==='ledgerLink'){ el.textContent=unlocked?'📒 Ledger':'🔒 Ledger'; return; }
     var badge=el.querySelector('.live'), go=el.querySelector('.go');
     if(!unlocked){
       if(badge && !badge.dataset.origText){ badge.dataset.origText=badge.textContent; }

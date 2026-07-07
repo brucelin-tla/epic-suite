@@ -1,5 +1,13 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.42.0** — **Epic Life Ledger** added as a new owner-only tool (🔒 Ledger on the hub, next to
+  Admin) — the full life-cycle wealth calculator, gated by the same real Supabase Auth +
+  `profiles.role='owner'` check as the Admin dashboard. Also fixed a real gap in that shared gate
+  pattern: the "hide the dashboard until authorized" step could silently never fire (a DOM-timing
+  race), leaving the real content present underneath the lock overlay for anyone who inspected the
+  page — now fails closed by default (hidden via CSS first, only ever revealed by script), applied
+  to both Admin and the new Ledger.
+
 - **1.19.1** — **← EPIC Suite** back link added to the Closer. **Referral Partner & Setter** got a mobile-first
   pass (bigger tap targets, no zoom-on-tap forms, full-width primary buttons, one-column). **Client Success**
   got mobile-safety touches. Closer & Client Success stay desktop-priority.

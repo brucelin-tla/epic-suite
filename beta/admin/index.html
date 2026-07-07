@@ -10,7 +10,7 @@
 :root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:14px;--radius-sm:9px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
-.wrap{max-width:1180px;margin:0 auto}
+.wrap{max-width:1180px;margin:0 auto;visibility:hidden}
 a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:13px 17px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px;box-shadow:0 1px 3px rgba(18,24,38,.05)}
 .brand h1{font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:var(--accent)}
@@ -127,14 +127,20 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
     return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
   }
   async function refresh(){
-    wrapEl=wrapEl||document.querySelector('.wrap');
+    // Fail-CLOSED fix (2026-07-06): re-query every call (never cache null -- this
+    // script runs before <div class="wrap"> exists in the DOM) and only ever
+    // REVEAL on success; CSS now defaults .wrap to visibility:hidden so an
+    // unauthorized state cannot leave real dashboard content exposed underneath
+    // the overlay (verified: content used to stay visible even with the gate
+    // div removed via console -- one line of devtools bypassed it entirely).
+    wrapEl=document.querySelector('.wrap');
     var r=await SB.auth.getSession(), session=r.data.session;
     var rank=await myRank(session);
     var authorized=rank>=TOOL_RANK;
     gate.classList.toggle('hidden', authorized);
     step1.style.display=session?'none':'';
     step2.style.display=(session&&!authorized)?'':'none';
-    if(wrapEl) wrapEl.style.visibility=authorized?'visible':'hidden';
+    if(wrapEl && authorized) wrapEl.style.visibility='visible';
     signOutBtn.style.display=session?'':'none';
     if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
   }
