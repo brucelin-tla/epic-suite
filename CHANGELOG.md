@@ -1,5 +1,23 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.51.0** — **Epic Life Ledger (owner-only), b32**: the 401(k)/qualified account now de-risks
+  with age along the standard target-date glide path (Vanguard's published anchors: 90% stocks
+  through 40 → 50/50 at 65 → 30/70 at 72, flat after) instead of one flat growth rate forever —
+  Bruce's call: nobody in their 50s runs aggressive with retirement on the line, and a dip in
+  later years hurts most. The old "projected growth rate" slider is now "Stock market return
+  (S&P 500 total)," defaulting to the real 10.02%/yr full-record compound (computed directly from
+  the NYU Stern/Damodaran raw 1928–2025 annual series this session), with a one-tap "recent era
+  2011–2025 — 13.94%" preset; the bond slice earns the 10-yr Treasury's real record (4.82%/yr avg,
+  7.9% swing, same dataset). The Monte Carlo draws both legs with their real volatility, blended
+  by age (stock-bond correlation ≈0 over the record, so independent draws ARE the measured
+  relationship); stock volatility tightened 19.7%→19.4% (recomputed from the raw series). This
+  also RESOLVED the internal inconsistency found earlier today: emergent stress-test crediting now
+  lands at 6.42%/yr vs the 6.40% "honest long-run" default (was 5.50% vs 6.40%). New glide readout
+  in the 401(k) topic (mix + blended growth today / at retirement / at the 72+ floor); the journey
+  now tells the story — the 401(k) trades growth for safety with age, the policy never has to
+  because the 0% floor IS its safety. Verified: glide anchors exact, engine growth matches hand
+  calculation to the penny, conversion look-ahead compounds along the glide, 0 JS errors.
+
 - **1.50.0** — **Epic Life Ledger (owner-only), b31**: the Monte Carlo stress test now reports
   income extracted and total wealth (legacy + income) — worst 1-in-10 / median / best 1-in-10 across
   all 1,000 market histories, same treatment legacy already got, so "Max income" plans get the same

@@ -405,12 +405,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b31</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b32</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b32</span><p class="topic-exp" style="margin-top:2px;">The 401(k) now de-risks with age, the way real accounts do. Almost nobody in their 50s runs 90% stocks with retirement on the line — so instead of one flat growth rate forever, the account follows the standard target-date glide path (Vanguard's published anchors): ~90% stocks through age 40, easing to 50/50 at retirement, 30/70 bonds by 72. You set what the <b>stock market</b> earns (default: its real 10.02%/yr full record since 1928, with a one-tap "recent era 2011–2025 — 13.94%" alternative); the bond slice earns the 10-yr Treasury's real record (4.82%/yr). The stress test draws both legs with their real volatility — so a market dip late in life now hits a 30%-stocks account, not a 90% one, which is exactly why the glide exists. Side effect worth knowing: this also fixed an internal inconsistency — the stress test's floor/cap crediting now lands at 6.42%/yr against the 6.40% "honest long-run" default, where before the two quietly disagreed by almost a full point. The story is told in the journey too: the 401(k) must trade growth away for safety as you age — the policy never has to, because its 0% floor IS its safety.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b31</span><p class="topic-exp" style="margin-top:2px;">Two additions. (1) The stress test now shows income extracted and total wealth (legacy + income), worst/median/best across all 1,000 market histories — same rigor it already gave legacy, so a "Max income" plan gets the same downside-risk visibility a "Max legacy" plan always had. (2) Real-world rates instead of round marketing numbers: mortgage 6.43% (Freddie Mac's weekly survey), HELOC 7.46% (Bankrate national average), investment-property loan 7.18% (primary + typical premium), home appreciation 4.44% (the same Case-Shiller figure already used elsewhere in this tool). Sliders still move freely — these are just more honest starting points.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b30</span><p class="topic-exp" style="margin-top:2px;">Fixed the ALIS output tiles (Outcome/Legacy/Total tax paid, etc.) — longer titles like "401(k)→loan payoff" or "Losses carried to retirement" were overflowing their little boxes instead of wrapping to a second line. Now they wrap cleanly at every screen size.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b29</span><p class="topic-exp" style="margin-top:2px;">Three fixes from real use. (1) Added a "+ Add my tax withholding on top" switch on the policy premium — since the policy no longer automatically counted redirected withholding, the tax bill was often showing as paid mostly out of pocket instead of through a policy loan; flip the switch to add your real withholding on top of the premium and see the loan actually cover it (and the effect on the full retirement projection). (2) Made the whole page work on a phone: the playbook now shows as stacked cards instead of a table, both charts stay crisp instead of shrinking to tiny text, and buttons/sliders/spacing are sized for a touch screen. (3) Trimmed the walls of text — shorter, plainer explainer paragraphs throughout, and the long compliance/assumption disclosures now collapse behind a "tap to see" line instead of sitting open on the page (nothing was removed, just tucked away until you want it).</p></div>
@@ -479,14 +480,26 @@
 
       <div class="topic" data-natopic="qualified">
         <div class="topic-hrow"><div class="topic-h" id="veh-qm-h">The 401(k) / qualified account</div><button type="button" class="toggle-btn na-btn" data-natool="qualified">✓ In the plan</button></div>
-        <p class="topic-exp">Your balance and its growth rate — used both to size how much ALIS can allocate here and, in retirement, to see how it draws down. ALIS decides how hard to draw it based on the goal you pick in Section&nbsp;3; the untouched balance keeps growing tax-deferred.</p>
+        <p class="topic-exp">Your balance, plus a market assumption. <b>The account doesn't stay aggressive:</b> almost nobody in their 50s runs 90% stocks with retirement on the line — a bad year late hurts far more than one early, because withdrawals lock the loss in with no time to recover. So ALIS models the standard target-date glide: ~90% stocks through age 40, easing to 50/50 at retirement and 30/70 by 72. The slider sets what the <b>stock slice</b> earns; the bond slice earns the long-run Treasury return.</p>
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Current balance <span class="val" id="v-qmBalance">$1,500,000</span></label><input type="range" id="qmBalance" min="0" max="3000000" step="25000" value="1500000"></div>
-            <div class="control"><label>Projected growth rate <span class="val" id="v-qmGrowth">6.00%</span></label><input type="range" id="qmGrowth" min="3" max="8" step="0.25" value="6"></div>
+            <div class="control"><label>Stock market return (S&amp;P 500 total) <span class="val" id="v-qmGrowth">10.02%</span></label><input type="range" id="qmGrowth" min="4" max="14" step="0.01" value="10.02"></div>
+            <div class="toggle-row" style="flex-wrap:wrap;">
+              <button type="button" class="toggle-btn mkt-preset" data-mkt="10.02">Full record 1928–2025 — 10.02%</button>
+              <button type="button" class="toggle-btn mkt-preset" data-mkt="13.94">Recent era 2011–2025 — 13.94%</button>
+            </div>
+            <details class="caveat mini collapsible">
+              <summary><span class="mark">!</span><span>How the stock/bond mix and its numbers are sourced</span></summary>
+              <div class="caveat-body"><p>Glide anchors are Vanguard's published Target Retirement path (90% stocks to age 40 → 50% at 65 → 30% at 72, then flat) — your real mix may differ; a member who self-directs more aggressively is taking exactly the late-year risk this glide exists to remove. The bond slice is modeled at the 10-yr US Treasury's full 1928–2025 record: 4.82%/yr average, 7.9% annual swing, computed from the same NYU Stern dataset as the stock figures. Stock-bond correlation over that record is ≈0, so the stress test draws the two legs independently — that's the measured relationship, not a shortcut.</p></div>
+            </details>
           </div>
           <div class="side-results">
             <div class="ledger">
+              <div class="lline"><span>Stocks / bonds mix today <span class="lbl-sub" id="s-eqMixSub">Glides to 50/50 at retirement, 30/70 by 72 — the de-risking most target-date funds follow</span></span><span class="amt" id="s-eqMixNow">–</span></div>
+              <div class="lline"><span>Blended growth today</span><span class="amt" id="s-qmRetNow">–</span></div>
+              <div class="lline"><span>Blended growth at retirement</span><span class="amt" id="s-qmRetAtRet">–</span></div>
+              <div class="lline"><span>Blended growth at 72+ <span class="lbl-sub">The floor — a dip here can no longer wreck the plan the way a flat aggressive assumption would</span></span><span class="amt" id="s-qmRetFloor">–</span></div>
               <div class="lline"><span>Years it contributes in retirement</span><span class="amt" id="s-qmYears">–</span></div>
               <div class="lline"><span>Average annual withdrawal <span class="lbl-sub">Low early, higher once the tax-free vehicles run dry</span></span><span class="amt" id="s-qmFirstDraw">–</span></div>
               <div class="lline"><span>Total withdrawn over the horizon</span><span class="amt" id="s-finalWithdrawal">–</span></div>
@@ -1040,7 +1053,7 @@
         <p class="topic-exp" style="margin-top:10px;">Every number in this stress test is sourced, not guessed — real market history and the carrier's own contract, never a made-up assumption.</p>
         <details class="details-toggle" style="margin-top:2px;">
           <summary>See the sources</summary>
-          <p class="topic-exp" style="margin-top:8px;">19.7% stock volatility (S&P 500 annual returns, 1928–2025); the 0% floor / 11.65% cap is the current John Hancock Accumulation IUL 26 "Base Capped" account, confirmed against the carrier's contract and launch materials; the market leg also earns ~1.6%/yr in dividends that index crediting doesn't (IUL credits the price index only — modeled honestly). Real-world reference: the carrier's first IUL averaged <b>8.56%/yr actual crediting over 2011–2025</b>, above its highest illustrated rate — floors and caps have a real track record, not just a theory. Property values vary per scenario (±5.9%/yr, Case-Shiller 1988–2026) rather than year-by-year. The same 1,000 histories run every time — repeatable, not cherry-picked. An illustration of how volatility behaves, not a prediction or a recommendation.</p>
+          <p class="topic-exp" style="margin-top:8px;">19.4% stock volatility, computed directly from the S&P 500's raw annual returns 1928–2025 (NYU Stern/Damodaran dataset); the 0% floor / 11.65% cap is the current John Hancock Accumulation IUL 26 "Base Capped" account, confirmed against the carrier's contract and launch materials; the market leg also earns ~1.6%/yr in dividends that index crediting doesn't (IUL credits the price index only — modeled honestly). The 401(k) leg de-risks by age along the target-date glide path, its bond slice drawn at the 10-yr Treasury's real record (4.82%/yr avg, 7.9% swing, same dataset); stock-bond correlation over that record is ≈0, so the legs are drawn independently. Real-world reference: the carrier's first IUL averaged <b>8.56%/yr actual crediting over 2011–2025</b>, above its highest illustrated rate — floors and caps have a real track record, not just a theory. Property values vary per scenario (±5.9%/yr, Case-Shiller 1988–2026) rather than year-by-year. The same 1,000 histories run every time — repeatable, not cherry-picked. An illustration of how volatility behaves, not a prediction or a recommendation.</p>
         </details>
       </div>
     </section>
@@ -1488,6 +1501,29 @@
     if (loc === 'hawaii') return 0.004 * Math.min(value, 1e6) + 0.0114 * Math.max(value - 1e6, 0);
     return value * 0.011;
   }
+
+  // --- Age-based 401(k)/qualified glide path (Vanguard Target Retirement published anchors) ---
+  // Nobody in their 50s should run 90% stocks with retirement on the line — a bad year LATE costs
+  // far more than one early, because withdrawals lock the loss in with no time to recover. So the
+  // qualified account de-risks by age the way real target-date funds do: ~90% stocks through 40,
+  // straight-line down to 50/50 at 65, continuing to a 30/70 floor at 72, flat after.
+  function eqShare(age){
+    if (age <= 40) return 0.90;
+    if (age <= 65) return 0.90 - 0.40 * (age - 40) / 25;
+    if (age <= 72) return 0.50 - 0.20 * (age - 65) / 7;
+    return 0.30;
+  }
+  // The bond slice: 10-yr US Treasury, full 1928–2025 record, computed directly from the NYU
+  // Stern/Damodaran raw annual series (same dataset as the stock figures) — 4.82%/yr average,
+  // 7.9% annual swing. Stock-bond correlation over that record is +0.02 — essentially zero — so
+  // the stress test draws the two legs independently because that IS the measured long-run
+  // relationship, not a modeling shortcut.
+  const BOND_MEAN = 0.0482, BOND_SD = 0.079;
+  // Qualified return at a given age: equity share × the market assumption + the rest at bonds.
+  function qmRet(age, mkt){ const e = eqShare(age); return e * mkt + (1 - e) * BOND_MEAN; }
+  // Compound the glide-blended return over a span (deterministic growth + the conversion
+  // heuristic's look-ahead to RMD age both need this instead of a flat Math.pow).
+  function qmGrow(fromAge, nYrs, mkt){ let f = 1; for (let a = 0; a < nYrs; a++) f *= 1 + qmRet(fromAge + a, mkt); return f; }
   // Shared with Section 4: the Section 1 mortgage as it stands today (set by renderSection1).
   let M1 = null;
   // Which retirement strategy / contribution allocation the user is viewing; null = ALIS's pick.
@@ -2161,8 +2197,12 @@
         // anywhere near the loan's charge. The simulation still applies the real bonus every year
         // regardless of what this heuristic decides (see the unconditional bonus line below).
         const netCarryPct = inp.loanType === 'index' ? INDEX_LOAN_RATE : (washCharged(policyYear) - washCredited(policyYear));
-        const growQm = Math.pow(1 + inp.qmGrowth, nYrs), growPayoff = Math.pow(1 + Math.max(netCarryPct,0)/100, nYrs);
-        const balAt73 = (qmBal - Q) * Math.pow(1 + inp.qmGrowth, Math.max(73 - age, 0));
+        // Glide-aware look-ahead: the qualified account keeps DE-RISKING through these years, so
+        // its projected growth compounds along the age curve, not at one flat rate — this makes
+        // the payoff mechanic honestly MORE attractive late (when the blend earns less) and less
+        // attractive early, exactly matching the real trade-off.
+        const growQm = qmGrow(age, nYrs, inp.qmGrowth), growPayoff = Math.pow(1 + Math.max(netCarryPct,0)/100, nYrs);
+        const balAt73 = (qmBal - Q) * qmGrow(age, Math.max(73 - age, 0), inp.qmGrowth);
         const futRate = marginalRatePct(taxableRentPos + balAt73/26.5, inp.filingStatus)/100;
         const leaveVal = growQm * (1 - futRate);
         const winsAt = rate => (1 - rate - pen) * growPayoff > leaveVal;
@@ -2225,9 +2265,11 @@
         if (ltcDbRemaining <= 0.5) evts.push('Death benefit fully accelerated — nothing left for the estate from this policy');
       }
       qmBal -= Q + conv; if (qmBal < 0) qmBal = 0;
-      // Under the stress test (inp.mcSeq) the year's growth/crediting comes from the drawn market
-      // path instead of the flat slider rate; without it, behavior is exactly as before.
-      if (qmBal > 0) qmBal *= (1 + (inp.mcSeq ? inp.mcSeq.qm[t] : inp.qmGrowth));
+      // Under the stress test (inp.mcSeq) the year's growth comes from the drawn market path
+      // (already age-blended when the sequence was built); otherwise the deterministic
+      // glide-blended return for THIS age — inp.qmGrowth is the stock-market assumption, and the
+      // account's actual return de-risks with age via the target-date glide path.
+      if (qmBal > 0) qmBal *= (1 + (inp.mcSeq ? inp.mcSeq.qm[t] : qmRet(age, inp.qmGrowth)));
       // Ongoing policy costs continue in retirement — admin every year, plus the contract chassis
       // (COI on net-amount-at-risk, face charges, overfunding charge) when a face amount is set.
       // The loan payoff above touched loanBal only — it is NOT premium, so cumPrem/cash-value
@@ -2462,8 +2504,10 @@
       }
       refund = qmC * acc.mtr;                                 // pre-tax refund lands next year
       refundTotal += refund + purchRefund;
-      // Under the stress test (acc.mcSeq) growth/crediting follows the drawn market path.
-      qm = (qm + qmC) * (1 + (acc.mcSeq ? acc.mcSeq.qm[y] : acc.qmGrowth));
+      // Under the stress test (acc.mcSeq) growth follows the drawn (age-blended) market path;
+      // otherwise the deterministic glide return for this age — acc.qmGrowth is the stock-market
+      // assumption, blended down by the target-date glide as the member ages.
+      qm = (qm + qmC) * (1 + (acc.mcSeq ? acc.mcSeq.qm[y] : qmRet(age, acc.qmGrowth)));
       // Real contract costs: premium into the policy raises cumPrem (overfunding charge base);
       // COI/face/overfunding charges deduct alongside the admin fee when a face amount is set.
       cumPrem += polC;
@@ -2510,6 +2554,8 @@
     $('v-inflation').textContent = (inflation*100).toFixed(2)+'%';
     $('v-qmBalance').textContent = fmt0.format(qmBalance);
     $('v-qmGrowth').textContent = (qmGrowth*100).toFixed(2)+'%';
+    document.querySelectorAll('.mkt-preset').forEach(b =>
+      b.classList.toggle('active', Math.abs(qmGrowth*100 - parseFloat(b.dataset.mkt)) < 0.005));
     $('v-helocRate').textContent = (helocRate*100).toFixed(2)+'%';
     $('v-reEquity').textContent = fmt0.format(homeValue);
     $('v-reGrowth').textContent = (reGrowth*100).toFixed(2)+'%';
@@ -2539,6 +2585,14 @@
     $('s-ltcMonthly').textContent = ltcOn ? fmt0.format(Math.min(ltcDBVal*(ltcRateVal/100), LTC_MONTHLY_CAP))+'/mo' : 'off';
     const accYears = retireAge - currentAge;
     const mtr = marginalRatePct(+$('income').value, filingStatus)/100;
+
+    // Glide-path readout: the member's actual stock/bond mix and blended growth at the three ages
+    // that matter — today, retirement, and the 30/70 floor at 72+.
+    const eNow = eqShare(currentAge);
+    $('s-eqMixNow').textContent = Math.round(eNow*100)+' / '+Math.round((1-eNow)*100);
+    $('s-qmRetNow').textContent = (qmRet(currentAge, qmGrowth)*100).toFixed(2)+'%';
+    $('s-qmRetAtRet').textContent = (qmRet(retireAge, qmGrowth)*100).toFixed(2)+'%';
+    $('s-qmRetFloor').textContent = (qmRet(72, qmGrowth)*100).toFixed(2)+'%';
 
     // Property purchase timing UI (property #1): clamp to the plan window; at today's age the
     // purchase is treated as already made with outside cash (no vehicle draw), matching a member
@@ -3145,7 +3199,7 @@
     })();
 
     window.EPIC_DEBUG = { chosen, chosenAlloc, results, propsDef };
-    window.EPIC_DEBUG_FN = { simulateStrategy, accumulate, washCharged, washCredited, premChargePct, federalTax, STRATS, policyCosts, coiMaxRate, dbFactor };
+    window.EPIC_DEBUG_FN = { simulateStrategy, accumulate, washCharged, washCredited, premChargePct, federalTax, STRATS, policyCosts, coiMaxRate, dbFactor, eqShare, qmRet, qmGrow, BOND_MEAN, BOND_SD };
     // --- Stress-test pack: everything the on-demand Monte Carlo needs to replay the CHOSEN plan
     // (and its honest no-policy counterpart) under random market paths. Rebuilt every render so it
     // always reflects the current sliders. The MC runner itself lives outside this closure.
@@ -3199,15 +3253,19 @@
   $('btn-rep').addEventListener('click', () => { repActive = !repActive; $('btn-rep').classList.toggle('active', repActive); renderSection2(); });
 
   // ================= Stress test — Monte Carlo over real market volatility =================
-  // Sourced constants (verified 2026-07-06, do not guess-edit):
-  //  · S&P 500 annual return stdev 19.7% (NYU Stern dataset, 1928–2025)
+  // Sourced constants (verified 2026-07-06; stock stdev recomputed 2026-07-07 directly from the
+  // NYU Stern/Damodaran raw annual series 1928–2025 — do not guess-edit):
+  //  · S&P 500 annual return stdev 19.4% (computed from the raw 98-year series; the earlier
+  //    19.7% was a rounded secondary citation of the same dataset)
   //  · IUL crediting = John Hancock Accumulation IUL "Base Capped" indexed account: 0% floor,
   //    11.65% current cap, 100% participation (carrier illustration support doc)
   //  · Dividend gap ~1.6%/yr: index crediting rides the PRICE index only; a 401(k) index fund
   //    also earns dividends (10-yr avg yield 1.63%) — the market leg gets them, the IUL leg doesn't
+  //  · Bond leg: BOND_MEAN/BOND_SD (defined with the glide path above) — 10-yr Treasury,
+  //    4.82%/yr avg, 7.9% stdev, same raw series; stock-bond correlation ≈ +0.02
   //  · Property appreciation stdev 5.87%/yr (computed from FRED Case-Shiller national, 1988–2026)
   // Never wired into the live grid search — runs on demand, on the ALREADY-CHOSEN plan only.
-  const MC_N = 1000, MC_EQ_SD = 0.197, MC_DIV = 0.016, MC_IUL_FLOOR = 0.0, MC_IUL_CAP = 0.1165, MC_RE_SD = 0.0587;
+  const MC_N = 1000, MC_EQ_SD = 0.194, MC_DIV = 0.016, MC_IUL_FLOOR = 0.0, MC_IUL_CAP = 0.1165, MC_RE_SD = 0.0587;
   // Deterministic seeded RNG → the same 1,000 histories every run: repeatable, not cherry-picked.
   function mulberry32(seed){ let a = seed|0; return function(){ a = (a + 0x6D2B79F5)|0; let t = Math.imul(a ^ (a>>>15), 1|a); t = (t + Math.imul(t ^ (t>>>7), 61|t)) ^ t; return ((t ^ (t>>>14))>>>0) / 4294967296; }; }
   function gauss(rng){ let u=0, v=0; while(u===0) u=rng(); while(v===0) v=rng(); return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v); }
@@ -3236,24 +3294,29 @@
     const totalYears = M.accYears + M.horizon;
     const res = { w: { legacies: [], extracted: [], years: [] }, o: { legacies: [], extracted: [], years: [] }, accts: {} };
     IUL_ACCOUNTS.forEach(a => { res.accts[a.key] = { legacies: [], years: [], credSum: 0 }; });
-    let credSum = 0, qSum = 0, yrN = 0;
+    let credSum = 0, qSum = 0, eqSum = 0, yrN = 0;
     let i = 0;
     const BATCH = 25;
     function step(){
       const end = Math.min(i + BATCH, MC_N);
       for (; i < end; i++){
         const rng = mulberry32(0x51ED + i * 7919);
-        // ONE market shock per year drives every leg — that's the whole comparison. The market leg
-        // keeps dividends; each indexed account takes the same price move through ITS OWN real
-        // floor/cap/multiplier/charge (Nasdaq: same shock scaled by its higher volatility, no extra
-        // return assumed).
+        // ONE market shock per year drives every equity leg — that's the whole comparison. The
+        // market leg keeps dividends; each indexed account takes the same price move through ITS
+        // OWN real floor/cap/multiplier/charge (Nasdaq: same shock scaled by its higher
+        // volatility, no extra return assumed). The 401(k) leg is then age-BLENDED: its equity
+        // share follows the target-date glide path, the rest rides an independent bond draw
+        // (stock-bond correlation over 1928–2025 is ≈0, so independence is the measured record).
         const zArr = new Array(totalYears);
         const seqQm = new Array(totalYears);
         for (let t = 0; t < totalYears; t++){
           const z = gauss(rng);
           zArr[t] = z;
-          seqQm[t] = M.qmGrowth + MC_EQ_SD * z;
-          qSum += seqQm[t]; yrN++;
+          const eq = M.qmGrowth + MC_EQ_SD * z;
+          const bond = BOND_MEAN + BOND_SD * gauss(rng);
+          const e = eqShare(M.currentAge + t);
+          seqQm[t] = e * eq + (1 - e) * bond;
+          eqSum += eq; qSum += seqQm[t]; yrN++;
         }
         // Property/home appreciation varies per scenario (its long-run average), not year-by-year —
         // disclosed simplification; property is never sold mid-plan, so its sequence matters far less.
@@ -3277,7 +3340,7 @@
       btn.textContent = 'Running… ' + i + ' / ' + MC_N + ' market histories';
       if (i < MC_N) setTimeout(step, 0);
       else {
-        renderMcResults(M, res, credSum/yrN, qSum/yrN);
+        renderMcResults(M, res, credSum/yrN, qSum/yrN, eqSum/yrN);
         btn.disabled = false;
         btn.textContent = 'Run it again — same 1,000 histories, same result';
         MC_BUSY = false;
@@ -3288,7 +3351,7 @@
   }
 
   function pctile(sorted, p){ const idx = (sorted.length-1) * p; const lo = Math.floor(idx), hi = Math.ceil(idx); return sorted[lo] + (sorted[hi]-sorted[lo]) * (idx-lo); }
-  function renderMcResults(M, res, credAvg, qAvg){
+  function renderMcResults(M, res, credAvg, qAvg, eqAvg){
     $('mcResults').style.display = '';
     const wl = [...res.w.legacies].sort((a,b)=>a-b), ol = [...res.o.legacies].sort((a,b)=>a-b);
     const exWl = [...res.w.extracted].sort((a,b)=>a-b), exOl = [...res.o.extracted].sort((a,b)=>a-b);
@@ -3340,7 +3403,7 @@
     $('mc-take').innerHTML = take;
     $('mc-cred').innerHTML = 'Across all '+MC_N+' histories the floor/cap produced an average crediting of <b>'+(credAvg*100).toFixed(2)+'%/yr</b>'
       + ' (your crediting slider assumes '+(M.credRate*100).toFixed(2)+'% — if these differ, the floor/cap math and your assumption disagree, shown honestly, not hidden)'
-      + '; the market leg averaged '+(qAvg*100).toFixed(2)+'%/yr against your '+(M.qmGrowth*100).toFixed(2)+'% assumption.';
+      + '; the raw stock market averaged '+(eqAvg*100).toFixed(2)+'%/yr against your '+(M.qmGrowth*100).toFixed(2)+'% assumption, and the 401(k)’s age-blended stock/bond mix averaged '+(qAvg*100).toFixed(2)+'%/yr along the glide path.';
     drawMcChart(wl, ol);
     // Which real indexed account handles volatility best — same plan, same histories, each
     // account's actual floor/cap/multiplier/charge. Multiplier accounts pay a CERTAIN charge for
@@ -3470,7 +3533,7 @@
   const JOURNEY = [
     { title:'Where most people start',
       tools:{ velocity:false, bizcredit:false, policy:false, heloc:false, mortgage:true, rental:false, qualified:true },
-      copy:'A house payment and a 401(k). That’s the normal plan. Watch how far it gets.',
+      copy:'A house payment and a 401(k). That’s the normal plan — and the 401(k) can’t stay aggressive: like most target-date funds it shifts toward bonds as you age, because a market dip in your 60s or 70s hurts far more than one in your 30s. Safer, but it earns less exactly when you need the money. Watch how far it gets.',
       aha:'<b>This is the baseline.</b> Remember where it runs dry — every step from here has to beat it.',
       ahaHolds:'<b>It holds — barely the point.</b> Watch the tax bill and what’s left behind. The next steps attack both.' },
     { title:'Attack the mortgage',
@@ -3485,7 +3548,7 @@
       flat:'<b>An accelerator, not an engine</b> — it matters most when big chunks land early. At your numbers the boost is small.' },
     { title:'Build the tax-free engine',
       tools:{ velocity:true, bizcredit:true, policy:true, heloc:false, mortgage:true, rental:false, qualified:true },
-      copy:'A cash-value policy grows tax-free. In retirement it hands you income as loans — no tax bill, and nothing to repay while you live.',
+      copy:'A cash-value policy grows tax-free. In retirement it hands you income as loans — no tax bill, and nothing to repay while you live. And unlike the 401(k), it never has to shift to bonds as you age: the 0% floor <b>is</b> its safety, so it keeps full crediting in exactly the years the 401(k) has already de-risked down.',
       aha:'<b>Tax-free retirement income</b> — the loan settles itself from the death benefit.',
       flat:'<b>Quiet here, loud later</b> — the policy needs years to compound. Push retirement age out and watch it take over.' },
     { title:'Put the house back to work',
@@ -3606,6 +3669,9 @@
   ['polPremiumAnnual','credRate','polYears','withheld'].forEach(id => $(id).addEventListener('input', renderSection3));
   document.querySelectorAll('.cred-preset').forEach(b => b.addEventListener('click', () => {
     $('credRate').value = b.dataset.cred; renderSection3();
+  }));
+  document.querySelectorAll('.mkt-preset').forEach(b => b.addEventListener('click', () => {
+    $('qmGrowth').value = b.dataset.mkt; renderSection5();
   }));
   $('btn-addWithholding').addEventListener('click', () => { addWithholding = !addWithholding; renderSection3(); });
   // Section 2's setup button and Section 3's estate-topic choice are the SAME decision, kept in
