@@ -4,13 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EPIC Client Success — Onboard & take care of members</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--purple:#3C7E44;--radius:12px;--radius-sm:8px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
-.wrap{max-width:1080px;margin:0 auto}
+.wrap{max-width:1080px;margin:0 auto;visibility:hidden}
 a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px;box-shadow:0 1px 3px rgba(18,24,38,.05)}
 .brand h1{font-family:var(--font-display);font-size:1.2rem;font-weight:700;color:var(--success)}
@@ -128,7 +129,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
   }
   signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
   SB.auth.onAuthStateChange(function(){ refresh(); });
-  refresh();
+  // REAL BUG FIX (2026-07-06): this script tag runs BEFORE <div class="wrap"> further down the
+  // page has been parsed, so this first direct call's querySelector('.wrap') always returned
+  // null -- authorized/gate/sign-out all resolved correctly, but the reveal step silently no-op'd
+  // forever, leaving a permanently blank screen for a real signed-in owner. Deferring to
+  // DOMContentLoaded guarantees .wrap exists before this call runs.
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', refresh); } else { refresh(); }
 })();
 </script>
 <div class="wrap">
@@ -363,7 +369,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.45.0'; /*suite-build*/
+  var SUITE_BUILD='1.47.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
@@ -389,6 +395,30 @@ w.appendChild(p);})();
   }
   check(); setInterval(check,60000);
   document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
+})();
+</script>
+<!-- ===== EPIC Suite: load-failure safety net (2026-07-06) — the sign-in check
+     above fails CLOSED (page stays blank until authorized), which is correct
+     for security but meant a real failure (CDN blocked, network hiccup, an
+     unexpected error before the gate ever resolves) left a permanently blank
+     white screen with no explanation. This shows a real, actionable message
+     instead if neither the gate nor the page ever appears. ===== -->
+<script>
+(function(){
+  setTimeout(function(){
+    var wrapEl=document.querySelector('.wrap');
+    var gate=document.getElementById('epicAuthGate');
+    var wrapHidden=wrapEl && getComputedStyle(wrapEl).visibility==='hidden';
+    var gateHidden=gate ? gate.classList.contains('hidden') : true;
+    if(wrapHidden && gateHidden && !document.getElementById('epicLoadFail')){
+      var d=document.createElement('div');
+      d.id='epicLoadFail';
+      d.style.cssText='position:fixed;inset:0;z-index:2600;background:rgba(18,24,38,.94);color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font:600 .95rem -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+      d.innerHTML='<div>⚠️ Couldn’t load — check your connection and try again.<br><button type="button" style="margin-top:14px;padding:10px 22px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:#fff;color:#121826">Reload</button></div>';
+      d.querySelector('button').onclick=function(){ location.reload(); };
+      document.body.appendChild(d);
+    }
+  }, 7000);
 })();
 </script>
 </body>

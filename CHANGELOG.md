@@ -1,5 +1,18 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.47.0** — **Fixed the real "blank white screen" bug on Admin (and the same bug, found while
+  fixing it, on Setter, Client Success, and Closer).** Root cause: the sign-in check ran before the
+  page's own content div had even been added to the page yet, so it could never find it to reveal
+  it — even for a real, correctly-signed-in owner, with no error and no way to recover except a
+  manual full reload landing on a different page. Fixed on all four by waiting for the page to
+  finish loading before that first check runs. Also hardened: Setter, Client Success, and Closer
+  were missing the same fail-closed protection Admin already had (start hidden, only ever reveal
+  once confirmed signed in) — real data could otherwise stay visible underneath the lock screen if
+  the sign-in check failed outright; and if the sign-in check can't load at all (bad connection,
+  blocked request), you now see a clear "couldn't load" message with a Reload button instead of an
+  unexplained blank screen. Also: EPIC Suite now has a real favicon (⚡) across the hub and all 5
+  role tools, instead of the browser's default globe icon.
+
 - **1.46.0** — **Epic Life Ledger (owner-only)**: the 401(k)-into-the-policy move now matches how it's
   actually done in the field. Real designs run a fixed, level premium every year, so extra 401(k)
   money can't simply become new premium without risking the 7-pay MEC test. Instead: when the tax
