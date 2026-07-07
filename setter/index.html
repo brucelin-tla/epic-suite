@@ -272,12 +272,19 @@ function dueLabel(iso){ if(!iso) return null; var ms=new Date(iso).getTime()-Dat
 async function loadQueue(){
   try{
     if(!window.EPIC_SB) throw new Error('Not signed in yet');
+    // 2026-07-07 fix: with real volume now ~1,000+ across New/Callback/No-show,
+    // a 300-row cap ordered by row-insert time was silently truncating the
+    // NEWEST real leads before they ever reached a tab (they synced in fine,
+    // they just never made it past the limit). Order by real lead recency so
+    // anything cut by the cap is the least-recent, not the most, and raise the
+    // cap comfortably above current real total.
     var res=await window.EPIC_SB.from('prospects')
       .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason,created_at,lead_entered_at')
       .in('pipeline_stage',ALL_STAGES)
       .order('priority_score',{ascending:false,nullsFirst:false})
+      .order('lead_entered_at',{ascending:false,nullsFirst:false})
       .order('created_at',{ascending:true})
-      .limit(300);
+      .limit(1500);
     if(res.error) throw new Error(res.error.message);
     var rows=res.data||[];
     var fu=await window.EPIC_SB.from('follow_ups').select('id,prospect_id,due_at').eq('done',false);
@@ -445,7 +452,15 @@ async function confirmBooking(){
   var btn=$('confirmBookBtn'); btn.disabled=true; btn.textContent='Booking on Calendly…';
   try{
     var r=await window.EPIC_SB.functions.invoke('calendly-book',{body:{prospect_id:lead.id, start_time:calTime, bant:qual, intent:hasIntent()}});
-    if(r.error||!r.data||!r.data.ok) throw new Error((r.data&&r.data.error)||r.error||'unknown error');
+    if(r.error||!r.data||!r.data.ok){
+      // supabase-js only gives a generic "non-2xx" message on r.error — the
+      // real reason is in the failed response body, reachable via r.error.context.
+      var msg=(r.data&&r.data.error)||null;
+      if(!msg&&r.error&&r.error.context&&typeof r.error.context.json==='function'){
+        try{ var body=await r.error.context.json(); msg=body&&(body.error||body.message); }catch(_){}
+      }
+      throw new Error(msg||(r.error&&r.error.message)||'unknown error');
+    }
     calBooked=true; btn.style.display='none';
     $('bookStatus').className='cstatus ok';
     $('bookStatus').innerHTML='✅ <b>Real Discovery Call booked</b> with Miki · '+calDate+' at '+new Date(calTime).toLocaleTimeString('en-US',{timeZone:'Pacific/Honolulu',hour:'numeric',minute:'2-digit'})+
@@ -633,7 +648,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.33.0'; /*suite-build*/
+  var SUITE_BUILD='1.35.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
