@@ -312,7 +312,37 @@
   }
   signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
   SB.auth.onAuthStateChange(function(){ refresh(); });
-  refresh();
+  // REAL BUG FIX (2026-07-06): this script tag runs BEFORE <div class="wrap"> further down the
+  // page has been parsed, so a bare initial call's querySelector('.wrap') always returned null --
+  // authorized/gate/sign-out all resolved correctly, but the reveal step silently no-op'd forever,
+  // leaving a permanently blank screen for a real signed-in owner (confirmed live, same root cause
+  // already found+fixed on Admin/Setter/Client Success/Closer this same day). Deferring to
+  // DOMContentLoaded guarantees .wrap (and #floatPanel) exist before this call runs.
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', refresh); } else { refresh(); }
+})();
+</script>
+<!-- ===== EPIC Suite: load-failure safety net (2026-07-06) — the sign-in check above fails
+     CLOSED (page stays blank until authorized), which is correct for security but meant a real
+     failure (CDN blocked, network hiccup, an unexpected error before the gate ever resolves) left
+     a permanently blank screen with no explanation. Shows a real, actionable message instead if
+     neither the gate nor the page ever appears — same pattern already shipped on the other 4
+     gated tools. ===== -->
+<script>
+(function(){
+  setTimeout(function(){
+    var wrapEl=document.querySelector('.wrap');
+    var gate=document.getElementById('epicAuthGate');
+    var wrapHidden=wrapEl && getComputedStyle(wrapEl).visibility==='hidden';
+    var gateHidden=gate ? gate.classList.contains('hidden') : true;
+    if(wrapHidden && gateHidden && !document.getElementById('epicLoadFail')){
+      var d=document.createElement('div');
+      d.id='epicLoadFail';
+      d.style.cssText='position:fixed;inset:0;z-index:2600;background:rgba(18,24,38,.94);color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font:600 .95rem -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+      d.innerHTML='<div>⚠️ Couldn’t load — check your connection and try again.<br><button type="button" style="margin-top:14px;padding:10px 22px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:#fff;color:#121826">Reload</button></div>';
+      d.querySelector('button').onclick=function(){ location.reload(); };
+      document.body.appendChild(d);
+    }
+  }, 7000);
 })();
 </script>
 
@@ -320,12 +350,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b27</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b28</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b28</span><p class="topic-exp" style="margin-top:2px;">Fixed a real blank-screen bug: a signed-in owner could load this page and see nothing but a dark screen — the sign-in check itself was working fine, but a timing race meant the page occasionally never revealed the actual content. Same bug already found and fixed on the rest of EPIC Suite the same day; now fixed here too. Also added a safety message if the page ever genuinely fails to load (network issue, etc.) instead of leaving an unexplained blank screen.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b27</span><p class="topic-exp" style="margin-top:2px;">The 401(k)-into-the-policy move now works the way it's actually done in the field. Real designs run a fixed, level premium every year — you can't just drop extra 401(k) money in as premium without risking the policy's own funding pattern and the 7-pay MEC test. So instead: when the tax math favors pulling 401(k) money out early (same rule as before — today's rate beats the projected RMD-age rate), the withdrawal now pays down the <b>outstanding policy loan</b> that ordinary lifestyle draws already built up, rather than becoming new premium. No MEC exposure, no premium-schedule change — just less debt against the policy going forward. The playbook and the ALIS card now describe it as a loan payoff, not a conversion. Honest note: this is still a greedy, year-by-year rule (an advisor can't see future returns either) — it fires more as the loan's own carrying cost pulls further ahead of the 401(k)'s growth rate, and can occasionally net a small loss in a thin-margin year. Real advisor judgment, not a global optimizer.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b26</span><p class="topic-exp" style="margin-top:2px;">Added the <b>enhanced target premium</b> (1.25× target — the payout basis when year-1 client premium exceeds target, which an overfunded design like this one usually does), tucked into a collapsed "Agent — commission basis" panel under Target premium since it's agent-only. Shows the enhanced number, the year-1 client premium, and which basis actually applies for this plan. Honest note: because the face auto-sizes to whatever premium is entered, target premium is always a small share (5–14%) of the funding that sized its own face — so Enhanced applies at essentially any premium above $0, not just occasionally. That's a structural consequence of the auto-sizing design, not a bug; "Standard" is there for completeness if the face-sizing model changes later.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b25</span><p class="topic-exp" style="margin-top:2px;">The policy design now knows the insured's <b>age and sex</b>, calibrated from six real AIUL&nbsp;26 illustrations (Standard non-smoker, both sexes, ages 30/45/60). The auto-sized death benefit uses the real face-per-premium curve — it shrinks with age and runs higher for women — instead of a flat age-30 male ratio (an older member was getting too much face, overstating cost). New <b>Male/Female toggle</b> up top. Added a <b>Target premium</b> line (the commission basis — set by age, sex and base face, scaling with funding) so commission can be figured from the plan; exposed for later commission tooling. Confirmed from the same six: the cost-of-insurance difference between the sexes is under 0.5% of cash value once the correct face is used, so the calibration stays a single table (no separate change needed).</p></div>
