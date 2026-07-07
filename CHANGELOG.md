@@ -1,5 +1,15 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.46.0** — **Epic Life Ledger (owner-only)**: the 401(k)-into-the-policy move now matches how it's
+  actually done in the field. Real designs run a fixed, level premium every year, so extra 401(k)
+  money can't simply become new premium without risking the 7-pay MEC test. Instead: when the tax
+  math favors an early 401(k) withdrawal (same rule as before), the proceeds now pay down the
+  outstanding POLICY LOAN that ordinary lifestyle draws already built up — no premium change, no
+  MEC exposure. Verified the mechanic responds correctly to the real trade-off (fires more as the
+  loan's carrying cost exceeds the 401(k)'s growth rate, and correctly stays off when growth clearly
+  wins); as a greedy year-by-year heuristic (same character as before) it can occasionally net
+  slightly negative in a thin-margin scenario — disclosed in the caveat, not hidden.
+
 - **1.45.0** — **Hub redesign**: Admin and the Epic Life Ledger are now full role cards on the hub
   (same style as the other four roles) instead of tiny footer links — same owner-only lock, just
   visible. The 🚀 "Building next" panel is now collapsed by default (tap the header to open it —

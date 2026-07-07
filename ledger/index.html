@@ -320,12 +320,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b26</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.06-b27</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b27</span><p class="topic-exp" style="margin-top:2px;">The 401(k)-into-the-policy move now works the way it's actually done in the field. Real designs run a fixed, level premium every year — you can't just drop extra 401(k) money in as premium without risking the policy's own funding pattern and the 7-pay MEC test. So instead: when the tax math favors pulling 401(k) money out early (same rule as before — today's rate beats the projected RMD-age rate), the withdrawal now pays down the <b>outstanding policy loan</b> that ordinary lifestyle draws already built up, rather than becoming new premium. No MEC exposure, no premium-schedule change — just less debt against the policy going forward. The playbook and the ALIS card now describe it as a loan payoff, not a conversion. Honest note: this is still a greedy, year-by-year rule (an advisor can't see future returns either) — it fires more as the loan's own carrying cost pulls further ahead of the 401(k)'s growth rate, and can occasionally net a small loss in a thin-margin year. Real advisor judgment, not a global optimizer.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b26</span><p class="topic-exp" style="margin-top:2px;">Added the <b>enhanced target premium</b> (1.25× target — the payout basis when year-1 client premium exceeds target, which an overfunded design like this one usually does), tucked into a collapsed "Agent — commission basis" panel under Target premium since it's agent-only. Shows the enhanced number, the year-1 client premium, and which basis actually applies for this plan. Honest note: because the face auto-sizes to whatever premium is entered, target premium is always a small share (5–14%) of the funding that sized its own face — so Enhanced applies at essentially any premium above $0, not just occasionally. That's a structural consequence of the auto-sizing design, not a bug; "Standard" is there for completeness if the face-sizing model changes later.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b25</span><p class="topic-exp" style="margin-top:2px;">The policy design now knows the insured's <b>age and sex</b>, calibrated from six real AIUL&nbsp;26 illustrations (Standard non-smoker, both sexes, ages 30/45/60). The auto-sized death benefit uses the real face-per-premium curve — it shrinks with age and runs higher for women — instead of a flat age-30 male ratio (an older member was getting too much face, overstating cost). New <b>Male/Female toggle</b> up top. Added a <b>Target premium</b> line (the commission basis — set by age, sex and base face, scaling with funding) so commission can be figured from the plan; exposed for later commission tooling. Confirmed from the same six: the cost-of-insurance difference between the sexes is under 0.5% of cash value once the correct face is used, so the calibration stays a single table (no separate change needed).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 6, 2026 — b24</span><p class="topic-exp" style="margin-top:2px;">Crediting assumption now comes as three labeled, defensible stories with one-click buttons: <b>6.40% honest long-run</b> (what the real 0% floor / 11.65% cap produces over the full 1928–2025 market record — the new default), <b>7.12% carrier illustration</b> (their current illustrated rate, calibrated to the stronger recent era), and <b>8.56% last-14-years actual</b> (what the carrier's first IUL really credited on average, 2011–2025). The slider still fine-tunes; the buttons make the choice of story explicit instead of hiding it in a default.</p></div>
@@ -2005,31 +2006,49 @@
       if (need > 1) break; // this year can't be funded → horizon ends
       covered = t + 1;
 
-      // --- Greedy bracket-fill conversion (always evaluated — the tool does the marginal math,
-      // the member sees every conversion it fired). Before RMDs begin at 73, compare two futures
-      // for one marginal qualified dollar: leave it (compounds at the member's growth assumption,
-      // forced out at the PROJECTED RMD-age marginal rate) vs convert now (taxed at today's rate,
-      // 10% penalty under 59½, then into the policy through the real premium expense charge,
-      // compounding at crediting, tax-free after). Fill brackets only while converting wins.
-      // The decision uses the member's flat assumptions — a real advisor can't see future returns —
-      // so under the stress test the RULE stays fixed while outcomes vary. Skipped in years the
-      // plan already had to force qualified above the ceiling just to fund the lifestyle.
-      let conv = 0, convTax = 0, convPen = 0, convNet = 0;
+      // --- Greedy bracket-fill LOAN PAYOFF (always evaluated — the tool does the marginal math,
+      // the member sees every payoff it fired). Real product mechanics, per Bruce: a real design
+      // takes a FIXED, level annual premium — you can't just dump extra 401(k) money in as premium
+      // without risking the policy's own funding pattern and the 7-pay MEC test. What advisors
+      // actually do instead: the policy loan already drains cash tax-free to fund lifestyle need
+      // every year (the ordinary heJ/poJ draws above); a 401(k) withdrawal, timed for tax
+      // efficiency, then pays that OUTSTANDING LOAN down — no new premium, no MEC exposure, just
+      // debt reduction against loanBal. Before RMDs begin at 73, compare two futures for one
+      // marginal qualified dollar: leave it (compounds at the member's growth assumption, forced
+      // out at the PROJECTED RMD-age marginal rate) vs withdraw now (taxed at today's rate, 10%
+      // penalty under 59½) to retire $1 of loan principal — avoiding that loan's own net carrying
+      // cost (its charge rate minus whatever it credits back, e.g. the Fixed Index bonus or the
+      // wash-loan credited rate) for the remaining years. Only fires while there's an outstanding
+      // loan to pay down, and never withdraws more than needed to zero it out — extra dollars
+      // beyond that have nowhere better to go under this mechanic, so they simply stay in
+      // qualified. Skipped in years the plan already had to force qualified above the ceiling.
+      let conv = 0, convTax = 0, convPen = 0;
       // window.EPIC_FORCE_NOCONVERT is a verification kill-switch (lets a harness reproduce the
-      // pre-conversion engine byte-for-byte); inp.noConvert is the per-run flag the delta tile uses.
-      if (window.EPIC_FORCE_NOCONVERT !== true && inp.noConvert !== true && inp.toolPolicy !== false && age < 73 && !forcedTopUp && qmBal - Q > 1000){
+      // pre-mechanic engine byte-for-byte); inp.noConvert is the per-run flag the delta tile uses.
+      if (window.EPIC_FORCE_NOCONVERT !== true && inp.noConvert !== true && inp.toolPolicy !== false && age < 73 && !forcedTopUp && qmBal - Q > 1000 && loanBal > 1000){
         const nYrs = HORIZON - t;
         const pen = age < 59.5 ? 0.10 : 0;
-        const chargeF = 1 - premChargePct(policyYear);
-        const growQm = Math.pow(1 + inp.qmGrowth, nYrs), growCv = Math.pow(1 + inp.credRate, nYrs);
+        // The loan's own net carrying cost — NOT the crediting rate. For a WASH loan this is exact:
+        // the drawn collateral physically moves to a separate account earning only washCredited, so
+        // charged-minus-credited IS the full opportunity cost (0 in policy years 11+, a true wash).
+        // For a Fixed Index loan the collateral never leaves cvFree — it keeps earning full
+        // crediting regardless of loanBal — so paying off principal avoids the FULL charge; the
+        // +0.65% bonus forgone is a smaller, separate, non-compounding-at-this-rate side effect
+        // (it credits annually into cvFree, which then compounds on its own at credRate) and is
+        // deliberately NOT netted into this decision rate — netting it in understates the real
+        // avoided cost and can make the heuristic wrongly refuse to fire whenever qmGrowth is
+        // anywhere near the loan's charge. The simulation still applies the real bonus every year
+        // regardless of what this heuristic decides (see the unconditional bonus line below).
+        const netCarryPct = inp.loanType === 'index' ? INDEX_LOAN_RATE : (washCharged(policyYear) - washCredited(policyYear));
+        const growQm = Math.pow(1 + inp.qmGrowth, nYrs), growPayoff = Math.pow(1 + Math.max(netCarryPct,0)/100, nYrs);
         const balAt73 = (qmBal - Q) * Math.pow(1 + inp.qmGrowth, Math.max(73 - age, 0));
         const futRate = marginalRatePct(taxableRentPos + balAt73/26.5, inp.filingStatus)/100;
         const leaveVal = growQm * (1 - futRate);
-        const winsAt = rate => (1 - rate - pen) * chargeF * growCv > leaveVal;
+        const winsAt = rate => (1 - rate - pen) * growPayoff > leaveVal;
         let convCap = qmBal - Q;
         let taxableNow = Math.max(taxableRentPos + Math.max(Q - deductionPool, 0), 0);
         // Dollars still covered by the passive-loss shield convert at a 0% rate — checked anyway
-        // (the premium charge, penalty, or a crediting-rate gap can lose even to a taxed future).
+        // (the penalty or a weak carrying-cost gap can still lose even to a taxed future).
         const shieldLeft = Math.max(deductionPool - Q, 0);
         if (shieldLeft > 0.5 && winsAt(0)){
           const take = Math.min(shieldLeft, convCap);
@@ -2045,7 +2064,14 @@
         if (conv > 0.5){
           convTax = taxFor(Q + conv) - taxFor(Q);   // exact incremental tax, shield-aware
           convPen = conv * pen;
-          convNet = (conv - convTax - convPen) * chargeF;
+          let payoff = conv - convTax - convPen;
+          // Never withdraw more than needed to zero the loan — scale the whole draw down
+          // proportionally (a fair approximation; bracket-fill tax is locally near-linear).
+          if (payoff > loanBal){
+            const scale = loanBal / payoff;
+            conv *= scale; convTax *= scale; convPen *= scale; payoff = loanBal;
+          }
+          loanBal = Math.max(loanBal - payoff, 0);
           rec.conv.total += conv; rec.conv.tax += convTax; rec.conv.penalty += convPen; rec.conv.years++;
         } else conv = 0;
       }
@@ -2070,7 +2096,7 @@
       const refiHere = rec.heloc.refis.find(r => r.t === t);
       if (refiHere) evts.push('Refi HELOC → 30-yr fixed ('+fmtCompact(refiHere.amount)+', '+fmtCompact(refiHere.payAnnual)+'/yr)');
       if (rmdForced) evts.push('RMD forces the 401(k) draw');
-      if (conv > 1) evts.push('Convert '+fmtCompact(conv)+' 401(k) → policy — '+fmtCompact(convTax+convPen)+' tax now beats the projected RMD-age rate');
+      if (conv > 1) evts.push('Withdraw '+fmtCompact(conv)+' from the 401(k) to pay down the policy loan — '+fmtCompact(convTax+convPen)+' tax now beats the projected RMD-age rate');
       if (policyService > 1) evts.push('Pay '+fmtCompact(policyService)+' policy loan interest (no-lapse)');
       if (helocCashInterest > 1) evts.push('Pay '+fmtCompact(helocCashInterest)+' HELOC interest in cash');
       if (ltcDraw > 1){
@@ -2083,11 +2109,12 @@
       if (qmBal > 0) qmBal *= (1 + (inp.mcSeq ? inp.mcSeq.qm[t] : inp.qmGrowth));
       // Ongoing policy costs continue in retirement — admin every year, plus the contract chassis
       // (COI on net-amount-at-risk, face charges, overfunding charge) when a face amount is set.
-      // Conversions are real premium into the policy: they raise cumPrem and enter before crediting
-      // (same full-year treatment premiums get in build years).
-      if (conv > 0.5) cumPrem += conv - convTax - convPen;
-      const polCostYr = policyCosts(inp.polCost, age, policyYear, cvFree + convNet + cvLoanAcct, cumPrem);
-      cvFree = Math.max((cvFree + convNet)*(1 + (inp.mcSeq ? inp.mcSeq.cred[t] : inp.credRate)) - POLICY_ADMIN_ANNUAL - polCostYr, 0);
+      // The loan payoff above touched loanBal only — it is NOT premium, so cumPrem/cash-value
+      // crediting are completely unaffected by it (this is the whole point of the redesign: real
+      // designs can't accept ad hoc extra premium, but paying down existing debt needs no such
+      // acceptance — it's just a smaller loanBal going into next year's interest accrual).
+      const polCostYr = policyCosts(inp.polCost, age, policyYear, cvFree + cvLoanAcct, cumPrem);
+      cvFree = Math.max(cvFree*(1 + (inp.mcSeq ? inp.mcSeq.cred[t] : inp.credRate)) - POLICY_ADMIN_ANNUAL - polCostYr, 0);
       if (cvLoanAcct > 0.5) cvLoanAcct *= (1 + washCredited(policyYear)/100);
       // AIUL 26 Fixed Index loan: the loaned collateral earns a guaranteed 0.65% bonus on top of
       // its crediting (which the single-bucket model already leaves in place).
@@ -2710,7 +2737,7 @@
       { label:'Total tax paid', val: fmtCompact(optimal.lifetimeTax) },
       { label:'Shield saved (tax)', val: fmtCompact(optimal.shieldTaxSaved) },
       { label:'Estate debt', val: fmtCompact(debtOf(optimal)) },
-      optimal.rec.conv.total > 1000 && { label:'401(k)→policy conversions', val: fmtCompact(optimal.rec.conv.total),
+      optimal.rec.conv.total > 1000 && { label:'401(k)→loan payoff', val: fmtCompact(optimal.rec.conv.total),
         sub: (convDelta>=0?'+':'−')+fmtCompact(Math.abs(convDelta))+' wealth vs none', subClass: convDelta>=0?'up':'down' },
       loanPick && { label:'Policy loan type', val: (LOAN_RESOLVED==='index' ? 'Fixed Index' : 'Wash'),
         sub: 'ALIS pick · +'+fmtCompact(loanPick.delta)+' vs the other', subClass:'up' },
