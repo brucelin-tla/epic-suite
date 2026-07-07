@@ -215,6 +215,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
         <div class="note" id="teamMsg" style="margin-top:8px"></div>
       </div>
       <div class="panel">
+        <div class="lbl">🔁 Sales Hub sync — refresh real leads from the CRM</div>
+        <div class="note" id="salesHubStatus">Checking last sync…</div>
+        <div style="margin-top:11px"><button id="salesHubSyncBtn" style="padding:10px 16px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:var(--accent,#253984);color:#fff">Sync now</button></div>
+        <div class="note" id="salesHubMsg" style="margin-top:10px;white-space:pre-wrap"></div>
+      </div>
+      <div class="panel">
         <div class="lbl">📞 Fathom call sync — real calls → real data</div>
         <div class="note">One-time setup: Register the webhook once (after adding <code>FATHOM_API_KEY</code> as a project secret), copy the returned secret into <code>FATHOM_WEBHOOK_SECRET</code>, then Run backfill — safe to click again anytime, already-processed calls are skipped.</div>
         <div style="display:flex;gap:8px;margin-top:11px;flex-wrap:wrap">
@@ -268,6 +274,22 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
     }catch(e){ msg.textContent='Network error — try again.'; }
     btn.disabled=false;
   };
+  async function loadSalesHubStatus(){
+    var el=document.getElementById('salesHubStatus');
+    var r=await window.EPIC_SB.from('sync_state').select('last_synced_at,last_status').eq('source','sales-hub-fabric').maybeSingle();
+    if(r.error||!r.data){ el.textContent='No sync recorded yet — click Sync now.'; return; }
+    var when=r.data.last_synced_at?new Date(r.data.last_synced_at).toLocaleString():'never';
+    el.textContent='Last synced: '+when+' — '+(r.data.last_status||'');
+  }
+  document.getElementById('salesHubSyncBtn').onclick=async function(){
+    var msg=document.getElementById('salesHubMsg'); var btn=this; btn.disabled=true; msg.textContent='Syncing from Sales Hub…';
+    try{
+      var r=await window.EPIC_SB.functions.invoke('sales-hub-sync',{body:{}});
+      if(r.error||!r.data||!r.data.ok){ msg.textContent='Could not sync: '+JSON.stringify((r.data&&r.data.error)||r.error||'unknown error'); }
+      else { msg.textContent='✅ Synced '+r.data.upserted+' leads (of '+r.data.contacts_seen+' contacts, '+r.data.deals_seen+' deals).'; loadSalesHubStatus(); }
+    }catch(e){ msg.textContent='Network error — try again.'; }
+    btn.disabled=false;
+  };
   var FATHOM_WEBHOOK_URL='https://widdgynledwpqaqndtvz.supabase.co/functions/v1/fathom-webhook';
   document.getElementById('fathomRegisterBtn').onclick=async function(){
     var msg=document.getElementById('fathomMsg'); var btn=this; btn.disabled=true; msg.textContent='Registering…';
@@ -295,7 +317,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
     }catch(e){ msg.textContent='Network error — try again.'; }
     btn.disabled=false;
   };
-  window.onEpicAuthed=function(){ loadTeam(); loadSuggestions(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
+  window.onEpicAuthed=function(){ loadTeam(); loadSuggestions(); loadSalesHubStatus(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
 })();
 </script>
 <script>
@@ -398,7 +420,7 @@ async function loadSuggestions(){
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.31.0'; /*suite-build*/
+  var SUITE_BUILD='1.32.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

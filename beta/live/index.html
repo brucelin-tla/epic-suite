@@ -706,6 +706,10 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.32.0',d:'2026-07-06',n:[
+ "Setter: the New tab now sorts strictly by when the lead actually entered the CRM (newest first), automatically — not by AI priority score, which isn't populated yet. Each card shows \"entered Xd ago.\"",
+ "Backend: real lead-entry dates now sync from Sales Hub (previously only a sync-batch timestamp was stored, which made every lead look equally \"new\"). Admin gets a one-click \"Sync now\" to refresh leads on demand.",
+]},
 {v:'1.31.0',d:'2026-07-06',n:[
  "Setter: Fresh leads are now 3 real filter tabs — New, Callbacks, and No-shows — instead of one mixed list, each with a live count and a due-follow-up badge.",
  "Setter: logging a Callback or No answer now saves a real follow-up (due tomorrow) instead of just updating on-screen counters, so a lead you need to re-call doesn't quietly disappear when you refresh.",

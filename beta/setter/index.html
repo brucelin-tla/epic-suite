@@ -262,8 +262,8 @@ function followupDue(outcomeKey){
   var d=new Date(); d.setDate(d.getDate()+1); d.setHours(9,0,0,0); return d.toISOString();
 }
 const DEMO_LEADS=[
- {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Demo lead — live data unavailable',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago',tab:'new',due_at:null,isDemo:true},
- {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Demo lead — live data unavailable',src:'Callback',reason:'Asked for a callback',phone:'(602) 555-0132',when:'contacted yesterday',tab:'callback',due_at:null,isDemo:true}
+ {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Demo lead — live data unavailable',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago',tab:'new',due_at:null,entered_at:new Date(Date.now()-2*3600e3).toISOString(),isDemo:true},
+ {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Demo lead — live data unavailable',src:'Callback',reason:'Asked for a callback',phone:'(602) 555-0132',when:'contacted yesterday',tab:'callback',due_at:null,entered_at:new Date(Date.now()-86400e3).toISOString(),isDemo:true}
 ];
 let ALL_LEADS=DEMO_LEADS.slice();
 let FOLLOWUPS={}; // prospect_id -> open follow_ups row {id,due_at}
@@ -281,7 +281,7 @@ async function loadQueue(){
   try{
     if(!window.EPIC_SB) throw new Error('Not signed in yet');
     var res=await window.EPIC_SB.from('prospects')
-      .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason')
+      .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason,created_at,lead_entered_at')
       .in('pipeline_stage',ALL_STAGES)
       .order('priority_score',{ascending:false,nullsFirst:false})
       .order('created_at',{ascending:true})
@@ -295,12 +295,14 @@ async function loadQueue(){
       if(!ex||new Date(f.due_at||0)<new Date(ex.due_at||0)) FOLLOWUPS[f.prospect_id]=f;
     });
     if(rows.length===0){ ALL_LEADS=DEMO_LEADS; toast('No live Sales Hub leads in queue — showing demo'); }
-    else { ALL_LEADS=rows.map(function(r){ var nm=titleCase(r.name); var f=FOLLOWUPS[r.id]; return {
+    else { ALL_LEADS=rows.map(function(r){ var nm=titleCase(r.name); var f=FOLLOWUPS[r.id];
+      var entered=r.lead_entered_at||r.created_at; // real CRM entry date once synced; falls back until a re-sync backfills it
+      return {
       id:r.id, ini:initials(nm), nm:nm,
       sub:r.priority_reason||('Sales Hub · '+shortStage(r.pipeline_stage)),
       src:shortStage(r.pipeline_stage), reason:r.priority_reason||shortStage(r.pipeline_stage),
       phone:formatPhone(r.phone), when:relTime(r.last_contact_at),
-      tab:tabFor(r.pipeline_stage), due_at:f?f.due_at:null, isDemo:false
+      tab:tabFor(r.pipeline_stage), due_at:f?f.due_at:null, entered_at:entered, isDemo:false
     };}); }
   }catch(e){ ALL_LEADS=DEMO_LEADS; toast('Could not load live leads — showing demo'); console.error('loadQueue',e); }
   renderTabs(); setTab(activeTab);
@@ -308,7 +310,13 @@ async function loadQueue(){
 window.onEpicAuthed=function(){ loadQueue(); };
 function currentLeads(){
   var arr=ALL_LEADS.filter(function(l){return l.tab===activeTab;});
-  if(activeTab==='callback'||activeTab==='noshow'){
+  if(activeTab==='new'){
+    // New tab is always strict entry-order (newest lead first), automatically —
+    // based on when the lead actually entered the CRM (lead_entered_at), not
+    // AI priority — so a lead that's been sitting never gets buried under one
+    // that just scored higher.
+    arr.sort(function(a,b){ return new Date(b.entered_at||0)-new Date(a.entered_at||0); });
+  } else if(activeTab==='callback'||activeTab==='noshow'){
     arr.sort(function(a,b){
       var ad=a.due_at?new Date(a.due_at).getTime():Infinity, bd=b.due_at?new Date(b.due_at).getTime():Infinity;
       return ad-bd;
@@ -336,7 +344,8 @@ function renderQueue(){
   var LEADS=currentLeads();
   $('queueList').innerHTML=LEADS.map(function(l,i){
     var dl=dueLabel(l.due_at);
-    return '<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+(dl?' · '+dl:'')+'</div></div><span class="qsrc">'+l.src+'</span></div>';
+    var extra=activeTab==='new'?(' · entered '+relTime(l.entered_at)):(dl?' · '+dl:'');
+    return '<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+extra+'</div></div><span class="qsrc">'+l.src+'</span></div>';
   }).join('');
   document.querySelectorAll('.qcard').forEach(c=>c.onclick=()=>{cur=+c.dataset.i;selectLead();});
   $('qCount').textContent=LEADS.length+' to work';
@@ -473,6 +482,9 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Setter', SEEN='epic_setter_seen';
   var NOTES=[
+  {v:'1.3.0',d:'2026-07-06',n:[
+   "New tab now sorts strictly by when the lead actually entered the CRM (newest first), automatically — no more relying on AI priority score, which isn't populated yet. Each card shows \"entered Xd ago.\"",
+  ]},
   {v:'1.2.0',d:'2026-07-06',n:[
    "Fresh leads are now 3 real filter tabs on the left — New, Callbacks, and No-shows (Discovery/Whale/3B) — instead of one mixed list. Each tab shows a live count.",
    "Real follow-up tracking: logging Callback or No answer now saves a real due-tomorrow follow-up, and the Callbacks/No-shows tabs sort the most overdue lead first — a 🔴/🟡/📅 due badge shows on the card. A \"due\" counter up top shows how many are overdue right now, so nothing falls through the cracks.",
@@ -564,7 +576,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.31.0'; /*suite-build*/
+  var SUITE_BUILD='1.32.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
