@@ -22,6 +22,12 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px;margin-bottom:12px;box-shadow:0 1px 3px rgba(18,24,38,.04)}
 .lbl{font-size:.66rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600}
 .qhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;font-size:.82rem}.qhead .m{color:var(--text2);font-size:.72rem}
+.tabrow{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.tabbtn{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:9px 11px;font-size:.8rem;font-weight:700;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);color:var(--text);cursor:pointer;text-align:left}
+.tabbtn.active{background:var(--warn-badge-bg);border-color:var(--gold);color:var(--warn-badge)}
+.tabn{font-size:.68rem;font-weight:800;background:var(--surface2);color:var(--text2);padding:2px 7px;border-radius:999px}
+.tabbtn.active .tabn{background:#fff;color:var(--warn-badge)}
+.tabdue{font-size:.62rem;font-weight:800;color:#87451D;background:#FFFBEC;padding:2px 7px;border-radius:999px}
 .qcard{display:flex;gap:9px;align-items:center;padding:9px 11px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);margin-bottom:7px;cursor:pointer}
 .qcard.active{background:var(--warn-badge-bg);border-color:var(--gold)}
 .qbody{flex:1;min-width:0}.qname{font-weight:700;font-size:.86rem}.qreason{font-size:.72rem;color:var(--text2)}
@@ -64,6 +70,7 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
   .brand h1{font-size:1.2rem}.brand .sub{font-size:.78rem}
   .stats{width:100%;gap:6px}.stat{flex:1;padding:7px 4px}.stat b{font-size:1.1rem}
   .say{font-size:1rem}
+  .tabbtn{font-size:.86rem;padding:12px 13px}
   .chip{font-size:.88rem;padding:11px 14px}
   .closer{font-size:.86rem;padding:11px 13px}
   .cal-date{padding:8px 2px;font-size:.66rem}
@@ -155,16 +162,18 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
   <header>
     <div class="brand"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h1>🎯 EPIC Setter</h1><span id="ver">v…</span></div><div class="sub">Book qualified appointments for the closers</div></div>
     <div class="stats">
-      <div class="stat"><b id="s-dials">18</b><span>dials</span></div>
-      <div class="stat"><b id="s-conv" style="color:var(--gold)">6</b><span>convos</span></div>
-      <div class="stat"><b id="s-set" style="color:var(--accent)">3</b><span>sets</span></div>
+      <div class="stat"><b id="s-dials">0</b><span>dials</span></div>
+      <div class="stat"><b id="s-conv" style="color:var(--gold)">0</b><span>convos</span></div>
+      <div class="stat"><b id="s-set" style="color:var(--accent)">0</b><span>sets</span></div>
+      <div class="stat"><b id="s-due" style="color:#CB7C2E">0</b><span>due</span></div>
       <div class="stat"><b id="s-queue">—</b><span>queue</span></div>
     </div>
   </header>
 
   <div class="grid">
     <div>
-      <div class="qhead"><b>Fresh leads</b><span class="m" id="qCount">—</span></div>
+      <div id="tabRow" class="tabrow"></div>
+      <div class="qhead"><span class="m" id="qCount">—</span></div>
       <div id="queueList"></div>
     </div>
 
@@ -232,20 +241,33 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 <script>
 const $=id=>document.getElementById(id);
 function toast(t){var e=$('toast');e.textContent=t;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1900);}
-// ── Real Sales Hub leads (2026-07-04, real-auth version): reads `prospects`
-// directly with the signed-in member's session (window.EPIC_SB, set by the
-// auth-gate block above) — RLS already requires `authenticated`, so this is
-// a real per-user-gated read, not the earlier interim unauthenticated
-// `setter-queue` Edge Function call. Filtered to early-funnel stages Setter
-// actually works, ordered by `priority_score`. Falls back to a couple of
-// demo cards if the query fails so the page never shows a dead UI.
-const SETTER_STAGE_PATTERNS=['1.%','2.%','4 %','8.%'];
-const DEMO_LEADS=[
- {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Demo lead — live data unavailable',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago'},
- {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Demo lead — live data unavailable',src:'Referral',reason:'Referred by a member',phone:'(602) 555-0132',when:'referred yesterday'}
+// ── Real Sales Hub leads, split into 3 real filter tabs (2026-07-06) ──
+// Stage strings below are Sales Hub's own real pipeline-stage text, read
+// straight off live prospects data (not guessed) — sales-hub-sync writes
+// pipeline_stage verbatim from the CRM. "New leads/referrals": today this
+// tab only shows brand-new Sales Hub leads — warm referrals live in a
+// separate referrals/deals table that isn't joined into this queue yet
+// (a real gap, not faked here as if it were covered).
+const TABS=[
+ {key:'new', label:'🆕 New', stages:['1. New Lead']},
+ {key:'callback', label:'☎️ Callbacks', stages:['2. Contacted - Need Call back']},
+ {key:'noshow', label:'🚫 No-shows', stages:['4 Discovery Call - No Show','6. Whale - No Show','8. 3B Report - No Show']}
 ];
-let LEADS=DEMO_LEADS;
-let cur=0, qual={}, closer='Ana — Sr closer', calDate=null, calTime=null;
+const ALL_STAGES=TABS.reduce(function(a,t){return a.concat(t.stages);},[]);
+function tabFor(stage){ var t=TABS.filter(function(t){return t.stages.indexOf(stage)>-1;})[0]; return t?t.key:'new'; }
+// outcome → real call_logs.outcome + whether it opens a real follow-up
+const OUTCOME_MAP={set:'booked',callback:'connected',nofit:'not_interested',noans:'no_answer'};
+function followupDue(outcomeKey){
+  if(outcomeKey!=='callback'&&outcomeKey!=='noans') return null;
+  var d=new Date(); d.setDate(d.getDate()+1); d.setHours(9,0,0,0); return d.toISOString();
+}
+const DEMO_LEADS=[
+ {id:'marcus',ini:'MB',nm:'Marcus Bell',sub:'Demo lead — live data unavailable',src:'New lead',reason:'Form fill 2h ago',phone:'(404) 555-0119',when:'form fill 2h ago',tab:'new',due_at:null,isDemo:true},
+ {id:'sofia',ini:'SR',nm:'Sofia Reyes',sub:'Demo lead — live data unavailable',src:'Callback',reason:'Asked for a callback',phone:'(602) 555-0132',when:'contacted yesterday',tab:'callback',due_at:null,isDemo:true}
+];
+let ALL_LEADS=DEMO_LEADS.slice();
+let FOLLOWUPS={}; // prospect_id -> open follow_ups row {id,due_at}
+let activeTab='new', cur=0, qual={}, closer='Ana — Sr closer', calDate=null, calTime=null;
 function initials(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
 function titleCase(name){ return (name||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
 function shortStage(stage){ return (stage||'Sales Hub lead').replace(/^\d+\.?\s*/,''); }
@@ -253,37 +275,76 @@ function formatPhone(p){ if(!p) return '—'; var d=p.replace(/\D/g,'').replace(
 function relTime(iso){ if(!iso) return 'no contact on file'; var days=Math.floor((Date.now()-new Date(iso).getTime())/86400000);
   if(days<0) return 'just now'; if(days===0) return 'today'; if(days===1) return '1 day ago'; if(days<30) return days+' days ago';
   var mo=Math.floor(days/30); return mo+(mo===1?' month ago':' months ago'); }
+function dueLabel(iso){ if(!iso) return null; var ms=new Date(iso).getTime()-Date.now();
+  if(ms<=0) return '🔴 overdue'; var days=Math.ceil(ms/86400000); return days<=1?'🟡 due today':'📅 due in '+days+'d'; }
 async function loadQueue(){
   try{
     if(!window.EPIC_SB) throw new Error('Not signed in yet');
-    var orFilter=SETTER_STAGE_PATTERNS.map(function(p){return 'pipeline_stage.ilike.'+p;}).join(',');
     var res=await window.EPIC_SB.from('prospects')
       .select('id,name,phone,pipeline_stage,deal_value,last_contact_at,priority_score,priority_reason')
-      .or(orFilter)
+      .in('pipeline_stage',ALL_STAGES)
       .order('priority_score',{ascending:false,nullsFirst:false})
       .order('created_at',{ascending:true})
-      .limit(50);
+      .limit(300);
     if(res.error) throw new Error(res.error.message);
     var rows=res.data||[];
-    if(rows.length===0){ LEADS=DEMO_LEADS; toast('No live Sales Hub leads in queue — showing demo'); }
-    else { LEADS=rows.map(function(r){ var nm=titleCase(r.name); return {
+    var fu=await window.EPIC_SB.from('follow_ups').select('id,prospect_id,due_at').eq('done',false);
+    FOLLOWUPS={};
+    if(!fu.error) (fu.data||[]).forEach(function(f){
+      var ex=FOLLOWUPS[f.prospect_id];
+      if(!ex||new Date(f.due_at||0)<new Date(ex.due_at||0)) FOLLOWUPS[f.prospect_id]=f;
+    });
+    if(rows.length===0){ ALL_LEADS=DEMO_LEADS; toast('No live Sales Hub leads in queue — showing demo'); }
+    else { ALL_LEADS=rows.map(function(r){ var nm=titleCase(r.name); var f=FOLLOWUPS[r.id]; return {
       id:r.id, ini:initials(nm), nm:nm,
       sub:r.priority_reason||('Sales Hub · '+shortStage(r.pipeline_stage)),
       src:shortStage(r.pipeline_stage), reason:r.priority_reason||shortStage(r.pipeline_stage),
-      phone:formatPhone(r.phone), when:relTime(r.last_contact_at)
+      phone:formatPhone(r.phone), when:relTime(r.last_contact_at),
+      tab:tabFor(r.pipeline_stage), due_at:f?f.due_at:null, isDemo:false
     };}); }
-  }catch(e){ LEADS=DEMO_LEADS; toast('Could not load live leads — showing demo'); console.error('loadQueue',e); }
-  cur=0; renderQueue(); selectLead();
+  }catch(e){ ALL_LEADS=DEMO_LEADS; toast('Could not load live leads — showing demo'); console.error('loadQueue',e); }
+  renderTabs(); setTab(activeTab);
 }
 window.onEpicAuthed=function(){ loadQueue(); };
+function currentLeads(){
+  var arr=ALL_LEADS.filter(function(l){return l.tab===activeTab;});
+  if(activeTab==='callback'||activeTab==='noshow'){
+    arr.sort(function(a,b){
+      var ad=a.due_at?new Date(a.due_at).getTime():Infinity, bd=b.due_at?new Date(b.due_at).getTime():Infinity;
+      return ad-bd;
+    });
+  }
+  return arr;
+}
+function renderTabs(){
+  var box=$('tabRow'); if(!box) return;
+  var now=Date.now();
+  box.innerHTML=TABS.map(function(t){
+    var members=ALL_LEADS.filter(function(l){return l.tab===t.key;});
+    var due=members.filter(function(l){return l.due_at&&new Date(l.due_at).getTime()<=now;}).length;
+    return '<button class="tabbtn'+(t.key===activeTab?' active':'')+'" data-t="'+t.key+'">'+
+      '<span>'+t.label+'</span><span><span class="tabn">'+members.length+'</span>'+(due?' <span class="tabdue">'+due+' due</span>':'')+'</span></button>';
+  }).join('');
+  box.querySelectorAll('.tabbtn').forEach(function(b){ b.onclick=function(){ setTab(b.getAttribute('data-t')); }; });
+}
+function setTab(key){
+  activeTab=key; cur=0; renderTabs(); renderQueue(); selectLead();
+  var now=Date.now();
+  $('s-due').textContent=ALL_LEADS.filter(function(l){return l.due_at&&new Date(l.due_at).getTime()<=now;}).length;
+}
 function renderQueue(){
-  $('queueList').innerHTML=LEADS.map((l,i)=>'<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+'</div></div><span class="qsrc">'+l.src+'</span></div>').join('');
+  var LEADS=currentLeads();
+  $('queueList').innerHTML=LEADS.map(function(l,i){
+    var dl=dueLabel(l.due_at);
+    return '<div class="qcard'+(i===cur?' active':'')+'" data-i="'+i+'"><div class="qbody"><div class="qname">'+l.nm+'</div><div class="qreason">'+l.reason+(dl?' · '+dl:'')+'</div></div><span class="qsrc">'+l.src+'</span></div>';
+  }).join('');
   document.querySelectorAll('.qcard').forEach(c=>c.onclick=()=>{cur=+c.dataset.i;selectLead();});
   $('qCount').textContent=LEADS.length+' to work';
   $('s-queue').textContent=LEADS.length;
 }
 function selectLead(){
-  if(LEADS.length===0){ $('pAvatar').textContent='—'; $('pName').textContent='Queue empty'; $('pSub').textContent='No fresh leads right now — nice work.'; $('pSrc').textContent=''; $('pPhone').textContent='—'; $('pWhen').textContent=''; return; }
+  var LEADS=currentLeads();
+  if(LEADS.length===0){ $('pAvatar').textContent='—'; $('pName').textContent='Queue empty'; $('pSub').textContent='Nothing in this list right now — nice work.'; $('pSrc').textContent=''; $('pPhone').textContent='—'; $('pWhen').textContent=''; return; }
   var l=LEADS[cur]; $('pAvatar').textContent=l.ini; $('pName').textContent=l.nm; $('pSub').textContent=l.sub;
   $('pSrc').textContent=l.src; $('pPhone').textContent=l.phone; $('pWhen').textContent=l.when;
   qual={}; document.querySelectorAll('#qualChips .chip').forEach(c=>c.classList.remove('sel'));
@@ -291,6 +352,24 @@ function selectLead(){
   updateFit(); document.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
   calDate=null; calTime=null; renderDates(); $('bookStatus').className='cstatus'; $('bookStatus').textContent='Pick a closer, day, and time.';
   document.querySelectorAll('.qcard').forEach((c,i)=>c.classList.toggle('active',i===cur));
+}
+// ── Real tracking: every logged outcome writes a real call_logs row; a
+// callback or no-answer also opens a real follow_ups row (due tomorrow
+// 9am by default) so it resurfaces here instead of silently vanishing.
+// Writable by any authenticated rep (RLS: rep_id = auth.uid()), not just
+// the owner — this works the same way once real BDR accounts exist.
+async function persistOutcome(lead,outcomeKey){
+  if(!window.EPIC_SB||lead.isDemo) return;
+  try{
+    var sess=(await window.EPIC_SB.auth.getSession()).data.session;
+    if(!sess) return;
+    var me=sess.user.id;
+    await window.EPIC_SB.from('call_logs').insert({prospect_id:lead.id, rep_id:me, outcome:OUTCOME_MAP[outcomeKey]||'connected'});
+    var open=FOLLOWUPS[lead.id];
+    if(open) await window.EPIC_SB.from('follow_ups').update({done:true}).eq('id',open.id);
+    var due=followupDue(outcomeKey);
+    if(due) await window.EPIC_SB.from('follow_ups').insert({prospect_id:lead.id, rep_id:me, due_at:due, action:outcomeKey==='noans'?'Retry — no answer':'Callback requested'});
+  }catch(e){ console.error('persistOutcome',e); toast('⚠️ Logged locally — could not save to the real record'); }
 }
 function isQualified(){ return !!(qual.budget && qual.authority && (qual.need||qual.timeline)); }
 function hasIntent(){ return !!($('intentChk')&&$('intentChk').checked); }
@@ -323,9 +402,13 @@ document.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{document.querySelect
 function bump(id){$(id).textContent=+$(id).textContent+1;}
 function logNext(){
   var sel=document.querySelector('.opt.sel'); if(!sel){toast('Pick an outcome (1–4)');return;}
+  var LEADS=currentLeads(), lead=LEADS[cur];
   bump('s-dials'); if(sel.dataset.o!=='noans')bump('s-conv'); if(sel.dataset.o==='set')bump('s-set');
-  LEADS.splice(cur,1); if(cur>=LEADS.length)cur=0;
-  renderQueue(); selectLead(); toast('Logged ✓ · next lead');
+  if(lead){
+    persistOutcome(lead, sel.dataset.o);
+    var idx=ALL_LEADS.indexOf(lead); if(idx>-1) ALL_LEADS.splice(idx,1);
+  }
+  cur=0; renderTabs(); renderQueue(); selectLead(); toast('Logged ✓ · next lead');
 }
 $('nextBtn').onclick=logNext;
 document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName))return;
@@ -333,7 +416,7 @@ document.addEventListener('keydown',e=>{ if(/INPUT|TEXTAREA/.test((document.acti
   if(m[e.key]){var o=document.querySelector('.opt[data-o="'+m[e.key]+'"]');document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));o.classList.add('sel');e.preventDefault();}
   else if(e.key==='Enter'){logNext();e.preventDefault();}
 });
-renderDates(); renderQueue(); selectLead(); // loadQueue() itself fires from window.onEpicAuthed once signed in
+renderDates(); renderTabs(); renderQueue(); selectLead(); // loadQueue() itself fires from window.onEpicAuthed once signed in
 </script>
 
 <!-- ===== EPIC Suite: beta toggle + What's new (self-contained) ===== -->
@@ -390,6 +473,11 @@ body{padding-top:46px}
   // ---- What's new (per role) ----
   var TITLE='EPIC Setter', SEEN='epic_setter_seen';
   var NOTES=[
+  {v:'1.2.0',d:'2026-07-06',n:[
+   "Fresh leads are now 3 real filter tabs on the left — New, Callbacks, and No-shows (Discovery/Whale/3B) — instead of one mixed list. Each tab shows a live count.",
+   "Real follow-up tracking: logging Callback or No answer now saves a real due-tomorrow follow-up, and the Callbacks/No-shows tabs sort the most overdue lead first — a 🔴/🟡/📅 due badge shows on the card. A \"due\" counter up top shows how many are overdue right now, so nothing falls through the cracks.",
+   "Every outcome you log (Set / Callback / Not a fit / No answer) now saves a real call record, not just an on-screen tally — the dials/convos/sets counters start at 0 each session instead of a pre-filled demo number.",
+  ]},
   {v:'1.1.0',d:'2026-07-04',n:[
    "Real sign-in required (same one-tap email link as Referral Partner) — no more shared beta code for access.",
    "The queue is now real Sales Hub leads once you're signed in — fresh + needs-follow-up stages, ranked by an AI priority score. Falls back to demo cards only if the live feed can't load.",
@@ -476,7 +564,7 @@ w.appendChild(p);})();
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.30.0'; /*suite-build*/
+  var SUITE_BUILD='1.31.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;

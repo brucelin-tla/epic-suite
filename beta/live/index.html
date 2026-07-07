@@ -706,6 +706,11 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.31.0',d:'2026-07-06',n:[
+ "Setter: Fresh leads are now 3 real filter tabs — New, Callbacks, and No-shows — instead of one mixed list, each with a live count and a due-follow-up badge.",
+ "Setter: logging a Callback or No answer now saves a real follow-up (due tomorrow) instead of just updating on-screen counters, so a lead you need to re-call doesn't quietly disappear when you refresh.",
+ "Admin: the Latest suggestions panel now shows the real feed from every tool's 💡 suggestion box, with a one-click \"mark reviewed.\"",
+]},
 {v:'1.30.0',d:'2026-07-05',n:[
  "Sign in once, from the EPIC Suite hub — every tool now unlocks based on your role instead of asking you to sign in separately each time. Roles rank Admin > Client Success > Closer > Setter > Referral Partner, and reaching a rank unlocks everything below it too. The hub shows a locked/unlocked chip on every tool so it's clear what you can open.",
 ]},

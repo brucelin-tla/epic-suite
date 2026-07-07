@@ -196,8 +196,8 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
       </div>
       <div class="panel">
         <div class="lbl">💡 Latest suggestions</div>
-        <div id="suggestions"></div>
-        <div class="note">Samples — live feed wires to Supabase (<code>epic_suggestions</code>) as a follow-up; admin auth (below) is done.</div>
+        <div id="suggestions">Loading…</div>
+        <div class="note">Real feed from every tool's 💡 suggestion box (<code>epic_suggestions</code>) — click "mark reviewed" once you've read one.</div>
       </div>
       <div class="panel">
         <div class="lbl">👥 Team — emails &amp; roles</div>
@@ -295,7 +295,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
     }catch(e){ msg.textContent='Network error — try again.'; }
     btn.disabled=false;
   };
-  window.onEpicAuthed=function(){ loadTeam(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
+  window.onEpicAuthed=function(){ loadTeam(); loadSuggestions(); if(typeof window.__epicAdminBoot==='function') window.__epicAdminBoot(); };
 })();
 </script>
 <script>
@@ -337,11 +337,6 @@ const BDRQUAL=[
  {nm:'Jordan Poe',booked:4,qual:2,bant:78,noshow:1,verified:200,pending:0}
 ];
 const CSBOARD=[{nm:'Renee Webb',d:3},{nm:'Priya Nair',d:2}];
-const SUGGESTIONS=[
- {r:'EPIC Setter',t:'Let me text the strategy-call reminder from inside the tool.'},
- {r:'EPIC Closer',t:'Add a one-tap "send the recording" after the call.'},
- {r:'Referral Partner',t:'Show me which closer is working my referral right now.'}
-];
 const STLABEL={sub:['Submitted','st-sub'],book:['Booked','st-book'],close:['Closed','st-close'],join:['Joined','st-join']};
 // per-deal commission (closed/joined only)
 function dealComm(i){ if(i.stage!=='close'&&i.stage!=='join') return null;
@@ -367,7 +362,35 @@ document.querySelectorAll('.lbtab').forEach(t=>t.onclick=()=>renderBoard(t.datas
 renderBoard('partners');
 $('csboard').innerHTML=CSBOARD.map((l,i)=>'<div class="lead"><span class="rank'+(i===0?' g':'')+'">'+(i+1)+'</span><div class="who"><b>'+l.nm+'</b><span>'+l.d+' onboarded</span></div></div>').join('');
 $('bdrqual').innerHTML='<tr><th>BDR</th><th>Booked</th><th>Qual</th><th>Rate</th><th>BANT match</th><th>No-show</th><th>$ verified</th><th>$ pending</th></tr>'+BDRQUAL.map(function(b){var rate=Math.round(b.qual/b.booked*100);var low=b.bant<85;return '<tr><td><b>'+b.nm+'</b></td><td>'+b.booked+'</td><td>'+b.qual+'</td><td>'+rate+'%</td><td style="font-weight:700;color:'+(low?'#87451D':'#3C7E44')+'">'+b.bant+'%'+(low?' ⚠️':'')+'</td><td>'+b.noshow+'</td><td class="comm">$'+b.verified+'</td><td class="comm pend">'+(b.pending?'$'+b.pending:'—')+'</td></tr>';}).join('');
-$('suggestions').innerHTML=SUGGESTIONS.map(s=>'<div class="sug"><div class="r">'+s.r+'</div><p>'+s.t+'</p></div>').join('');
+// ── Real suggestions (2026-07-06): epic_suggestions now has an owner-only
+// select+update RLS policy (migration epic_suggestions_owner_read_update) —
+// this used to be a hardcoded SUGGESTIONS demo array with no live read path
+// at all (the table was anon-insert-only, unreadable from any browser).
+function sugEsc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function sugWhen(iso){ var days=Math.floor((Date.now()-new Date(iso).getTime())/86400000);
+  if(days<=0) return 'today'; if(days===1) return '1 day ago'; return days+' days ago'; }
+async function loadSuggestions(){
+  var box=$('suggestions');
+  var r=await window.EPIC_SB.from('epic_suggestions').select('id,role,text,meta,status,created_at').order('created_at',{ascending:false}).limit(50);
+  if(r.error){ box.textContent='Could not load suggestions: '+r.error.message; return; }
+  var rows=r.data||[];
+  if(rows.length===0){ box.innerHTML='No suggestions submitted yet.'; return; }
+  box.innerHTML=rows.map(function(s){
+    var page=(s.meta&&s.meta.page)?' · '+sugEsc(s.meta.page):'';
+    return '<div class="sug" style="opacity:'+(s.status==='reviewed'?'.55':'1')+'">'+
+      '<div class="r">'+sugEsc(s.role)+page+' · '+sugWhen(s.created_at)+'</div>'+
+      '<p>'+sugEsc(s.text)+'</p>'+
+      '<div style="margin-top:6px"><span class="sugRevBtn" data-id="'+s.id+'" style="font-size:.68rem;font-weight:700;color:var(--accent);cursor:pointer;text-decoration:underline">'+(s.status==='reviewed'?'reviewed ✓':'mark reviewed')+'</span></div>'+
+      '</div>';
+  }).join('');
+  box.querySelectorAll('.sugRevBtn').forEach(function(el){
+    el.onclick=async function(){
+      if(el.textContent.indexOf('✓')>-1) return;
+      await window.EPIC_SB.from('epic_suggestions').update({status:'reviewed'}).eq('id',el.getAttribute('data-id'));
+      loadSuggestions();
+    };
+  });
+}
 </script>
 
 <!-- ===== EPIC Suite: update prompt — compares embedded SUITE_BUILD vs the deploy's
@@ -375,7 +398,7 @@ $('suggestions').innerHTML=SUGGESTIONS.map(s=>'<div class="sug"><div class="r">'
      in every tool on every release (it's the suite build, not this tool's version). ===== -->
 <script>
 (function(){
-  var SUITE_BUILD='1.30.0'; /*suite-build*/
+  var SUITE_BUILD='1.31.0'; /*suite-build*/
   var FILE=location.protocol==='file:';
   var REL=FILE?'version.json':'../live/version.json';
   var bar=null;
