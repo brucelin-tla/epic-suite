@@ -1,5 +1,20 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.0** — **Epic Life Ledger (owner-only), b33 — BETA ONLY, not yet promoted**: new
+  "📄 Generate member report" button in the floating ALIS panel — a printable 7-page report (cover
+  w/ prepared-for/by fields, starting point, the plan built, retirement outcome, stress-test
+  results incl. income/wealth percentiles, playbook milestones, disclosures) assembled entirely
+  from numbers already computed and on screen (`window.EPIC_DEBUG`, `EPIC_MC_RESULT`,
+  `LAST_STATS`, the rendered ALIS takeaway paragraphs) — no new financial math. Auto-runs the
+  stress test first if it hasn't been run yet, so the report is never generated incomplete.
+  Print/Save-as-PDF via a dedicated `@media print` stylesheet + forced-light color theme
+  (verified via real CDP print-media emulation: `.wrap`/toolbar/auth-gate all `display:none`,
+  overlay stays `block`, `page-break-after:always` on every page). The disclosures page reads its
+  9 numbered caveats LIVE off the existing in-tool elements by id (added this batch) — nothing new
+  was written, so it can never drift out of sync with the tool's own vetted language — plus a
+  compliance-review flag before real client use, per Bruce's explicit call. Regression: 0 JS
+  errors, withholding toggle and glide-path math still byte-identical/exact.
+
 - **1.51.0** — **Epic Life Ledger (owner-only), b32**: the 401(k)/qualified account now de-risks
   with age along the standard target-date glide path (Vanguard's published anchors: 90% stocks
   through 40 → 50/50 at 65 → 30/70 at 72, flat after) instead of one flat growth rate forever —

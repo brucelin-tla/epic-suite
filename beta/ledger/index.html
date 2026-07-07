@@ -309,6 +309,67 @@
     /* A property card's header row (label + Remove) can wrap instead of clipping. */
     .prop-card-head { flex-wrap: wrap; }
   }
+
+  /* ---- Printable member report ---- */
+  #reportOverlay {
+    display: none; position: fixed; inset: 0; z-index: 3000; overflow-y: auto;
+    background: #e9e9e2;
+    /* Forced-light palette, independent of data-theme — a dark printout wastes ink and reads
+       unprofessional on paper, so the report always renders light regardless of the app's theme. */
+    --rp-paper: #ffffff; --rp-paper-soft: #f6f6f0; --rp-ink: #1a2420; --rp-ink-soft: #47544d;
+    --rp-line: #d8dbd2; --rp-ledger: #234b42; --rp-ledger-soft: #e2ece8; --rp-brass: #9c7a2e;
+    --rp-brass-soft: #f3ead1; --rp-go: #2f6b45; --rp-risk: #8a3f2c;
+    color: var(--rp-ink); font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+  #reportOverlay.show { display: block; }
+  .report-toolbar { position: sticky; top: 0; z-index: 10; display: flex; justify-content: center; gap: 10px; padding: 14px; background: #1a2420; }
+  .report-toolbar button { font: inherit; font-size: 13.5px; font-weight: 700; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }
+  .report-toolbar .rt-print { background: var(--rp-ledger); color: #fff; }
+  .report-toolbar .rt-close { background: #3a4440; color: #fff; }
+  .report-pages { max-width: 800px; margin: 24px auto 60px; display: flex; flex-direction: column; gap: 24px; }
+  .report-page {
+    background: var(--rp-paper); border-radius: 4px; box-shadow: 0 4px 24px rgba(0,0,0,.18);
+    padding: 56px 60px; min-height: 1000px; box-sizing: border-box; position: relative;
+  }
+  .report-page h1, .report-page h2, .report-page h3 { font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif; color: var(--rp-ledger); font-weight: 600; margin: 0 0 10px; }
+  .report-page p { line-height: 1.6; font-size: 14px; color: var(--rp-ink); margin: 0 0 12px; }
+  .report-cover { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .report-cover .rc-mark { font-size: 3.2rem; margin-bottom: 6px; }
+  .report-cover .rc-org { font-family: Georgia, serif; font-size: 1.3rem; color: var(--rp-ledger); font-weight: 600; letter-spacing: .02em; }
+  .report-cover .rc-title { font-family: Georgia, serif; font-size: 2.6rem; color: var(--rp-ink); margin: 26px 0 8px; }
+  .report-cover .rc-tag { font-size: 15px; color: var(--rp-ink-soft); max-width: 44ch; margin-bottom: 48px; }
+  .report-cover .rc-fields { border-top: 1px solid var(--rp-line); border-bottom: 1px solid var(--rp-line); padding: 22px 0; width: 100%; max-width: 420px; }
+  .report-cover .rc-field { display: flex; justify-content: space-between; align-items: baseline; padding: 7px 0; font-size: 14px; }
+  .report-cover .rc-field span:first-child { color: var(--rp-ink-soft); font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: .04em; }
+  .report-cover .rc-field input { font: inherit; font-size: 14px; text-align: right; border: none; border-bottom: 1px dashed var(--rp-line); background: transparent; color: var(--rp-ink); padding: 2px 0; width: 220px; }
+  .report-cover .rc-field input:focus { outline: none; border-bottom-color: var(--rp-ledger); }
+  .rp-eyebrow { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--rp-brass); font-weight: 700; margin-bottom: 4px; }
+  .rp-table { width: 100%; border-collapse: collapse; margin: 8px 0 20px; }
+  .rp-table td { padding: 7px 0; border-bottom: 1px solid var(--rp-line); font-size: 13.5px; }
+  .rp-table td:first-child { color: var(--rp-ink-soft); }
+  .rp-table td:last-child { text-align: right; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; font-weight: 700; }
+  .rp-stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0; }
+  .rp-stat { background: var(--rp-ledger-soft); border: 1px solid var(--rp-line); border-radius: 8px; padding: 16px 18px; }
+  .rp-stat .rp-stat-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--rp-ink-soft); }
+  .rp-stat .rp-stat-val { display: block; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 22px; font-weight: 700; color: var(--rp-go); margin-top: 4px; }
+  .rp-stat.risk .rp-stat-val { color: var(--rp-risk); }
+  .rp-takeaway { background: var(--rp-brass-soft); border-left: 3px solid var(--rp-brass); padding: 12px 16px; font-size: 13.5px; border-radius: 0 6px 6px 0; }
+  .rp-milestone-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .rp-milestone-table th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--rp-ink-soft); padding: 6px 8px 6px 0; border-bottom: 2px solid var(--rp-ledger); }
+  .rp-milestone-table td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--rp-line); }
+  .rp-disclosure { font-size: 11.5px; line-height: 1.55; color: var(--rp-ink-soft); margin-bottom: 12px; }
+  .rp-disclosure b { color: var(--rp-ink); }
+  .rp-compliance-flag { margin-top: 22px; padding: 12px 16px; background: #fbeee8; border: 1px dashed var(--rp-risk); border-radius: 6px; font-size: 12px; color: var(--rp-risk); }
+  .report-page .rp-pagefoot { position: absolute; bottom: 24px; left: 60px; right: 60px; display: flex; justify-content: space-between; font-size: 10px; color: var(--rp-ink-soft); border-top: 1px solid var(--rp-line); padding-top: 8px; }
+
+  @media print {
+    body > *:not(#reportOverlay) { display: none !important; }
+    #reportOverlay { position: static; display: block !important; background: #fff; overflow: visible; }
+    .report-toolbar { display: none !important; }
+    .report-pages { max-width: none; margin: 0; gap: 0; }
+    .report-page { box-shadow: none; border-radius: 0; page-break-after: always; min-height: 0; }
+    .report-cover .rc-field input { border-bottom: none; }
+  }
 </style>
 </head>
 <body>
@@ -405,12 +466,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b32</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b33</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b33</span><p class="topic-exp" style="margin-top:2px;">New: "📄 Generate member report" in the floating ALIS panel — a printable, 7-page report (cover, your starting point, the plan built for you, retirement outcome, stress-test results, playbook highlights, disclosures) built entirely from the numbers already on screen. Auto-runs the stress test first if you haven't clicked it yet, so the report is never incomplete. Print or Save as PDF straight from the browser. The disclosures page pulls its text live from this tool's own existing, already-sourced caveats — nothing new was written — and carries a note that TLA's compliance function should review final wording before this goes to a real member.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b32</span><p class="topic-exp" style="margin-top:2px;">The 401(k) now de-risks with age, the way real accounts do. Almost nobody in their 50s runs 90% stocks with retirement on the line — so instead of one flat growth rate forever, the account follows the standard target-date glide path (Vanguard's published anchors): ~90% stocks through age 40, easing to 50/50 at retirement, 30/70 bonds by 72. You set what the <b>stock market</b> earns (default: its real 10.02%/yr full record since 1928, with a one-tap "recent era 2011–2025 — 13.94%" alternative); the bond slice earns the 10-yr Treasury's real record (4.82%/yr). The stress test draws both legs with their real volatility — so a market dip late in life now hits a 30%-stocks account, not a 90% one, which is exactly why the glide exists. Side effect worth knowing: this also fixed an internal inconsistency — the stress test's floor/cap crediting now lands at 6.42%/yr against the 6.40% "honest long-run" default, where before the two quietly disagreed by almost a full point. The story is told in the journey too: the 401(k) must trade growth away for safety as you age — the policy never has to, because its 0% floor IS its safety.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b31</span><p class="topic-exp" style="margin-top:2px;">Two additions. (1) The stress test now shows income extracted and total wealth (legacy + income), worst/median/best across all 1,000 market histories — same rigor it already gave legacy, so a "Max income" plan gets the same downside-risk visibility a "Max legacy" plan always had. (2) Real-world rates instead of round marketing numbers: mortgage 6.43% (Freddie Mac's weekly survey), HELOC 7.46% (Bankrate national average), investment-property loan 7.18% (primary + typical premium), home appreciation 4.44% (the same Case-Shiller figure already used elsewhere in this tool). Sliders still move freely — these are just more honest starting points.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b30</span><p class="topic-exp" style="margin-top:2px;">Fixed the ALIS output tiles (Outcome/Legacy/Total tax paid, etc.) — longer titles like "401(k)→loan payoff" or "Losses carried to retirement" were overflowing their little boxes instead of wrapping to a second line. Now they wrap cleanly at every screen size.</p></div>
@@ -533,7 +595,7 @@
 
       <div class="topic">
         <div class="topic-h">Other debts &amp; credit</div>
-        <details class="caveat mini collapsible">
+        <details class="caveat mini collapsible" id="cav-debt">
           <summary><span class="mark">!</span><span>Not modeled yet — tap for what this tool doesn't cover</span></summary>
           <div class="caveat-body"><p><b>Not modeled yet — coming.</b> The Epic Life System's Foundation starts with credit optimization and debt restructure (cards, autos, personal loans, credit score). This tool doesn't model consumer debt yet, so if there's meaningful non-mortgage debt, the real plan starts there before anything on this page — talk to the team.</p></div>
         </details>
@@ -583,7 +645,7 @@
               <div class="lline"><span>Cash value remaining after loan</span><span class="amt" id="s-cashRemaining">–</span></div>
               <div class="lline total"><span>Tax bill paid out of pocket instead</span><span class="amt" id="s-outOfPocket">–</span></div>
             </div>
-            <details class="caveat mini collapsible">
+            <details class="caveat mini collapsible" id="cav-policy-numbers">
               <summary><span class="mark">!</span><span>Real carrier numbers — tap for the MEC/loan fine print</span></summary>
               <div class="caveat-body"><p>Real carrier numbers, not estimates: the premium charge, loan rates and crediting default come from the current AIUL 26 contract, launch materials and a real illustration. Policy loans are only tax-free while the policy stays in force and isn't a Modified Endowment Contract — this design deliberately runs close to that line for performance (the real 7-pay margin on the reference design was ~32% above the premium), and a premium that would cross it is simply refunded by the carrier rather than blowing anything up.</p></div>
             </details>
@@ -619,7 +681,7 @@
               <div class="lline"><span>Overfunding charge, year 1 <span class="lbl-sub">0.72%/yr on cumulative premium above the limit × policy years — new on AIUL 26, it specifically taxes front-loaded funding</span></span><span class="amt" id="s-accCharge">–</span></div>
               <div class="lline"><span>Protection premium <span class="lbl-sub">A real bill every year — funded from the contribution pool while working, added to the lifestyle need in retirement</span></span><span class="amt" id="s-protPremium">–</span></div>
             </div>
-            <details class="caveat mini collapsible">
+            <details class="caveat mini collapsible" id="cav-policy-costs">
               <summary><span class="mark">!</span><span>What's estimated here vs. from the real contract</span></summary>
               <div class="caveat-body"><p>The COI rates are the contract's <b>guaranteed maximums</b> (2017 CSO) — real charged rates are lower and class-specific, which is what the %-of-maximum slider estimates. Refine it against a real illustration's values. Not modeled: the 7-pay MEC premium limit (the carrier auto-blocks MEC-triggering premiums unless elected) and surrender charges in years 1–15 (loans avoid them; an early full surrender would net less than the cash value shown).</p></div>
             </details>
@@ -646,7 +708,7 @@
               <div class="lline"><span>Total drawn over the horizon <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-ltcTotal">–</span></div>
               <div class="lline total"><span>Death benefit remaining at the end <span class="lbl-sub">What's left to clear debt — reduced by every dollar drawn</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
             </div>
-            <details class="caveat mini collapsible">
+            <details class="caveat mini collapsible" id="cav-ltc">
               <summary><span class="mark">!</span><span>Why age 80 — and what this does and doesn't cover</span></summary>
               <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today, with 40% needing care ~2 years and 22% needing 2–4 years (3-yr default here). Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>Scope:</b> modeled only during retirement (Section&nbsp;3); a trigger age before retirement currently has no effect. <b>The trade-off is enforced, not just shown:</b> draws reduce this death-benefit pool, and if what's left can't fully cover Section&nbsp;3's "Life insurance needed" figure, that shortfall comes straight out of legacy — see the estate topic's "Preserve vs. draw" choice.</p></div>
             </details>
@@ -704,7 +766,7 @@
             </div>
           </div>
         </div>
-        <div class="caveat mini">
+        <div class="caveat mini" id="cav-velocity">
           <span class="mark">!</span>
           <p>Every chunk still has to get repaid before its card's 0% window closes, from ordinary cash flow.</p>
         </div>
@@ -747,7 +809,7 @@
                 <div class="lline subtotal"><span id="k-refund">Refund / (balance due) shift</span><span class="amt" id="s-refundShift">–</span></div>
               </div>
             </details>
-            <details class="caveat collapsible">
+            <details class="caveat collapsible" id="cav-rental-tax">
               <summary><span class="mark">!</span><span>Simplified federal estimate — tap for what a CPA would refine</span></summary>
               <div class="caveat-body"><p><b>Federal only, simplified.</b> $150K+ MAGI suspends the loss unless Way 1/2/3 applies. Land share and write-off share are estimates — a real cost-segregation study and a CPA confirm the numbers.</p></div>
             </details>
@@ -777,7 +839,7 @@
               <div class="lline"><span>Taxable after depreciation <span class="lbl-sub">Net rent − ongoing depreciation</span></span><span class="amt" id="s-rentTaxable">–</span></div>
               <div class="lline total"><span id="s-shieldLbl">Depreciation shield left for other income</span><span class="amt" id="s-shieldSurplus">–</span></div>
             </div>
-            <details class="caveat mini collapsible">
+            <details class="caveat mini collapsible" id="cav-rental-income">
               <summary><span class="mark">!</span><span>These are starting-point estimates, not your real numbers</span></summary>
               <div class="caveat-body"><p id="s-rentNote">Yield and expense ratio are location-typical starting points — a real rent survey and the actual tax bill replace them. Hawaii property tax uses Honolulu's Residential&nbsp;A tiers (0.40% to $1M, 1.14% above); mainland uses a 1.1% flat estimate.</p></div>
             </details>
@@ -950,11 +1012,11 @@
             </div>
           </div>
         </div>
-        <details class="caveat collapsible">
+        <details class="caveat collapsible" id="cav-policy-estate-costs">
           <summary><span class="mark">!</span><span>What's real vs. estimated in the policy's costs</span></summary>
           <div class="caveat-body"><p><b>The policy's costs are now modeled from the actual AIUL 26 contract</b> — the premium expense charge (7% / 6% / 2% by policy year), the $20/mo admin fee, an age-based cost of insurance on the real net amount at risk (the contract's guaranteed-maximum table, scaled by the %-of-maximum slider), face-amount charges in years 1–15, and the overfunding charge on premium above the advance-contribution limit. What remains estimated: the COI %-of-maximum (real charged rates are class-specific — calibrate against an actual illustration), and the 7-pay Modified Endowment Contract premium limit is not checked (the carrier auto-blocks MEC-triggering premiums in practice, but this tool won't warn you a design is near that line). A licensed illustration remains the authority before any client conversation.</p></div>
         </details>
-        <details class="caveat collapsible">
+        <details class="caveat collapsible" id="cav-assumptions">
           <summary><span class="mark">!</span><span>Every assumption this plan makes — in the open</span></summary>
           <div class="caveat-body"><p><b>Other assumptions, in the open.</b> Velocity chunking is auto-optimized across every open loan (home mortgage + any owned rental) — it always attacks whichever one carries the highest rate first, a guaranteed-return waterfall, then spills to the next-highest once the first is paid off; any chunk dollars left over after every loan is cleared now flow into the policy (or qualified room) instead of being lost, same as any other year with nothing left to chunk. Every property carries its own 30-yr fixed loan from its purchase date — the payment is a real bill in the plan, and unused paper losses (depreciation + interest beyond the rent) carry forward: they offset W-2 income up to the $25K allowance while working ($100–150K MAGI phase-out; unlimited with Way&nbsp;1/2), offset other property income without limit, and shield retirement withdrawals up to the same allowance. Down payments for future purchases draw the HELOC or a policy loan at the purchase date — if the room isn't there, the purchase honestly fails. Closing costs aren't modeled; property loan interest uses a start-of-year approximation; the home value securing the HELOC is held flat until retirement. Depreciation runs ~27 years per property. RMDs start at 73 per the IRS Uniform Lifetime Table. Qualified caps at the employee 401(k) limit (no employer match modeled — if you have one, that's free money on top); a mortgage still alive in retirement costs its real P&I and reduces HELOC room (combined LTV). HELOC draw windows run 10 years; the refinance assumes a 30-yr fixed at your Section-1 mortgage rate. The policy cannot lapse in this model — draws cap at 90% of cash value and drift past 95% is serviced in cash (with a wash loan, the loaned slice really credits a lower fixed rate than shown — a licensed illustration is the authority). Federal tax only, sole-income estimate. This models cash movement — a CPA and a licensed illustration confirm the real numbers.</p></div>
         </details>
@@ -1086,7 +1148,18 @@
     <button type="button" class="float-cta" id="float-adjust">Adjust the plan — lifestyle, goal, ages →</button>
     <button type="button" class="float-cta" id="float-apply">Apply changes ✓ — rebuild playbook</button>
     <button type="button" class="float-cta" id="float-playbook">View year-by-year playbook →</button>
+    <button type="button" class="float-cta" id="btn-report" style="background:var(--brass); margin-top:6px;">📄 Generate member report</button>
   </div>
+</div>
+
+<!-- Printable member report — hidden by default, built live from the current plan on demand.
+     Forced-light theme + print stylesheet defined above (#reportOverlay / @media print). -->
+<div id="reportOverlay">
+  <div class="report-toolbar">
+    <button type="button" class="rt-print" id="rt-print">🖨️ Print / Save as PDF</button>
+    <button type="button" class="rt-close" id="rt-close">✕ Close</button>
+  </div>
+  <div class="report-pages" id="reportPages"></div>
 </div>
 
 <script>
@@ -3428,6 +3501,7 @@
         : '<b>'+top.a.label+' wins here</b> — its boost earned more across these histories than its certain charge cost (median '+fmtCompact(top.p50 - baseRow.p50)+' above Base Capped). The trade is real: on charged accounts a flat year still pays the charge, so bad years go negative net.';
     }
     window.EPIC_MC_RESULT = { survW, survO, p10w, p50w, p90w, p10o, p50o, p90o, credAvg, qAvg,
+      ex10w, ex50w, ex90w, ex10o, ex50o, ex90o, wt10w, wt50w, wt90w, wt10o, wt50o, wt90o,
       wYears: res.w.years, oYears: res.o.years,
       accts: acctRows.map(r => ({ key: r.a.key, surv: r.surv, p10: r.p10, p50: r.p50, cred: r.cred })) };
   }
@@ -3486,6 +3560,198 @@
       + '<span><span class="swatch" style="background:'+(col('--risk')||'#a6503a')+'"></span> No policy (its own best plan)</span>';
   }
   if ($('btn-mc')) $('btn-mc').addEventListener('click', runStressTest);
+
+  // ================= Printable member report =================
+  // Pulls EVERY number from what's already computed and on screen (window.EPIC_DEBUG /
+  // window.EPIC_MC_RESULT / LAST_STATS / the rendered ALIS takeaway paragraphs) — no new math,
+  // no duplicated logic. The 9 numbered disclosures are read LIVE off the caveat elements
+  // themselves (by id, added alongside them) so the report can never drift out of sync with the
+  // in-tool language if that text is ever edited later.
+  function reportCav(id){
+    const el = document.getElementById(id);
+    if (!el) return '';
+    const p = el.querySelector('.caveat-body p, p');
+    return p ? p.innerHTML : '';
+  }
+  function reportPageFoot(dateStr){
+    return '<div class="rp-pagefoot"><span>Team Life Academy — Your Epic Life Plan</span><span>Prepared '+dateStr+'</span></div>';
+  }
+  function buildReportHTML(){
+    const D = window.EPIC_DEBUG;
+    if (!D || !D.chosen) return '<div class="report-page"><p>Set up a plan above first, then generate the report.</p></div>';
+    const chosen = D.chosen, chosenAlloc = D.chosenAlloc;
+    const MC = window.EPIC_MC_RESULT;
+    const currentAgeV = +$('currentAge').value, retireAgeV = +$('retireAge').value, planAgeV = +$('planAge').value;
+    const dateStr = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+    const goalLabel = optimizeMode === 'legacy' ? 'Maximize legacy' : optimizeMode === 'income' ? 'Maximize income' : 'Most of both';
+    const pages = [];
+
+    // ---- 1. Cover ----
+    pages.push(
+      '<div class="report-page report-cover">' +
+        '<div class="rc-mark">📒</div>' +
+        '<div class="rc-org">Team Life Academy</div>' +
+        '<div class="rc-title">Your Epic Life Plan</div>' +
+        '<div class="rc-tag">A personalized illustration built from your own numbers — what the plan does for your retirement, and how it holds up under real market stress.</div>' +
+        '<div class="rc-fields">' +
+          '<div class="rc-field"><span>Prepared for</span><input type="text" id="rp-preparedFor" placeholder="Member name"></div>' +
+          '<div class="rc-field"><span>Prepared by</span><input type="text" id="rp-preparedBy" value="Team Life Academy"></div>' +
+          '<div class="rc-field"><span>Date</span><span>'+dateStr+'</span></div>' +
+        '</div>' +
+      '</div>'
+    );
+
+    // ---- 2. Your starting point ----
+    const toolLines = [];
+    if (TOOLS.qualified) toolLines.push('<b>401(k) / qualified</b> — '+fmt0.format(+$('qmBalance').value)+' today, growing along an age-based glide path (stock return assumption '+(+$('qmGrowth').value).toFixed(2)+'%/yr)');
+    if (TOOLS.mortgage) toolLines.push('<b>Home mortgage</b> — '+($('s-curBal').textContent)+' balance today on a '+$('v-propValue').textContent+' home');
+    if (TOOLS.policy) toolLines.push('<b>Cash-value policy</b> — '+fmt0.format(P.annualPremium)+'/yr premium, '+P.polYears+' years in force so far');
+    if (TOOLS.heloc) toolLines.push('<b>HELOC</b> — '+(+$('helocRate').value).toFixed(2)+'% rate against the home’s equity');
+    if (TOOLS.rental) toolLines.push('<b>Rental property</b> — '+$('v-invPrice').textContent+' purchase, buying at age '+$('v-buyAge1').textContent);
+    if (TOOLS.velocity) toolLines.push('<b>Velocity banking</b> — '+$('v-chunk').textContent+' chunks against the mortgage'+(TOOLS.bizcredit ? ' (stacked with 0% business credit)' : ''));
+    pages.push(
+      '<div class="report-page">' +
+        '<div class="rp-eyebrow">Section 1</div>' +
+        '<h2>Your starting point</h2>' +
+        '<p>Every number below is what you told us — this plan is built entirely from your real numbers, not a generic template.</p>' +
+        '<table class="rp-table">' +
+          '<tr><td>Annual taxable income</td><td>'+fmt0.format(+$('income').value)+'</td></tr>' +
+          '<tr><td>Filing status</td><td>'+(filingStatus==='mfj' ? 'Married filing jointly' : 'Single')+'</td></tr>' +
+          '<tr><td>Current age</td><td>'+currentAgeV+'</td></tr>' +
+          '<tr><td>Retirement age</td><td>'+retireAgeV+'</td></tr>' +
+          '<tr><td>Age to pass down estate</td><td>'+planAgeV+'</td></tr>' +
+        '</table>' +
+        '<h3 style="font-size:15px; margin-top:20px;">Tools in your plan</h3>' +
+        '<p>'+toolLines.join('<br>')+'</p>' +
+        reportPageFoot(dateStr) +
+      '</div>'
+    );
+
+    // ---- 3. The plan built for you ----
+    const fr = chosenAlloc.fr || {};
+    const frText = [];
+    if (fr.chunk > 0.001) frText.push(Math.round(fr.chunk*100)+'% to velocity chunking');
+    if (fr.policy > 0.001) frText.push(Math.round(fr.policy*100)+'% to the policy');
+    if (TOOLS.qualified && fr.qm > 0.001) frText.push(Math.round(fr.qm*100)+'% to the 401(k)');
+    const allocWhy = document.querySelector('#alloc-why .takeaway');
+    const alisWhy = document.querySelector('#alis-why .takeaway');
+    pages.push(
+      '<div class="report-page">' +
+        '<div class="rp-eyebrow">Section 3</div>' +
+        '<h2>The plan built for you</h2>' +
+        '<p>ALIS allocates '+fmt0.format(+$('annualContrib').value)+' every year between now and retirement, split '+(frText.join(', ') || 'across the tools in your plan')+'. The goal: <b>'+goalLabel.toLowerCase()+'</b>'+(optimizeMode === 'income' ? '' : ', keeping at least '+fmt0.format(+$('todaySpend').value)+'/yr of lifestyle')+'.</p>' +
+        (allocWhy ? '<div class="rp-takeaway">'+allocWhy.innerHTML+'</div>' : '') +
+        (alisWhy ? '<div class="rp-takeaway" style="margin-top:10px;">'+alisWhy.innerHTML+'</div>' : '') +
+        reportPageFoot(dateStr) +
+      '</div>'
+    );
+
+    // ---- 4. Your retirement outcome ----
+    pages.push(
+      '<div class="report-page">' +
+        '<div class="rp-eyebrow">Sections 3 &amp; 4</div>' +
+        '<h2>Your retirement outcome</h2>' +
+        '<p>Sustaining '+fmt0.format(LAST_STATS.spend)+'/yr of lifestyle, inflation-adjusted, here’s what the plan above delivers.</p>' +
+        '<div class="rp-stat-grid">' +
+          '<div class="rp-stat'+(chosen.sustainable ? '' : ' risk')+'"><span class="rp-stat-label">Lifestyle sustained to</span><span class="rp-stat-val">'+(chosen.sustainable ? 'Age '+planAgeV+' ✓' : 'Age '+(retireAgeV+chosen.years))+'</span></div>' +
+          '<div class="rp-stat"><span class="rp-stat-label">Left to the estate</span><span class="rp-stat-val">'+fmtCompact(chosen.legacy)+'</span></div>' +
+          '<div class="rp-stat"><span class="rp-stat-label">Income extracted</span><span class="rp-stat-val">'+fmtCompact(chosen.totalExtracted)+'</span></div>' +
+          '<div class="rp-stat"><span class="rp-stat-label">Total wealth created</span><span class="rp-stat-val">'+fmtCompact(chosen.legacy + chosen.totalExtracted)+'</span></div>' +
+        '</div>' +
+        reportPageFoot(dateStr) +
+      '</div>'
+    );
+
+    // ---- 5. Stress test (MC must already be populated — the button handler auto-runs it first) ----
+    if (MC){
+      const mcTake = document.getElementById('mc-take');
+      pages.push(
+        '<div class="report-page">' +
+          '<div class="rp-eyebrow">Stress test</div>' +
+          '<h2>Tested against 1,000 real market histories</h2>' +
+          '<p>Everything above assumes a smooth market. This runs your exact plan through 1,000 different market histories built from real S&amp;P 500 volatility — comparing your plan (with the policy’s floor) against its own best plan with no policy at all.</p>' +
+          '<div class="rp-stat-grid">' +
+            '<div class="rp-stat"><span class="rp-stat-label">Reaches age '+planAgeV+' — with policy</span><span class="rp-stat-val">'+(MC.survW*100).toFixed(1)+'%</span></div>' +
+            '<div class="rp-stat"><span class="rp-stat-label">Reaches age '+planAgeV+' — no policy</span><span class="rp-stat-val">'+(MC.survO*100).toFixed(1)+'%</span></div>' +
+            '<div class="rp-stat'+(MC.p10w<0?' risk':'')+'"><span class="rp-stat-label">Worst 1-in-10 legacy</span><span class="rp-stat-val">'+fmtCompact(MC.p10w)+'</span></div>' +
+            '<div class="rp-stat"><span class="rp-stat-label">Median legacy</span><span class="rp-stat-val">'+fmtCompact(MC.p50w)+'</span></div>' +
+            '<div class="rp-stat'+(MC.ex10w<0?' risk':'')+'"><span class="rp-stat-label">Worst 1-in-10 income extracted</span><span class="rp-stat-val">'+fmtCompact(MC.ex10w)+'</span></div>' +
+            '<div class="rp-stat"><span class="rp-stat-label">Median income extracted</span><span class="rp-stat-val">'+fmtCompact(MC.ex50w)+'</span></div>' +
+            '<div class="rp-stat'+(MC.wt10w<0?' risk':'')+'"><span class="rp-stat-label">Worst 1-in-10 total wealth</span><span class="rp-stat-val">'+fmtCompact(MC.wt10w)+'</span></div>' +
+            '<div class="rp-stat"><span class="rp-stat-label">Median total wealth</span><span class="rp-stat-val">'+fmtCompact(MC.wt50w)+'</span></div>' +
+          '</div>' +
+          (mcTake ? '<div class="rp-takeaway">'+mcTake.innerHTML+'</div>' : '') +
+          reportPageFoot(dateStr) +
+        '</div>'
+      );
+    }
+
+    // ---- 6. The playbook, at a glance (milestones only, not all 40+ rows) ----
+    const milestoneRows = [];
+    (chosenAlloc.a.timeline||[]).forEach(function(r){ if (r.evts && r.evts.length) milestoneRows.push({age:r.age, phase:'Building', note:r.evts.join(' · ')}); });
+    (chosen.timeline||[]).forEach(function(r){ if (r.evts && r.evts.length) milestoneRows.push({age:r.age, phase:'Retirement', note:r.evts.join(' · ')}); });
+    if (milestoneRows.length){
+      pages.push(
+        '<div class="report-page">' +
+          '<div class="rp-eyebrow">The playbook</div>' +
+          '<h2>Key moments along the way</h2>' +
+          '<p>The full year-by-year plan lives inside the tool — these are the moments that actually change something.</p>' +
+          '<table class="rp-milestone-table"><tr><th>Age</th><th>Phase</th><th>What happens</th></tr>' +
+            milestoneRows.map(function(r){ return '<tr><td>'+r.age+'</td><td>'+r.phase+'</td><td>'+r.note+'</td></tr>'; }).join('') +
+          '</table>' +
+          reportPageFoot(dateStr) +
+        '</div>'
+      );
+    }
+
+    // ---- 7. Disclosures — compiled ONLY from text already vetted and shipped in the tool
+    // itself (the two anchor sentences below are copied verbatim from the Section-4 sub-header
+    // and the page footer; the rest are read live off the caveat elements by id) — nothing
+    // here is newly written compliance language.
+    const disclosureBlocks = [];
+    disclosureBlocks.push("Every number here is a real run of your plan — illustrations to explore, not individual advice.");
+    disclosureBlocks.push("Every figure in this report is illustrative and driven entirely by the inputs above — replace defaults with a member's real mortgage statement, property tax assessment, and 1040 before using any of it with a client.");
+    disclosureBlocks.push(reportCav('cav-assumptions'));
+    if (TOOLS.policy){ disclosureBlocks.push(reportCav('cav-policy-numbers')); disclosureBlocks.push(reportCav('cav-policy-costs')); disclosureBlocks.push(reportCav('cav-policy-estate-costs')); }
+    if (ltcOn) disclosureBlocks.push(reportCav('cav-ltc'));
+    if (TOOLS.velocity) disclosureBlocks.push(reportCav('cav-velocity'));
+    if (TOOLS.rental){ disclosureBlocks.push(reportCav('cav-rental-tax')); disclosureBlocks.push(reportCav('cav-rental-income')); }
+    disclosureBlocks.push(reportCav('cav-debt'));
+    pages.push(
+      '<div class="report-page">' +
+        '<div class="rp-eyebrow">Important</div>' +
+        '<h2>Disclosures &amp; assumptions</h2>' +
+        disclosureBlocks.filter(Boolean).map(function(t){ return '<p class="rp-disclosure">'+t+'</p>'; }).join('') +
+        '<div class="rp-compliance-flag">This illustration has not yet been reviewed by Team Life Academy’s compliance function for client-ready language — confirm current wording before relying on this document with a real member.</div>' +
+        '<p style="margin-top:22px; font-size:12.5px; color:var(--rp-ink-soft);">Questions about this plan? Reach out to your Team Life Academy advisor.</p>' +
+      '</div>'
+    );
+
+    return pages.join('');
+  }
+  function showReport(){
+    $('reportPages').innerHTML = buildReportHTML();
+    $('reportOverlay').classList.add('show');
+  }
+  $('btn-report').addEventListener('click', () => {
+    const btn = $('btn-report');
+    if (window.EPIC_MC_RESULT){ showReport(); return; }
+    // Stress test hasn't been run yet — the report always includes it, so run it first
+    // (same batched runStressTest() the Section-3 button uses) and poll for completion.
+    btn.disabled = true;
+    btn.textContent = 'Generating report — running 1,000 market histories…';
+    runStressTest();
+    const iv = setInterval(() => {
+      if (window.EPIC_MC_RESULT){
+        clearInterval(iv);
+        btn.disabled = false;
+        btn.textContent = '📄 Generate member report';
+        showReport();
+      }
+    }, 150);
+  });
+  $('rt-print').addEventListener('click', () => window.print());
+  $('rt-close').addEventListener('click', () => $('reportOverlay').classList.remove('show'));
 
   function applyLocation(loc){
     propLocation = loc;
