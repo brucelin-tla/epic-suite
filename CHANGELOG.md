@@ -1,5 +1,17 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.7** — **Epic Life Ledger (owner-only), b40 — BETA ONLY, not yet promoted**: Section 1
+  cleanup. Retirement age and the age to pass down the estate now live only in Section 3, where
+  the retirement plan actually runs — removed the duplicate Section 1 sliders. The 401(k) blend
+  explainer is now plain language. Removed three cluttered lines (years it contributes, average
+  annual withdrawal, total withdrawn), kept effective tax rate, and added a real early-withdrawal-
+  penalty line — which surfaced a genuine engine gap: the plan wasn't charging the actual 10% IRS
+  penalty on qualified money touched before 59½, even though early retirement (as young as 40) has
+  been supported since b15. Fixed at the engine level, not just displayed: threaded into the draw-
+  sizing math so an early-retirement plan correctly draws more to net the same lifestyle. Verified:
+  default (retire at 65) byte-identical; a 50-year-old retirement scenario now shows a real
+  $201,775 penalty and correspondingly lower legacy; 0 JS errors.
+
 - **1.52.6** — **Epic Life Ledger (owner-only), b39 — BETA ONLY, not yet promoted**: two things.
   (1) Clearer copy on "Or flip tools freely" (Section 3) and the generic tool-off hint — both now
   explain that this row is the exact same switch as each tool's own "In the plan" button, and that

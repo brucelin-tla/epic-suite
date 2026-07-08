@@ -485,12 +485,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b39</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b40</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b40</span><p class="topic-exp" style="margin-top:2px;">Section 1 cleanup. Retirement age and the age to pass down the estate moved to live only in Section 3 (right where the retirement plan actually runs) — no more duplicate sliders to keep in sync. The 401(k) explainer is now plain language, no jargon. Removed three lines that were more clutter than insight (years it contributes, average annual withdrawal, total withdrawn) and kept effective tax rate. New: an early-withdrawal-penalty line — and a real gap it uncovered: the plan wasn't charging the actual 10% IRS penalty on money touched before age 59½, even though it's supported retiring as early as 40 since b15. Fixed at the engine level (threaded into the draw-sizing math itself, so an early retirement plan correctly draws more to net the same lifestyle) — a real, not cosmetic, fix. Regression: default (retire at 65) numbers byte-identical; a 50-year-old retirement scenario now correctly shows a real $201,775 penalty and a much lower legacy, exactly as it should; 0 JS errors.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b39</span><p class="topic-exp" style="margin-top:2px;">Two things. (1) Clearer explanation on "Or flip tools freely": that row is the exact same switch as each tool's own "In the plan" button — turning one back on resumes your real numbers from Section 1/2 right where they left off (not a reset to zero), unless there genuinely was no balance yet. (2) The HELOC now depends on the mortgage tool being on, the same way 0% biz credit depends on velocity chunking — a HELOC borrows against home equity, so it needs an actual home mortgage in the plan. Turn the mortgage off and the HELOC greys out, relabels "needs the mortgage," and goes fully inert (not just visually disabled); turn the mortgage back on and the HELOC restores exactly to whatever you had it set to. 0% biz credit was already confirmed to have zero effect outside of velocity chunking — no change needed there.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b38</span><p class="topic-exp" style="margin-top:2px;">Stress test's "with policy" vs. "no policy" is now one side-by-side table instead of two stacked cards — every metric sits on its own row with both numbers next to each other, colored green for whichever side actually wins that row and red for the other (a near-tie stays neutral, not falsely colored). Nothing about the underlying math changed — same 10 metrics, same numbers, just laid out so the comparison reads at a glance instead of scrolling between two separate blocks.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b37</span><p class="topic-exp" style="margin-top:2px;">Playbook cleanup. (1) "Learn it one tool at a time" moved to sit right above the playbook — easier to adjust a tool and immediately read the projection below it, instead of scrolling back up. (2) The playbook tables only show a column when it actually has data this phase — a plan that isn't using the 401(k) or the HELOC no longer carries empty columns just to be thorough. (3) Renamed for clarity: Phase 1 gained "Deployed capital" (the year's total allocation) as its first column, and "Policy premium"→"Fund policy", "401(k)"→"Fund 401(k)", "Refund in pool"→"Tax refunded", "Property cash"→"Rental income", "Mortgage left"→"Mortgage debt". Phase 2: "Need"→"Income", "Property cash"→"Rental income", "Tax"→"Tax bill" (now shown as a negative number, so it reads as money leaving, not just a magnitude).</p></div>
@@ -557,8 +558,7 @@
               <button type="button" class="toggle-btn" id="btn-sexF">Female</button>
             </div>
             <div class="control"><label>Current age <span class="val" id="v-currentAge">45</span></label><input type="range" id="currentAge" min="20" max="70" step="1" value="45"></div>
-            <div class="control"><label>Retirement age <span class="val" id="v-retireAge">65</span></label><input type="range" id="retireAge" min="40" max="75" step="1" value="65"></div>
-            <div class="control"><label>Age to pass down estate <span class="val" id="v-planAge">90</span></label><input type="range" id="planAge" min="78" max="120" step="1" value="90"></div>
+            <p class="topic-exp" style="margin-top:2px;">Retirement age and the age to pass down the estate are set in Section&nbsp;3's "Set the plan" topic, right where the retirement projection actually runs — one setting, not a duplicate to keep in sync.</p>
             <button type="button" class="toggle-btn" id="btn-agePreset" style="margin-top:10px;">Fill in typical numbers for my age</button>
             <p class="way-hint show" id="agePresetHint" style="margin-top:8px;">Slide the age and the other numbers preset to typical starting points for that stage of life (they stop auto-filling once you customize anything). Typical ≠ yours — replace them with the member's real numbers.</p>
           </div>
@@ -567,7 +567,7 @@
 
       <div class="topic" data-natopic="qualified">
         <div class="topic-hrow"><div class="topic-h" id="veh-qm-h">The 401(k) / qualified account</div><button type="button" class="toggle-btn na-btn" data-natool="qualified">✓ In the plan</button></div>
-        <p class="topic-exp">Your balance, plus a market assumption. <b>The account doesn't stay aggressive:</b> almost nobody in their 50s runs 90% stocks with retirement on the line — a bad year late hurts far more than one early, because withdrawals lock the loss in with no time to recover. So ALIS models the standard target-date glide: ~90% stocks through age 40, easing to 50/50 at retirement and 30/70 by 72. The slider sets what the <b>stock slice</b> earns; the bond slice earns the long-run Treasury return.</p>
+        <p class="topic-exp">Your balance today, plus what the market's assumed to earn. <b>This account gets safer as you get older, automatically:</b> almost nobody in their 50s should still have all their money in stocks with retirement close — a bad year late in life hurts much more than one early on, because there's no time left to recover from it. So the mix quietly shifts from mostly stocks to mostly bonds as you age. The slider below sets how much stocks are assumed to earn each year; bonds earn their own steadier, separate rate.</p>
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Current balance <span class="val" id="v-qmBalance">$1,500,000</span></label><input type="range" id="qmBalance" min="0" max="3000000" step="25000" value="1500000"></div>
@@ -583,14 +583,12 @@
           </div>
           <div class="side-results">
             <div class="ledger">
-              <div class="lline"><span>Stocks / bonds mix today <span class="lbl-sub" id="s-eqMixSub">Glides to 50/50 at retirement, 30/70 by 72 — the de-risking most target-date funds follow</span></span><span class="amt" id="s-eqMixNow">–</span></div>
+              <div class="lline"><span>Stocks / bonds mix today <span class="lbl-sub" id="s-eqMixSub">Shifts to half-and-half by retirement, then mostly bonds by 72 — no action needed, it just happens</span></span><span class="amt" id="s-eqMixNow">–</span></div>
               <div class="lline"><span>Blended growth today</span><span class="amt" id="s-qmRetNow">–</span></div>
               <div class="lline"><span>Blended growth at retirement</span><span class="amt" id="s-qmRetAtRet">–</span></div>
               <div class="lline"><span>Blended growth at 72+ <span class="lbl-sub">The floor — a dip here can no longer wreck the plan the way a flat aggressive assumption would</span></span><span class="amt" id="s-qmRetFloor">–</span></div>
-              <div class="lline"><span>Years it contributes in retirement</span><span class="amt" id="s-qmYears">–</span></div>
-              <div class="lline"><span>Average annual withdrawal <span class="lbl-sub">Low early, higher once the tax-free vehicles run dry</span></span><span class="amt" id="s-qmFirstDraw">–</span></div>
-              <div class="lline"><span>Total withdrawn over the horizon</span><span class="amt" id="s-finalWithdrawal">–</span></div>
               <div class="lline"><span>Effective tax rate on it <span class="lbl-sub" id="s-qmRateSub">Lifetime tax ÷ total withdrawn</span></span><span class="amt" id="s-finalTax">–</span></div>
+              <div class="lline"><span>Early-withdrawal penalty <span class="lbl-sub">The real 10% IRS penalty — only applies to money touched before age 59½</span></span><span class="amt" id="s-qmPenalty">–</span></div>
             </div>
           </div>
         </div>
@@ -892,8 +890,8 @@
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Current age <span class="val" id="v-currentAge2">45</span></label><input type="range" id="currentAge2" min="20" max="70" step="1" value="45"></div>
-            <div class="control"><label>Retirement age <span class="val" id="v-retireAge2">65</span></label><input type="range" id="retireAge2" min="40" max="75" step="1" value="65"></div>
-            <div class="control"><label>Age to pass down estate <span class="val" id="v-planAge2">90</span></label><input type="range" id="planAge2" min="78" max="120" step="1" value="90"></div>
+            <div class="control"><label>Retirement age <span class="val" id="v-retireAge">65</span></label><input type="range" id="retireAge" min="40" max="75" step="1" value="65"></div>
+            <div class="control"><label>Age to pass down estate <span class="val" id="v-planAge">90</span></label><input type="range" id="planAge" min="78" max="120" step="1" value="90"></div>
             <div class="control"><label>Amount to allocate/yr <span class="val" id="v-annualContrib2">$40,000</span></label><input type="range" id="annualContrib2" min="0" max="120000" step="5000" value="40000"></div>
             <div class="toggle-row">
               <button type="button" class="toggle-btn active sec-goal" data-goal="legacy">Max legacy</button>
@@ -2081,7 +2079,7 @@
     // bought during the working years; its loan state arrived via mortBal/mPay).
     const props = (inp.props||[]).map(p => ({...p}));
     const rec = {
-      qm:     { years:0, totalDrawn:0, totalTax:0 },
+      qm:     { years:0, totalDrawn:0, totalTax:0, totalPenalty:0 },
       heloc:  { years:0, totalDrawn:0, purchaseDrawn:0, capAtStart:0, refis:[], cashInterest:0 },
       policy: { years:0, totalDrawn:0, purchaseDrawn:0, cvAtStart:0, serviceTotal:0 },
       rent:   { yr1:0, yrN:0, total:0 },
@@ -2202,8 +2200,12 @@
 
       // Tax on the year's total ordinary income given a qualified withdrawal Q.
       const taxFor = Q => federalTax(Math.max(taxableRentPos + Math.max(Q - deductionPool, 0), 0), inp.filingStatus);
-      // Net cash from rent + qualified after the year's ordinary tax (before tax-free draws).
-      const nonTFCash = Q => netRent + Q - taxFor(Q);
+      // Real 10% IRS early-withdrawal penalty on qualified money touched before 59½ — threaded into
+      // the draw-sizing math itself (not just tacked on after), so a plan that retires early
+      // correctly draws MORE gross Q to net the same lifestyle, same as it would in real life.
+      const penRate = age < 59.5 ? 0.10 : 0;
+      // Net cash from rent + qualified after the year's ordinary tax AND penalty (before tax-free draws).
+      const nonTFCash = Q => netRent + Q - taxFor(Q) - Q*penRate;
 
       // 1) Pick the qualified withdrawal Q.
       let Q;
@@ -2353,14 +2355,15 @@
 
       // Record + advance state.
       const yearTax = taxFor(Q);
+      const yearPen = Q * penRate;    // real 10% early-withdrawal penalty, only before age 59½
       // What the same year would owe with no depreciation and no carryforward (interest still
       // deductible) — the difference is the depreciation shield's real tax benefit.
       const taxNoShield = federalTax(Math.max(Math.max(paperNetNoDep, 0) + Q, 0), inp.filingStatus);
       shieldTaxSaved += Math.max(taxNoShield - yearTax, 0);
-      lifetimeTax += yearTax + convTax + convPen;
+      lifetimeTax += yearTax + yearPen + convTax + convPen;
       passiveCarry -= Math.min(Q + conv, deductionPool);     // the shield actually consumed this year
       if (passiveCarry < 0) passiveCarry = 0;
-      if (Q > 1){ rec.qm.years++; rec.qm.totalDrawn += Q; rec.qm.totalTax += yearTax; }
+      if (Q > 1){ rec.qm.years++; rec.qm.totalDrawn += Q; rec.qm.totalTax += yearTax; rec.qm.totalPenalty += yearPen; }
       if (heJ > 1) rec.heloc.years++, rec.heloc.totalDrawn += heJ;
       if (poJ > 1) rec.policy.years++, rec.policy.totalDrawn += poJ;
       const propNetCash = noiSum - propPI;                   // what the properties truly contribute
@@ -2679,10 +2682,9 @@
     $('v-currentAge').textContent = currentAge;
     $('v-retireAge').textContent = retireAge;
     $('v-planAge').textContent = planAge;
-    // Mirror ages + lifestyle into Section 3's copies (kept in sync, same pattern as contribution).
+    // Retirement age / plan-through age now live ONLY in Section 3 (removed from Section 1 to
+    // declutter, 2026-07-07) — currentAge is still mirrored since it lives in both places.
     $('currentAge2').value = currentAge; $('v-currentAge2').textContent = currentAge;
-    $('retireAge2').value = retireAge; $('v-retireAge2').textContent = retireAge;
-    $('planAge2').value = planAge; $('v-planAge2').textContent = planAge;
 
     const annualContrib = +$('annualContrib').value;
     $('v-annualContrib').textContent = fmt0.format(annualContrib);
@@ -3146,12 +3148,11 @@
     });
 
     // ---- Qualified block (blended) ----
-    const qmAvg = chosen.rec.qm.years ? chosen.rec.qm.totalDrawn / chosen.rec.qm.years : 0;
     const qmRate = chosen.rec.qm.totalDrawn ? (chosen.rec.qm.totalTax / chosen.rec.qm.totalDrawn) : 0;
-    $('s-qmYears').textContent = chosen.rec.qm.years + ' yrs';
-    $('s-qmFirstDraw').textContent = qmAvg ? fmt0.format(qmAvg)+'/yr' : '—';
-    $('s-finalWithdrawal').textContent = fmt0.format(chosen.rec.qm.totalDrawn);
     $('s-finalTax').textContent = chosen.rec.qm.totalDrawn ? (qmRate*100).toFixed(1)+'%' : '—';
+    $('s-qmPenalty').textContent = chosen.rec.qm.totalPenalty > 0.5 ? fmt0.format(chosen.rec.qm.totalPenalty)
+      : (retireAge < 59.5 ? 'none — no draws needed before 59½ in this plan' : 'none — retiring at '+retireAge+', already past 59½');
+    $('s-qmPenalty').closest('.lline').classList.toggle('risk', chosen.rec.qm.totalPenalty > 0.5);
 
     // ---- HELOC block ----
     const heAvg = chosen.rec.heloc.years ? chosen.rec.heloc.totalDrawn / chosen.rec.heloc.years : 0;
@@ -4137,16 +4138,15 @@
   // Any hand edit to a preset-controlled slider ends the auto-fill (the button still works).
   ['income','withheld','qmBalance','annualContrib','annualContrib2','propValue','principal','yearsPaid',
    'invPrice','reEquity','todaySpend','todaySpend2','polPremiumAnnual','polYears','buyAge1',
-   'retireAge','retireAge2','planAge','planAge2'].forEach(id =>
+   'retireAge','planAge'].forEach(id =>
     $(id).addEventListener('input', () => { presetsDirty = true; }));
   $('btn-agePreset').addEventListener('click', () => { applyAgePresets(); presetsDirty = false; rerenderAll(); });
-  // Section-3 mirrors of the ages/lifestyle sliders: either copy drives the plan, both stay in sync
-  // (same pattern as the contribution slider — mirror writes the primary, render writes the mirror).
-  [['currentAge2','currentAge'],['retireAge2','retireAge'],['planAge2','planAge'],['todaySpend2','todaySpend']].forEach(([mirror, primary]) => {
+  // currentAge is still mirrored (lives in both Section 1 and Section 3); retirement age / plan-
+  // through age no longer have a Section-1 copy to mirror against (removed 2026-07-07).
+  [['currentAge2','currentAge'],['todaySpend2','todaySpend']].forEach(([mirror, primary]) => {
     $(mirror).addEventListener('input', () => {
       $(primary).value = $(mirror).value;
       if (mirror === 'currentAge2'){ if (!presetsDirty){ applyAgePresets(); rerenderAll(); } else renderSection3(); }
-      else if (mirror === 'retireAge2') renderSection3();
       else renderSection5();
     });
   });
