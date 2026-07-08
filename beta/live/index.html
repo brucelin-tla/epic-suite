@@ -735,6 +735,9 @@ const $=id=>document.getElementById(id);
 /* ===== Changelog — newest first. Bump this on every promote to live.
    version.json {"v":...} must match PATCH_NOTES[0].v so the update bar fires. ===== */
 const PATCH_NOTES=[
+{v:'1.48.0',d:'2026-07-07',n:[
+ "Referral commissions can now actually realize. Warm member referrals (route straight to a closer) now show up in your real queue even before they're a Sales Hub lead — call them like anything else, and logging 🏆 Won now really closes the deal: the $100 lead-gen commission (and your $100 3B + $200 close) get written to the real payout ledger, not just a toast message. The old ✅ Qualified button in the demo call is still just the training script — it doesn't touch real bookings yet.",
+]},
 {v:'1.47.0',d:'2026-07-06',n:[
  "Fixed a real blank-screen bug: the sign-in check ran before the page's own content was even added yet, so for some people it could never find it to reveal it — even when correctly signed in, with no error shown. Now waits for the page to finish loading first.",
  "Fixed a related gap: this page's real lead/call data could stay fully visible underneath the sign-in lock if the sign-in check ever failed outright — now starts hidden by default and only reveals once you're confirmed signed in (same fix Admin already had).",
@@ -1002,6 +1005,7 @@ function filteredList(){ return QUEUE.filter(p=>(currentFocus==='all'||p.seg.ind
 const CLOSER_STAGE_PATTERNS=['3.%','5.%','7.%'];
 let usingRealLeads=false;
 let REAL_BOOKINGS={}; // prospect_id -> active bookings row {id,slot_at,status} (2026-07-07)
+let REAL_DEALS={}; // queue-item id -> {id:deal_id, setup_collected} for referral-sourced deals (2026-07-07)
 function titleCase(s){ return (s||'Unknown').replace(/\w\S*/g,function(t){return t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();}); }
 function initialsFrom(name){ var w=(name||'?').trim().split(/\s+/); return ((w[0]||'')[0]||'?').toUpperCase()+((w[1]||'')[0]||'').toUpperCase(); }
 function shortStageLabel(stage){ return (stage||'Sales Hub lead').replace(/^\d+\.?\s*/,''); }
@@ -1028,7 +1032,22 @@ async function loadCloserQueue(){
       .limit(50);
     if(res.error) throw new Error(res.error.message);
     var rows=res.data||[];
-    if(rows.length===0){ usingRealLeads=false; toast('No live booked-call leads yet — showing demo'); return; }
+
+    // Warm referrals (route='closer') skip the BDR and go straight to a closer —
+    // they have no `prospects` row (nothing from GHL to sync), so they'd never
+    // reach the queue above no matter how long you wait. Pull them directly
+    // from the event spine so a member's referral is actually callable (2026-07-07).
+    REAL_DEALS={};
+    var refRows=[];
+    try{
+      var dRes=await window.EPIC_SB.from('deals')
+        .select('id,stage,plan,setup_collected,referrals(prospect_name,prospect_phone,prospect_email,route,created_at)')
+        .is('prospect_id',null).neq('stage','close');
+      if(!dRes.error) refRows=(dRes.data||[]).filter(function(d){ return d.referrals && d.referrals.route==='closer'; });
+      else console.error('loadCloserQueue deals',dRes.error);
+    }catch(e){ console.error('loadCloserQueue deals',e); }
+
+    if(rows.length===0 && refRows.length===0){ usingRealLeads=false; toast('No live booked-call leads yet — showing demo'); return; }
     QUEUE=rows.map(function(r){
       var bk=REAL_BOOKINGS[r.id];
       var bkWhen=bk?new Date(bk.slot_at).toLocaleString('en-US',{timeZone:'Pacific/Honolulu',weekday:'short',month:'numeric',day:'numeric',hour:'numeric',minute:'2-digit'}):null;
@@ -1039,10 +1058,31 @@ async function loadCloserQueue(){
         score:r.priority_score||50, seg:['live'], loc:'', tz:'America/Los_Angeles', tzL:'',
         caller:formatPhoneDisplay(r.phone), hist:[] };
     });
+    refRows.forEach(function(d){
+      var ref=d.referrals||{}; var nm=titleCase(ref.prospect_name);
+      REAL_DEALS[d.id]={id:d.id, setup_collected:!!d.setup_collected};
+      QUEUE.push({ id:d.id, ini:initialsFrom(nm), nm:nm,
+        sub:'💜 Member referral · warm → closer', reason:'Referral — warm intro',
+        score:70, seg:['live'], loc:'', tz:'America/Los_Angeles', tzL:'',
+        caller:formatPhoneDisplay(ref.prospect_phone), hist:[] });
+    });
     usingRealLeads=true;
     curId=null; setFocus('all', true);
-    toast('Loaded '+QUEUE.length+' real leads (booked-call stages + Setter-booked)');
+    toast('Loaded '+QUEUE.length+' real leads (booked-call stages + Setter-booked + referrals)');
   }catch(e){ usingRealLeads=false; toast('Could not load live leads — showing demo'); console.error('loadCloserQueue',e); }
+}
+/* Referral-sourced deal closing (2026-07-07): logging 🏆 Won on a warm-referral
+   queue entry realizes the real commission ledger via close-deal — leadgen
+   ($100) + this closer's 3B ($100) + close ($200) legs move to 'paid'. Fired
+   from logAndNext(), not blocking the log→next loop (fire-and-forget + toast). */
+async function closeReferralDeal(deal, planKey){
+  var planLabel={monthly:'Monthly',annual:'Annual',pro:'Pro'}[planKey]||null;
+  try{
+    var r=await window.EPIC_SB.functions.invoke('close-deal',{body:{deal_id:deal.id, plan:planLabel, setup_collected:true}});
+    if(r.error) throw new Error(r.error.message||'close-deal failed');
+    deal.setup_collected=true;
+    toast('💰 Referral commissions realized on close');
+  }catch(e){ toast('⚠ Referral commission NOT realized — '+((e&&e.message)||e)); console.error('closeReferralDeal',e); }
 }
 // ── See/cancel/reschedule the real appointment (2026-07-07) ──
 function renderRealBookingPanel(prospectId){
@@ -1414,6 +1454,10 @@ function logAndNext(){
   const o=sel.dataset.o;
   if(o==='nq' && !nqReason){ toast('Pick a disqualify reason'); return; }
   if(o==='booked') bump('s-book');
+  if(o==='won' && usingRealLeads){
+    const deal=REAL_DEALS[curId];
+    if(deal && !deal.setup_collected) closeReferralDeal(deal, curPlan);
+  }
   advanceQueue();
 }
 function advanceQueue(verb){
