@@ -140,13 +140,18 @@
   .lock-wizard { border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px 4px; margin-bottom: 20px; background: var(--paper-raised); }
   details.lock-step { border-bottom: 1px solid var(--line); padding: 14px 0; }
   details.lock-step:last-of-type { border-bottom: none; }
-  details.lock-step summary { cursor: pointer; font-size: 15px; font-weight: 700; color: var(--ink); list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  details.lock-step summary { cursor: pointer; font-size: 15px; font-weight: 700; color: var(--ink); list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
   details.lock-step summary::-webkit-details-marker { display: none; }
+  details.lock-step .lock-step-title { display: flex; align-items: center; }
+  details.lock-step .lock-step-arrow { display: inline-block; font-size: 11px; color: var(--brass); margin-right: 8px; transition: transform 0.15s; }
+  details.lock-step:not([open]) .lock-step-arrow { transform: rotate(-90deg); }
   details.lock-step .lock-step-num { color: var(--brass); font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; margin-right: 8px; }
-  details.lock-step .lock-step-flag { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--paper); border: 1px solid var(--line); color: var(--ink-soft); }
-  details.lock-step.locked .lock-step-flag { background: var(--go-soft); border-color: var(--go); color: var(--go); }
+  details.lock-step .lock-step-actions { display: flex; gap: 6px; font-size: 12.5px; font-weight: 600; }
+  details.lock-step .lock-step-actions .toggle-btn { padding: 5px 12px; }
+  details.lock-step .lock-edit-btn { display: none; }
+  details.lock-step.locked .lock-edit-btn { display: inline-block; }
+  details.lock-step.locked .lock-confirm-btn { background: var(--go-soft); border-color: var(--go); color: var(--go); }
   details.lock-step .lock-step-body { padding-top: 14px; }
-  .lock-step-btn { margin-top: 14px; }
 
   .explainer { }
   .exp-row { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; }
@@ -497,12 +502,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.08-b44</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.08-b45</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b45</span><p class="topic-exp" style="margin-top:2px;">Section 1 restored — it lost its income/tax/ages, 401(k), and mortgage inputs when they moved into the Section&nbsp;3 lock-in wizard last batch; they're back now as live mirrors (edit either copy, both stay in sync), and the wizard's own inputs are untouched. The wizard's step headers now show a collapse arrow next to the title and two buttons at the top right — <b>Edit</b> and <b>Confirm</b> — instead of one button buried at the bottom. The chronic illness rider is now explicitly an <b>optional</b> rider (on by default) with ALIS's own recommendation to include it: real advantage early on, with very little cost carried. Removed every "why one policy replaces two" explanation — the member has only ever known this one AIUL, so that framing served no one. Section&nbsp;2's sandbox now shows its own chronic-illness preview (monthly draw at trigger, total drawn over the horizon, death benefit at the end) computed from the illustrative design projected forward to the real claim age and plan-through age — death benefit at the end is always face plus cash value minus any outstanding loan, interest included. Caught two real bugs in verification: claim age and plan-through age weren't actually recomputing this new preview (silently stale numbers), and a long fallback string was breaking the mobile layout — both fixed before shipping.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b44</span><p class="topic-exp" style="margin-top:2px;">The chronic illness rider is now on by default, locked at its real 1%/mo elected rate (no more 1/2/4% choice — the design elects 1% and can't change it later), and once it triggers it draws every year for the rest of the plan instead of stopping after a fixed "years of need" — the death benefit runs down but never quite to zero, since each draw is a percentage of whatever's left. The Accelerated Death Benefit rider is gone entirely — the chronic illness rider is now the only accelerated-benefit mechanic (most members have never had a policy like this, so there's no reason to model a second rider on top). The increasing-to-level switch is ALIS-only now — no manual age or "never" selector, ALIS always picks it. Removed "The policy's real costs" as its own section. Policy premium now defaults to $0 everywhere (including every age-based preset) — most members are starting from scratch, not funding an existing design. <b>Biggest change: a new "Lock in your plan" wizard at the very start of Section&nbsp;3</b> — go step by step (your numbers → 401(k) → property &amp; mortgage → the AIUL itself, now with its own separate total-premium input, stop age, years in force and claim age) and lock each one in before the plan runs on it. Section&nbsp;2's policy topic is now explicitly just an illustration — play with it all you want, only the tax-reserve-vehicle choice and years-in-force there actually feed the real plan. Mortgage years-paid-in also gained month-level precision.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b43</span><p class="topic-exp" style="margin-top:2px;">One policy now does both jobs. The Accumulation IUL carries a built-in <b>chronic illness rider</b> — the separate Protection IUL topic is gone, because this design makes a second policy unnecessary: the same death benefit that clears your debt is also the chronic-illness pool, and because the policy is issued <b>increasing</b> (Option 2), your cash value stacks on top of the face amount — the death benefit and the chronic-illness pool both grow as the cash value grows. New: <b>ALIS picks the year the policy switches from increasing to level</b> (the real trade-off: stay increasing longer and the death benefit keeps growing but the insurance cost keeps riding the full face; switch and the cost shrinks as cash value fills the gap) — shown with the honest dollar difference vs. never switching, and you can override it. Recalibrated everything to six fresh 2026 carrier illustrations of this exact design (both sexes, ages 30/45/60, rider included): bigger death benefit per premium dollar, new target premiums, cost model reproduces all six within 1–7% across every illustrated year (now split by sex — women's charges run genuinely lower). Chronic-illness draws now honestly cap at the IRS per-diem limit ($430/day for 2026, ≈$13,079/mo — the old $30K/mo cap belonged to the retired product) and every draw also reduces cash value proportionately, exactly as the rider actually works. The estate math now uses the real net death benefit (face + stacked cash value − loans − anything the riders drew) instead of just cash value — the "one tool beats all" story, priced honestly. Also fixed from the contract: the overfunding charge stops after policy year 20 (it was being charged forever).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b42</span><p class="topic-exp" style="margin-top:2px;">The Accumulation IUL topic reorganized around what actually matters, in this order: death benefit, total annual premium, premium expense charge, current cash value, the year's tax-loan, loan available (capped at 90% of cash value — the same never-lapse limit the retirement engine already enforces, now applied here too, not just later), net gain on the loan's interest rate, net gain in dollars, cash value remaining, tax bill out of pocket. Everything an agent needs but a member doesn't (enhanced target premium, year-1 cost of insurance, face-amount charges, overfunding charge, the $20/mo admin fee, and a new "Total AIUL policy expense" that adds them all up) moved into one collapsed "stats for agents" panel — no commission math spelled out, just labeled as agent stats. New: a premium-stop-age dropdown for the Accumulation IUL (current age → 120), same as the Protection IUL already had. Clarity fixes: the premium line now says "Withholding not selected" outright when the toggle is off instead of a vague example; the loan's net cost/gain no longer uses a "negative means gain" convention — a real cost now reads as a cost, a real gain as a gain. Regression: default numbers unchanged where nothing above actually changed the math; the 90%-cap loan fix only bites when cash value is thin enough that 90% of it is less than the tax bill (a real, disclosed behavior change, not a bug); 0 JS errors.</p></div>
@@ -553,8 +559,62 @@
     <!-- 1. YOUR NUMBERS — ASSETS & VEHICLES -->
     <section class="sec">
       <span class="sec-num">Section 1</span>
-      <h2>Other debts &amp; credit</h2>
-      <p class="sub">Your real numbers — income &amp; tax, ages, the 401(k), the mortgage, and the AIUL — now get entered and locked in at the very start of Section&nbsp;3, in the order you'd actually gather them. This section is just the one thing left that doesn't have a home yet.</p>
+      <h2>Your numbers — assets &amp; vehicles</h2>
+      <p class="sub">Everything the plan is built from: income and tax, ages, the 401(k), and the home mortgage. These mirror the "Lock in your plan" wizard at the start of Section&nbsp;3 — edit either copy, both stay in sync, and the wizard is where you actually lock them in.</p>
+
+      <div class="topic">
+        <div class="topic-h">Income, tax &amp; ages</div>
+        <p class="topic-exp">Your income sets the tax math everywhere — how much of a write-off you can use now, what a 401(k) withdrawal costs later.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="toggle-row">
+              <button type="button" class="toggle-btn active" id="btn-single1">Single</button>
+              <button type="button" class="toggle-btn" id="btn-mfj1">Married filing jointly</button>
+            </div>
+            <div class="control"><label>Annual taxable income <span class="val" id="v-income1">$180,000</span></label><input type="range" id="income1" min="30000" max="700000" step="5000" value="180000"></div>
+            <div class="control"><label>Current annual tax withheld <span class="val" id="v-withheld1">$32,000</span></label><input type="range" id="withheld1" min="0" max="200000" step="1000" value="32000"></div>
+          </div>
+          <div class="side-controls">
+            <div class="toggle-row">
+              <button type="button" class="toggle-btn active" id="btn-sexM1">Male</button>
+              <button type="button" class="toggle-btn" id="btn-sexF1">Female</button>
+            </div>
+            <div class="control"><label>Current age <span class="val" id="v-currentAge1">45</span></label><input type="range" id="currentAge1" min="20" max="70" step="1" value="45"></div>
+            <button type="button" class="toggle-btn" id="btn-agePreset1" style="margin-top:10px;">Fill in typical numbers for my age</button>
+            <p class="way-hint show" style="margin-top:8px;">Slide the age and the other numbers preset to typical starting points for that stage of life (they stop auto-filling once you customize anything). Typical ≠ yours — replace them with the member's real numbers.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="topic" data-natopic="qualified">
+        <div class="topic-hrow"><div class="topic-h">The 401(k) / qualified account</div><button type="button" class="toggle-btn na-btn" data-natool="qualified">✓ In the plan</button></div>
+        <p class="topic-exp">Your balance today, plus what the market's assumed to earn.</p>
+        <div class="control"><label>Current balance <span class="val" id="v-qmBalance1">$1,500,000</span></label><input type="range" id="qmBalance1" min="0" max="3000000" step="25000" value="1500000"></div>
+        <div class="control"><label>Stock market return (S&amp;P 500 total) <span class="val" id="v-qmGrowth1">10.02%</span></label><input type="range" id="qmGrowth1" min="4" max="14" step="0.01" value="10.02"></div>
+        <div class="toggle-row" style="flex-wrap:wrap;">
+          <button type="button" class="toggle-btn mkt-preset" data-mkt="10.02">Full record 1928–2025 — 10.02%</button>
+          <button type="button" class="toggle-btn mkt-preset" data-mkt="13.94">Recent era 2011–2025 — 13.94%</button>
+        </div>
+      </div>
+
+      <div class="topic" data-natopic="mortgage">
+        <div class="topic-hrow"><div class="topic-h">The home mortgage, on schedule</div><button type="button" class="toggle-btn na-btn" data-natool="mortgage">✓ In the plan</button></div>
+        <p class="topic-exp">The mortgage as it stands today — Section&nbsp;2's velocity banking attacks this, and the home's equity backs the HELOC later.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="control"><label>Property value <span class="val" id="v-propValue1">$1,100,000</span></label><input type="range" id="propValue1" min="50000" max="3000000" step="10000" value="1100000"></div>
+            <div class="control"><label>Original mortgage principal <span class="val" id="v-principal1">$500,000</span></label><input type="range" id="principal1" min="0" max="2000000" step="5000" value="500000"></div>
+            <div class="control"><label>Interest rate <span class="val" id="v-rate1">6.43%</span></label><input type="range" id="rate1" min="2" max="9" step="0.01" value="6.43"></div>
+          </div>
+          <div class="side-controls">
+            <div class="control"><label>Loan term <span class="val" id="v-term1">30 yrs</span></label><input type="range" id="term1" min="15" max="30" step="5" value="30"></div>
+            <div class="control"><label>Years paid in <span class="val" id="v-yearsPaid1">5 yrs</span></label><input type="range" id="yearsPaid1" min="0" max="25" step="1" value="5"></div>
+            <div class="control"><label>+ Months paid in <span class="val" id="v-monthsPaid1">0 mo</span></label><input type="range" id="monthsPaid1" min="0" max="11" step="1" value="0"></div>
+          </div>
+        </div>
+        <p class="topic-exp" style="margin-top:6px;">Balance and payoff results show in the "Lock in your plan" wizard, Section&nbsp;3.</p>
+      </div>
+
       <div class="topic">
         <div class="topic-h">Other debts &amp; credit</div>
         <details class="caveat mini collapsible" id="cav-debt">
@@ -568,11 +628,11 @@
     <section class="sec">
       <span class="sec-num">Section 2</span>
       <h2>Reserves &amp; tools</h2>
-      <p class="sub">The reserves and tools the plan works with, in the order you build them: ONE policy — the Accumulation IUL with its built-in chronic illness rider — carrying both the death benefit that clears your debt AND the tax-free engine, the rental property for depreciation and cash flow — then velocity banking (with 0% business credit and the HELOC) to kill mortgage interest, funded from the capacity those tools just built. Each one can be switched off if it doesn't apply.</p>
+      <p class="sub">The reserves and tools the plan works with, in the order you build them: the Accumulation IUL for the death benefit and the tax-free engine, the rental property for depreciation and cash flow — then velocity banking (with 0% business credit and the HELOC) to kill mortgage interest, funded from the capacity those tools just built. Each one can be switched off if it doesn't apply.</p>
 
       <div class="topic" data-natopic="policy">
         <div class="topic-hrow"><div class="topic-h">The policy — protection and accumulation in one</div><button type="button" class="toggle-btn na-btn" data-natool="policy">✓ In the plan</button></div>
-        <p class="topic-exp">One Accumulation IUL does both jobs: it carries the death benefit that clears your debt (see Section&nbsp;3's estate topic) AND grows the tax-free cash value the plan lives on — no separate protection policy needed, which is the whole point: one policy's costs instead of two. It's issued <b>increasing</b> (Option&nbsp;2): the death benefit is the face amount <b>plus</b> the cash value, so both the coverage and the chronic-illness pool below grow every year the cash value grows. The increasing-to-level switch is ALIS's call, always — no manual setting.</p>
+        <p class="topic-exp">The Accumulation IUL carries the death benefit that clears your debt (see Section&nbsp;3's estate topic) AND grows the tax-free cash value the plan lives on. It's issued <b>increasing</b> (Option&nbsp;2): the death benefit is the face amount <b>plus</b> the cash value, so both the coverage and the chronic-illness pool below grow every year the cash value grows. The increasing-to-level switch is ALIS's call, always — no manual setting.</p>
         <p class="way-hint show" style="margin-top:2px;">This whole section is a <b>projection only</b>, based on whatever you enter here — it doesn't drive Section&nbsp;3/4's real plan. Only two things here actually carry through: whether you turn on <b>"Use as tax reserve vehicle"</b> below, and <b>years in force</b>. Everything else (the premium amount, crediting story, loan type) is just for exploring what a policy like this would look like.</p>
         <div class="split">
           <div class="side-controls">
@@ -632,13 +692,14 @@
         </div>
 
         <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
-          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Chronic illness rider — built into this policy</div><button type="button" class="toggle-btn ltc-btn active" id="btn-ltc">✓ Modeled</button></div>
-          <p class="topic-exp">This is why one policy replaces two: if a qualifying chronic illness or long-term-care need hits (unable to do 2 of 6 daily-living activities, or severe cognitive impairment), the member draws <b>1% of the current death benefit</b> every month, tax-free — TLA's illustrated design, elected at issue and fixed for the life of the policy — and because the policy is increasing, that pool is the face amount plus every dollar of cash value stacked on top. Capped at the IRS per-diem limit ($430/day for 2026 — about $13,079/mo). Once it kicks in, it keeps drawing every year for the rest of the plan — a real need doesn't come with a known end date, so this doesn't pretend one. Because each draw is 1% of whatever's LEFT, the death benefit runs down but never quite to zero — the policy stays in force with a small, genuine death benefit remaining. Real income, not free money: every dollar drawn permanently reduces the death benefit AND proportionately reduces the cash value, exactly as the rider works in the contract. Modeled on by default — this is a real feature of the design, not an opt-in extra. <b>Claim age is set at the start of Section&nbsp;3, in the AIUL lock-in step.</b></p>
+          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Chronic illness rider <span class="lbl-sub">Optional — ALIS recommends including it</span></div><button type="button" class="toggle-btn ltc-btn active" id="btn-ltc">✓ Modeled</button></div>
+          <p class="way-hint show" style="margin-top:2px;"><b>Recommended:</b> real advantage early on, with very little cost carried — turn it off below if it doesn't apply.</p>
+          <p class="topic-exp">If a qualifying chronic illness or long-term-care need hits (unable to do 2 of 6 daily-living activities, or severe cognitive impairment), the member draws <b>1% of the current death benefit</b> every month, tax-free — elected at issue and fixed for the life of the policy — and because the policy is increasing, that pool is the face amount plus every dollar of cash value stacked on top. Capped at the IRS per-diem limit ($430/day for 2026 — about $13,079/mo). Once it kicks in, it keeps drawing every year for the rest of the plan — a real need doesn't come with a known end date, so this doesn't pretend one. Because each draw is 1% of whatever's LEFT, the death benefit runs down but never quite to zero — the policy stays in force with a small, genuine death benefit remaining. Real income, not free money: every dollar drawn permanently reduces the death benefit AND proportionately reduces the cash value, exactly as the rider works in the contract. <b>Claim age is set at the start of Section&nbsp;3, in the AIUL lock-in step.</b></p>
           <div class="side-results">
             <div class="ledger">
-              <div class="lline"><span>Monthly draw at trigger <span class="lbl-sub">1% × the death benefit at that age, capped at the IRS per-diem limit (~$13,079/mo in 2026)</span></span><span class="amt" id="s-ltcMonthly">–</span></div>
-              <div class="lline"><span>Total drawn over the horizon <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-ltcTotal">–</span></div>
-              <div class="lline total"><span>Death benefit remaining at the end <span class="lbl-sub">What's left to clear debt — a small residual, not zero, since the draw is a % of whatever's left</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
+              <div class="lline"><span>Monthly draw at trigger <span class="lbl-sub">1% × the death benefit at claim age, capped at the IRS per-diem limit (~$13,079/mo in 2026) — projected from this design, funded at this premium to claim age</span></span><span class="amt" id="s-ltcMonthly">–</span></div>
+              <div class="lline"><span>Drawn over the horizon <span class="lbl-sub">Tax-free — claim age to plan-through age (both set in Section 3's lock-in wizard)</span></span><span class="amt" id="s-ltcTotal">–</span></div>
+              <div class="lline total"><span>Death benefit at the end <span class="lbl-sub">Always: original face + cash value − any outstanding loan (interest included) — a small residual, not zero, since the draw is a % of whatever's left</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
             </div>
             <details class="caveat mini collapsible" id="cav-ltc">
               <summary><span class="mark">!</span><span>Why age 80 — and what this does and doesn't cover</span></summary>
@@ -797,7 +858,7 @@
         <p class="topic-exp" style="margin-top:12px;"><b>Lock in your plan.</b> Go step by step — edit each one to the member's real numbers, then lock it in and move to the next. Tap a step's header any time to reopen and edit it.</p>
 
         <details class="lock-step" open id="lockStep1">
-          <summary><span><span class="lock-step-num">1</span>Your numbers — income, tax &amp; ages</span><span class="lock-step-flag" id="lockFlag1">Not locked</span></summary>
+          <summary><span class="lock-step-title"><span class="lock-step-arrow">▾</span><span class="lock-step-num">1</span>Your numbers — income, tax &amp; ages</span><span class="lock-step-actions"><button type="button" class="toggle-btn lock-edit-btn" data-lock="1">Edit</button><button type="button" class="toggle-btn active lock-confirm-btn" data-lock="1">Confirm</button></span></summary>
           <div class="lock-step-body">
             <p class="topic-exp">Your income sets the tax math everywhere — how much of a write-off you can use now, what a 401(k) withdrawal costs later.</p>
             <div class="split">
@@ -819,12 +880,11 @@
                 <p class="way-hint show" id="agePresetHint" style="margin-top:8px;">Slide the age and the other numbers preset to typical starting points for that stage of life (they stop auto-filling once you customize anything). Typical ≠ yours — replace them with the member's real numbers.</p>
               </div>
             </div>
-            <button type="button" class="toggle-btn active lock-step-btn" data-lock="1">Lock in ✓ — next: 401(k)</button>
           </div>
         </details>
 
         <details class="lock-step" id="lockStep2">
-          <summary><span><span class="lock-step-num">2</span>401(k) current balance</span><span class="lock-step-flag" id="lockFlag2">Not locked</span></summary>
+          <summary><span class="lock-step-title"><span class="lock-step-arrow">▾</span><span class="lock-step-num">2</span>401(k) current balance</span><span class="lock-step-actions"><button type="button" class="toggle-btn lock-edit-btn" data-lock="2">Edit</button><button type="button" class="toggle-btn active lock-confirm-btn" data-lock="2">Confirm</button></span></summary>
           <div class="lock-step-body">
             <p class="topic-exp">Your balance today. <b>This account gets safer as you get older, automatically</b> — the mix quietly shifts from mostly stocks to mostly bonds as you age (Vanguard's published glide path).</p>
             <div class="split">
@@ -847,12 +907,11 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="toggle-btn active lock-step-btn" data-lock="2">Lock in ✓ — next: property &amp; mortgage</button>
           </div>
         </details>
 
         <details class="lock-step" id="lockStep3">
-          <summary><span><span class="lock-step-num">3</span>Property &amp; mortgage</span><span class="lock-step-flag" id="lockFlag3">Not locked</span></summary>
+          <summary><span class="lock-step-title"><span class="lock-step-arrow">▾</span><span class="lock-step-num">3</span>Property &amp; mortgage</span><span class="lock-step-actions"><button type="button" class="toggle-btn lock-edit-btn" data-lock="3">Edit</button><button type="button" class="toggle-btn active lock-confirm-btn" data-lock="3">Confirm</button></span></summary>
           <div class="lock-step-body">
             <p class="topic-exp">The mortgage as it stands today — Section&nbsp;2's velocity banking attacks this, and the home's equity backs the HELOC later.</p>
             <div class="split">
@@ -873,12 +932,11 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="toggle-btn active lock-step-btn" data-lock="3">Lock in ✓ — next: AIUL</button>
           </div>
         </details>
 
         <details class="lock-step" id="lockStep4">
-          <summary><span><span class="lock-step-num">4</span>AIUL — the policy that runs the real plan</span><span class="lock-step-flag" id="lockFlag4">Not locked</span></summary>
+          <summary><span class="lock-step-title"><span class="lock-step-arrow">▾</span><span class="lock-step-num">4</span>AIUL — the policy that runs the real plan</span><span class="lock-step-actions"><button type="button" class="toggle-btn lock-edit-btn" data-lock="4">Edit</button><button type="button" class="toggle-btn active lock-confirm-btn" data-lock="4">Confirm</button></span></summary>
           <div class="lock-step-body">
             <p class="topic-exp">This is the real funding Section&nbsp;3/4 runs on — separate from Section&nbsp;2's illustration above. Total premium, whether it doubles as your tax reserve, when it stops, how long it's been in force, and the age a chronic-illness claim starts.</p>
             <div class="split">
@@ -899,7 +957,6 @@
                 </div>
               </div>
             </div>
-            <button type="button" class="toggle-btn active lock-step-btn" data-lock="4">Lock in ✓</button>
           </div>
         </details>
       </div>
@@ -1796,6 +1853,15 @@
     $('v-term').textContent = term+' yrs';
     $('v-yearsPaid').textContent = yearsPaid+' yrs';
     $('v-monthsPaid').textContent = monthsPaid+' mo';
+    // Section 1's mortgage topic mirrors these same values (regression fix, 2026-07-08 — Section 1
+    // lost its inputs when they moved into the Section-3 wizard; restored as synced mirrors instead
+    // of moving them back, so the wizard's already-wired primaries stay untouched).
+    $('propValue1').value = propValue; $('v-propValue1').textContent = fmt0.format(propValue);
+    $('principal1').value = principal; $('v-principal1').textContent = fmt0.format(principal);
+    $('rate1').value = rate; $('v-rate1').textContent = rate.toFixed(2)+'%';
+    $('term1').value = term; $('v-term1').textContent = term+' yrs';
+    $('yearsPaid1').value = yearsPaid; $('v-yearsPaid1').textContent = yearsPaid+' yrs';
+    $('monthsPaid1').value = monthsPaid; $('v-monthsPaid1').textContent = monthsPaid+' mo';
 
     // Payment comes from the ORIGINAL terms; balance today = amortized forward yearsPaid years
     // + monthsPaid months (real precision — "5 years and 7 months in" isn't the same balance as
@@ -1860,6 +1926,8 @@
 
     $('v-income').textContent = fmt0.format(income);
     $('v-withheld').textContent = fmt0.format(withheld);
+    $('income1').value = income; $('v-income1').textContent = fmt0.format(income);
+    $('withheld1').value = withheld; $('v-withheld1').textContent = fmt0.format(withheld);
     $('v-invPrice').textContent = fmt0.format(invPrice);
     $('v-downPct').textContent = downPct+'%';
     $('v-invRate').textContent = invRate.toFixed(2)+'%';
@@ -2056,6 +2124,54 @@
     const cashRemaining = cashValue - loanTaken;
     const outOfPocket = Math.max(taxWithDeduction - loanTaken, 0);
     const gainDollars = loanTaken * (gainPct/100);
+
+    // --- Sandbox preview: the chronic-illness rider, projected forward from THIS illustrative
+    // design (2026-07-08, Bruce's ask). Continues funding at the SAME illustrative premium — the
+    // sandbox has no stop-age control — to the real/shared claim age, then applies the real rider
+    // mechanic (1%/mo of current death benefit, IRS per-diem capped, proportional cash-value
+    // reduction) through the real/shared plan-through age. Death benefit at the end is ALWAYS the
+    // policy's face (or its frozen level after the switch) plus cash value, minus any outstanding
+    // loan — the tax-bill loan above, carried forward compounding at its own rate, if one's taken.
+    {
+      const claimAge = +$('ltcStartAge').value;
+      const planThroughAge = +$('planAge').value;
+      let pvCV = cashValue, pvLoan = loanTaken, pvCum = cumPrem3;
+      const pvSt = mkPolState(st3);   // continue from today's switch state without mutating st3
+      let age = ageNow, polYr = polYears;
+      while (age < claimAge){
+        polYr++; age++;
+        const netPrem = annualPremium * (1 - premChargePct(polYr));
+        pvCum += annualPremium;
+        const costs = policyCosts(pc0, age, polYr, pvCV, pvCum, pvSt) + POLICY_ADMIN_ANNUAL;
+        pvCV = Math.max((pvCV + netPrem) * (1+cr) - costs, 0);
+        if (pvLoan > 0.5) pvLoan *= (1 + loanRatePct/100);
+      }
+      let monthlyAtTrigger = 0, totalDrawn = 0;
+      while (age < planThroughAge){
+        polYr++; age++;
+        const netPrem = annualPremium * (1 - premChargePct(polYr));
+        pvCum += annualPremium;
+        const costs = policyCosts(pc0, age, polYr, pvCV, pvCum, pvSt) + POLICY_ADMIN_ANNUAL;
+        pvCV = Math.max((pvCV + netPrem) * (1+cr) - costs, 0);
+        if (pvLoan > 0.5) pvLoan *= (1 + loanRatePct/100);
+        const dbNow = policyDB(pc0, pvSt, age, pvCV);
+        const dbAvail = Math.max(dbNow - pvLoan, 0);
+        if (dbAvail > 0.5){
+          const monthly = Math.min(dbNow * 0.01, CI_PER_DIEM_MONTHLY);
+          const draw = Math.min(monthly * 12, dbAvail);
+          if (monthlyAtTrigger <= 0.5) monthlyAtTrigger = monthly;
+          totalDrawn += draw;
+          pvCV = Math.max(pvCV - draw * (pvCV / dbNow), 0);   // same proportional-reduction mechanic as the real engine
+          if (pvSt.faceLevel !== null) pvSt.faceLevel = Math.max(pvSt.faceLevel * (1 - draw/dbNow), 0);
+          else pvSt.faceScale = Math.max(pvSt.faceScale * (1 - draw/dbNow), 0);
+        }
+      }
+      const dbEnd = Math.max(policyDB(pc0, pvSt, age, pvCV) - pvLoan, 0);
+      $('s-ltcMonthly').textContent = monthlyAtTrigger > 0.5 ? fmt0.format(Math.round(monthlyAtTrigger))+'/mo' : 'never triggers';
+      $('s-ltcTotal').textContent = fmt0.format(Math.round(totalDrawn));
+      $('s-ltcDBEnd').textContent = fmt0.format(Math.round(dbEnd));
+      $('s-ltcDBEnd').closest('.lline').classList.toggle('risk', totalDrawn > 1);
+    }
 
     $('s-premium').textContent = fmt0.format(annualPremium)+'/yr';
     $('s-premiumSub').textContent = addWithholding
@@ -2827,6 +2943,8 @@
     $('v-inflation').textContent = (inflation*100).toFixed(2)+'%';
     $('v-qmBalance').textContent = fmt0.format(qmBalance);
     $('v-qmGrowth').textContent = (qmGrowth*100).toFixed(2)+'%';
+    $('qmBalance1').value = qmBalance; $('v-qmBalance1').textContent = fmt0.format(qmBalance);
+    $('qmGrowth1').value = qmGrowth*100; $('v-qmGrowth1').textContent = (qmGrowth*100).toFixed(2)+'%';
     document.querySelectorAll('.mkt-preset').forEach(b =>
       b.classList.toggle('active', Math.abs(qmGrowth*100 - parseFloat(b.dataset.mkt)) < 0.005));
     $('v-helocRate').textContent = (helocRate*100).toFixed(2)+'%';
@@ -2839,6 +2957,7 @@
     // Retirement age / plan-through age now live ONLY in Section 3 (removed from Section 1 to
     // declutter, 2026-07-07) — currentAge is still mirrored since it lives in both places.
     $('currentAge2').value = currentAge; $('v-currentAge2').textContent = currentAge;
+    $('currentAge1').value = currentAge; $('v-currentAge1').textContent = currentAge;
 
     const annualContrib = +$('annualContrib').value;
     $('v-annualContrib').textContent = fmt0.format(annualContrib);
@@ -3304,14 +3423,9 @@
     $('s-legacy').textContent = fmt0.format(chosen.legacy);
     $('s-wealth').textContent = fmt0.format(chosen.legacy + chosen.totalExtracted);
     $('s-tax').textContent = fmt0.format(chosen.lifetimeTax);
-    // Rider readouts — all from the chosen run's REAL record, since the pool is the policy's own
-    // growing death benefit (face + stacked cash value), not a standalone slider anymore.
-    $('s-ltcMonthly').textContent = ltcOn
-      ? (chosen.rec.ltc.monthlyAtTrigger > 0.5 ? fmt0.format(Math.round(chosen.rec.ltc.monthlyAtTrigger))+'/mo' : 'never triggers in this plan')
-      : 'off';
-    $('s-ltcTotal').textContent = ltcOn ? fmt0.format(Math.round(chosen.rec.ltc.totalDrawn)) : 'off';
-    $('s-ltcDBEnd').textContent = fmt0.format(Math.round(chosen.rec.ltc.dbRemaining));
-    $('s-ltcDBEnd').closest('.lline').classList.toggle('risk', chosen.rec.ltc.totalDrawn > 1);
+    // Note: s-ltcMonthly/s-ltcTotal/s-ltcDBEnd are Section 2's SANDBOX preview now (written in
+    // renderSection3, from the illustrative design) — the real plan's rider draws still show in
+    // Section 3's estate topic (s-ltcCoverage, from chosen.rec.ltc, below).
 
     // ---- Properties block ----
     $('s-rentLocSub').textContent = propsDef.length > 1
@@ -3645,13 +3759,28 @@
     sex = s;
     $('btn-sexM').classList.toggle('active', s==='male');
     $('btn-sexF').classList.toggle('active', s==='female');
+    $('btn-sexM1').classList.toggle('active', s==='male');
+    $('btn-sexF1').classList.toggle('active', s==='female');
     if (!COI_TOUCHED) $('coiPct').value = COI_DEFAULT[s];
     renderSection3();
   }
   $('btn-sexM').addEventListener('click', () => setSex('male'));
   $('btn-sexF').addEventListener('click', () => setSex('female'));
-  $('btn-single').addEventListener('click', () => { filingStatus='single'; $('btn-single').classList.add('active'); $('btn-mfj').classList.remove('active'); renderSection2(); renderSection5(); });
-  $('btn-mfj').addEventListener('click', () => { filingStatus='mfj'; $('btn-mfj').classList.add('active'); $('btn-single').classList.remove('active'); renderSection2(); renderSection5(); });
+  $('btn-sexM1').addEventListener('click', () => setSex('male'));
+  $('btn-sexF1').addEventListener('click', () => setSex('female'));
+  // Section 1's income/tax/ages topic mirrors the Section-3 wizard's — same shared handler.
+  function setFilingStatus(fs){
+    filingStatus = fs;
+    $('btn-single').classList.toggle('active', fs==='single');
+    $('btn-mfj').classList.toggle('active', fs==='mfj');
+    $('btn-single1').classList.toggle('active', fs==='single');
+    $('btn-mfj1').classList.toggle('active', fs==='mfj');
+    renderSection2(); renderSection5();
+  }
+  $('btn-single').addEventListener('click', () => setFilingStatus('single'));
+  $('btn-mfj').addEventListener('click', () => setFilingStatus('mfj'));
+  $('btn-single1').addEventListener('click', () => setFilingStatus('single'));
+  $('btn-mfj1').addEventListener('click', () => setFilingStatus('mfj'));
   const setLoanBtns = () => ['autoLoan','indexLoan','washLoan'].forEach(k =>
     $('btn-'+k).classList.toggle('active', loanType === (k==='autoLoan'?'auto':k==='indexLoan'?'index':'wash')));
   $('btn-autoLoan').addEventListener('click', () => { loanType='auto'; setLoanBtns(); renderSection3(); });
@@ -4334,7 +4463,9 @@
   ['coiPct','aiulStopAge'].forEach(id => $(id).addEventListener('input', renderSection3));
   // A hand-moved COI slider ends the sex-based auto-default (the agent's own calibration wins).
   $('coiPct').addEventListener('input', () => { COI_TOUCHED = true; });
-  ['ltcStartAge'].forEach(id => $(id).addEventListener('input', renderSection5));
+  // ltcStartAge (claim age) drives Section 2's sandbox CI-rider preview (computed inside
+  // renderSection3) as well as the real plan — must trigger renderSection3, not just renderSection5.
+  ['ltcStartAge'].forEach(id => $(id).addEventListener('input', renderSection3));
   function chooseLtc(on){
     ltcOn = on;
     setRiderButtons();
@@ -4357,7 +4488,10 @@
     sel.value = (+prev >= cur) ? prev : '100';
   }
   fillStopAgeOptions('aiulStopAge');
-  ['todaySpend','inflation','qmBalance','qmGrowth','helocRate','reEquity','reGrowth','maxLtv','planAge','annualContrib'].forEach(id => $(id).addEventListener('input', renderSection5));
+  ['todaySpend','inflation','qmBalance','qmGrowth','helocRate','reEquity','reGrowth','maxLtv','annualContrib'].forEach(id => $(id).addEventListener('input', renderSection5));
+  // planAge (plan-through age) also drives Section 2's sandbox CI-rider preview — renderSection3,
+  // not just renderSection5 (which renderSection3 already cascades into at its own tail).
+  $('planAge').addEventListener('input', renderSection3);
   // Ages also drive Section 2's "policy year at retirement" readout — route them through
   // renderSection3 (which cascades into renderSection5) so everything refreshes exactly once.
   // The current-age slider additionally applies life-stage presets while nothing's customized.
@@ -4373,13 +4507,21 @@
    'retireAge','planAge'].forEach(id =>
     $(id).addEventListener('input', () => { presetsDirty = true; }));
   $('btn-agePreset').addEventListener('click', () => { applyAgePresets(); presetsDirty = false; rerenderAll(); });
-  // currentAge is still mirrored (lives in both Section 1 and Section 3); retirement age / plan-
-  // through age no longer have a Section-1 copy to mirror against (removed 2026-07-07).
-  [['currentAge2','currentAge'],['todaySpend2','todaySpend'],['polYears2','polYears']].forEach(([mirror, primary]) => {
+  $('btn-agePreset1').addEventListener('click', () => { applyAgePresets(); presetsDirty = false; rerenderAll(); });
+  // currentAge is mirrored in THREE places now (Section 1, the Section-3 wizard, and Section 3's
+  // "Set the plan" topic); income/withheld/qmBalance/qmGrowth/the mortgage fields are mirrored
+  // between Section 1 and the wizard (2026-07-08 regression fix — Section 1 lost its inputs when
+  // they moved into the wizard; restored as synced mirrors instead of moving them back).
+  [['currentAge2','currentAge'],['currentAge1','currentAge'],['todaySpend2','todaySpend'],['polYears2','polYears'],
+   ['income1','income'],['withheld1','withheld'],['qmBalance1','qmBalance'],['qmGrowth1','qmGrowth'],
+   ['propValue1','propValue'],['principal1','principal'],['rate1','rate'],['term1','term'],
+   ['yearsPaid1','yearsPaid'],['monthsPaid1','monthsPaid']].forEach(([mirror, primary]) => {
+    const valueMirrors = ['income1','withheld1','qmBalance1','qmGrowth1','propValue1','principal1','rate1','term1','yearsPaid1','monthsPaid1'];
     $(mirror).addEventListener('input', () => {
       $(primary).value = $(mirror).value;
-      if (mirror === 'currentAge2'){ if (!presetsDirty){ applyAgePresets(); rerenderAll(); } else renderSection3(); }
+      if (mirror === 'currentAge2' || mirror === 'currentAge1'){ if (!presetsDirty){ applyAgePresets(); rerenderAll(); } else renderSection3(); }
       else if (mirror === 'polYears2') renderSection3();
+      else if (valueMirrors.includes(mirror)){ presetsDirty = true; rerenderAll(); }
       else renderSection5();
     });
   });
@@ -4421,25 +4563,30 @@
     floatPanel.classList.toggle('show', window.scrollY > 400);
   }, { passive: true });
 
-  // The Section-3 "Lock in your plan" wizard: click locks the step (collapses it, flags it
-  // done) and opens the next one — a UX affordance only, nothing here gates the engine, which
-  // already runs live off whatever's in each field regardless of lock state.
-  document.querySelectorAll('.lock-step-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
+  // The Section-3 "Lock in your plan" wizard: Confirm locks the step (collapses it, swaps in
+  // the Edit button) and opens the next one; Edit reopens it. Both buttons sit top-right in the
+  // step's header, not the body — a UX affordance only, nothing here gates the engine, which
+  // already runs live off whatever's in each field regardless of lock state. Buttons are INSIDE
+  // the native <summary> toggle, so their clicks must stop propagation or they'd also fire the
+  // browser's own open/close toggle on the same click.
+  document.querySelectorAll('.lock-confirm-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
       const n = btn.dataset.lock;
       const step = $('lockStep'+n);
       step.classList.add('locked');
       step.open = false;
-      $('lockFlag'+n).textContent = '✓ Locked';
       const next = $('lockStep'+(+n+1));
-      if (next) next.open = true;
+      if (next && !next.classList.contains('locked')) next.open = true;
     });
   });
-  document.querySelectorAll('.lock-step summary').forEach(s => {
-    s.addEventListener('click', () => {
-      // Reopening a step to edit it un-flags it as locked (native <details> toggles `open` itself).
-      const det = s.closest('.lock-step');
-      setTimeout(() => { if (det.open){ det.classList.remove('locked'); $(det.id.replace('lockStep','lockFlag')).textContent = 'Not locked'; } }, 0);
+  document.querySelectorAll('.lock-edit-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault(); e.stopPropagation();
+      const n = btn.dataset.lock;
+      const step = $('lockStep'+n);
+      step.classList.remove('locked');
+      step.open = true;
     });
   });
 

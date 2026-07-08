@@ -1,5 +1,20 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.12** — **Epic Life Ledger (owner-only), b45 — LIVE (root + beta in sync, no staging step)**:
+  Section 1 restored — it lost its income/tax/ages, 401(k), and mortgage inputs when they moved into
+  the Section 3 lock-in wizard in b44; they're back as live mirrors (edit either copy, both stay in
+  sync), the wizard's own inputs untouched. Wizard step headers gained a collapse arrow next to the
+  title and two buttons at the top right — Edit and Confirm — replacing one button buried at the
+  bottom. The chronic illness rider is now explicitly optional (on by default) with ALIS's own
+  recommendation to include it (real advantage early on, very little cost carried); removed every
+  "why one policy replaces two" explanation from member-facing copy — the member has only known this
+  one AIUL. Section 2's sandbox now shows its own chronic-illness preview (monthly draw at trigger,
+  total drawn over the horizon, death benefit at the end) projected forward from the illustrative
+  design to the real claim age and plan-through age — death benefit at the end is always face plus
+  cash value minus any outstanding loan, interest included. Caught two real bugs before shipping:
+  claim age / plan-through age weren't actually recomputing the new preview (stale numbers), and a
+  long fallback string broke the 375px mobile layout — both fixed and reverified.
+
 - **1.52.11** — **Epic Life Ledger (owner-only), b44 — LIVE (root + beta in sync, no staging step —
   Bruce's standing call until there's a stable baseline)**: chronic illness rider now on by default,
   locked at its real 1%/mo elected rate (the 2%/4% choice is gone — the design elects 1% and can't
