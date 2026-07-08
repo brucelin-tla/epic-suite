@@ -467,12 +467,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b34</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b35</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b35</span><p class="topic-exp" style="margin-top:2px;">Fixed a real gap in the estate math: the "death benefit vs. the debt" check only ran when the chronic-illness/LTC rider was switched on — with LTC off, the tool always assumed the death benefit fully covered the home debt, even if you'd set it lower than what's actually owed. Now that check runs every time, whether or not LTC is in the picture, so the legacy number always reflects a real coverage gap if one exists.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b34</span><p class="topic-exp" style="margin-top:2px;">Fixed a real point of confusion in the "flip tools freely" row: 0% biz credit was shown as its own independent switch sitting right next to velocity chunking, but it does nothing on its own — it only speeds up chunks velocity chunking is already landing. Now it greys out and reads "needs velocity chunking" whenever velocity is off, instead of looking like two separate tools both attacking the mortgage. Turning velocity back on restores your 0% biz credit setting exactly as you left it.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b33</span><p class="topic-exp" style="margin-top:2px;">New: "📄 Generate member report" in the floating ALIS panel — a printable, 7-page report (cover, your starting point, the plan built for you, retirement outcome, stress-test results, playbook highlights, disclosures) built entirely from the numbers already on screen. Auto-runs the stress test first if you haven't clicked it yet, so the report is never incomplete. Print or Save as PDF straight from the browser. The disclosures page pulls its text live from this tool's own existing, already-sourced caveats — nothing new was written — and carries a note that TLA's compliance function should review final wording before this goes to a real member.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b32</span><p class="topic-exp" style="margin-top:2px;">The 401(k) now de-risks with age, the way real accounts do. Almost nobody in their 50s runs 90% stocks with retirement on the line — so instead of one flat growth rate forever, the account follows the standard target-date glide path (Vanguard's published anchors): ~90% stocks through age 40, easing to 50/50 at retirement, 30/70 bonds by 72. You set what the <b>stock market</b> earns (default: its real 10.02%/yr full record since 1928, with a one-tap "recent era 2011–2025 — 13.94%" alternative); the bond slice earns the 10-yr Treasury's real record (4.82%/yr). The stress test draws both legs with their real volatility — so a market dip late in life now hits a 30%-stocks account, not a 90% one, which is exactly why the glide exists. Side effect worth knowing: this also fixed an internal inconsistency — the stress test's floor/cap crediting now lands at 6.42%/yr against the 6.40% "honest long-run" default, where before the two quietly disagreed by almost a full point. The story is told in the journey too: the 401(k) must trade growth away for safety as you age — the policy never has to, because its 0% floor IS its safety.</p></div>
@@ -1009,7 +1010,7 @@
               <div class="lline"><span>Home value at end of horizon</span><span class="amt" id="s-reValueEnd">–</span></div>
               <div class="lline"><span>Rental mortgages still owed <span class="lbl-sub">Cleared by the properties' own value, not the lifestyle</span></span><span class="amt" id="s-rentalDebtEnd">–</span></div>
               <div class="lline total"><span>Life insurance needed — clears all home debt</span><span class="amt" id="s-lifeInsNeeded">–</span></div>
-              <div class="lline"><span>Still covered after any LTC draws <span class="lbl-sub" id="s-ltcCoverageSub">Death benefit remaining vs. what's needed to clear the debt above</span></span><span class="amt" id="s-ltcCoverage">–</span></div>
+              <div class="lline"><span>Death benefit vs. the debt <span class="lbl-sub" id="s-ltcCoverageSub">What's left of the death benefit (after any LTC draws) vs. what's needed to clear the debt above</span></span><span class="amt" id="s-ltcCoverage">–</span></div>
               <div class="lline"><span>Policy loan balance <span class="lbl-sub">Self-covered by the policy's own death benefit</span></span><span class="amt" id="s-p3SelfCovered">–</span></div>
             </div>
           </div>
@@ -2046,11 +2047,11 @@
       heloc:  { years:0, totalDrawn:0, purchaseDrawn:0, capAtStart:0, refis:[], cashInterest:0 },
       policy: { years:0, totalDrawn:0, purchaseDrawn:0, cvAtStart:0, serviceTotal:0 },
       rent:   { yr1:0, yrN:0, total:0 },
-      ltc:    { totalDrawn:0, dbStart: inp.ltcOn ? (inp.ltcDB||0) : 0 },
+      ltc:    { totalDrawn:0, dbStart: inp.ltcDB||0 },
       conv:   { total:0, tax:0, penalty:0, years:0 },
       purchases: []
     };
-    let ltcDbRemaining = inp.ltcOn ? (inp.ltcDB||0) : 0;
+    let ltcDbRemaining = inp.ltcDB||0;
     const HORIZON = Math.min(inp.horizon, RET_CAP); // years from retirement to plan-through age
     // Mortgage carried into retirement (if the accumulation plan didn't finish it): its P&I is a
     // real extra expense the vehicles must fund, and its balance reduces HELOC room (combined LTV).
@@ -2392,9 +2393,11 @@
     // clear homeDebtEnd (that's its whole job — see the estate topic). Every LTC dollar accelerated
     // is a dollar of that SAME coverage gone. If what's left can't fully cover the debt anymore,
     // the shortfall comes straight out of legacy — the estate doesn't get free insurance money it
-    // no longer has. If the member never turns LTC on, dbRemaining stays at the full face amount and
-    // this changes nothing (matches the original behavior exactly).
-    const dbShortfall = inp.ltcOn ? Math.max(homeDebtEnd - ltcDbRemaining, 0) : 0;
+    // no longer has. Runs unconditionally — an undersized death benefit falls short of the home debt
+    // whether or not the member ever draws against it via LTC (fixed 2026-07-07: this used to be
+    // hardcoded to 0 whenever the LTC toggle was off, silently assuming full coverage regardless of
+    // the actual death benefit vs. debt).
+    const dbShortfall = Math.max(homeDebtEnd - ltcDbRemaining, 0);
     // Legacy: what the estate keeps after the debts clear — home + properties net of their loans +
     // leftover qualified + policy cash value net of its own loan (death benefit ≥ this) − home debt
     // − any LTC coverage shortfall.
@@ -3144,17 +3147,16 @@
     $('s-reValueEnd').textContent = fmt0.format(chosen.homeEnd);
     $('s-rentalDebtEnd').textContent = chosen.rentalDebtEnd > 1 ? fmt0.format(chosen.rentalDebtEnd) : 'none ✓';
     $('s-lifeInsNeeded').textContent = fmt0.format(chosen.homeDebtEnd);
-    if (ltcOn){
+    // Runs regardless of the LTC toggle — an undersized death benefit falls short of the home debt
+    // whether or not any LTC draws ever happened (fixed 2026-07-07, see dbShortfall above).
+    {
       const covered = Math.max(chosen.homeDebtEnd - (chosen.rec.ltc.dbShortfall||0), 0);
       $('s-ltcCoverage').textContent = fmt0.format(covered) + ' of ' + fmt0.format(chosen.homeDebtEnd);
       $('s-ltcCoverage').closest('.lline').classList.toggle('risk', chosen.rec.ltc.dbShortfall > 1);
       $('s-ltcCoverageSub').textContent = chosen.rec.ltc.dbShortfall > 1
         ? fmtCompact(chosen.rec.ltc.dbShortfall)+' short — that much comes straight out of legacy instead of being covered free'
-        : 'Fully covered — LTC draws didn’t eat into what’s needed to clear the debt';
-    } else {
-      $('s-ltcCoverage').textContent = 'n/a — LTC not modeled';
-      $('s-ltcCoverage').closest('.lline').classList.remove('risk');
-      $('s-ltcCoverageSub').textContent = 'Death benefit remaining vs. what’s needed to clear the debt above';
+        : (ltcOn ? 'Fully covered — LTC draws didn’t eat into what’s needed to clear the debt'
+                 : 'Fully covered — the death benefit alone clears the debt');
     }
     $('s-p3SelfCovered').textContent = fmt0.format(chosen.policyEnd);
 

@@ -1,5 +1,19 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.2** — **Epic Life Ledger (owner-only), b35 — BETA ONLY, not yet promoted**: fixed a real
+  estate-math gap Bruce flagged — the "does the death benefit actually cover the home debt" check
+  (`dbShortfall`) was hardcoded to `0` whenever the chronic-illness/LTC rider was toggled off, so an
+  undersized death benefit silently showed as "fully covered" and legacy was overstated by the real
+  gap. The check now runs unconditionally off the real death-benefit slider value; LTC draws still
+  only happen when that rider is actually on. The "Death benefit vs. the debt" line (formerly
+  "Still covered after any LTC draws," relabeled since it's no longer LTC-specific) now shows the
+  real coverage figure in both states instead of "n/a — LTC not modeled." Verified via an isolated
+  engine test (same allocation, only `ltcOn`/`ltcStartAge` varied): pre-fix, LTC-off vs. LTC-on-
+  with-zero-draws produced DIFFERENT legacy numbers off the identical inputs (the bug); post-fix
+  they're byte-identical, and turning on real LTC draws still deepens the shortfall as expected.
+  Regression: at normal (sufficient-coverage) defaults, legacy is byte-identical pre/post fix
+  ($23,913,001.86); 0 JS errors.
+
 - **1.52.1** — **Epic Life Ledger (owner-only), b34 — BETA ONLY, not yet promoted**: fixed a real
   UX confusion Bruce flagged in the "flip tools freely" row — 0% biz credit was shown as its own
   independent toggle next to velocity chunking, but it does nothing without velocity on (the
