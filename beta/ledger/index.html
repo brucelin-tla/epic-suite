@@ -467,12 +467,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b35</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b36</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b36</span><p class="topic-exp" style="margin-top:2px;">Three fixes/additions from real use. (1) Fixed a real bug in the stress test: if you'd switched the policy tool off, "with policy" and "without policy" silently collapsed to the identical plan (turning the toggle off made no difference at all) — each side now gets its own honest best plan, policy forced on vs. forced off, regardless of your current toggle. (2) "The full picture" journey step now stays open when you flip a tool off or on — it used to kick you straight back to freeform mode; now you can customize which tools are in the mix and watch the same dashboard update live, without losing the guided view. (3) New: Section 4 now flags it live whenever home or rental debt isn't covered by insurance or equity, with a "buy, borrow, die" explainer and two honest levers — raising the Protection IUL's death benefit (no invented premium cost — ask your agent for a real quote) and, separately, funding the Accumulation IUL further (a real, modeled lever that also raises how much can go in before the overfunding charge).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b35</span><p class="topic-exp" style="margin-top:2px;">Fixed a real gap in the estate math: the "death benefit vs. the debt" check only ran when the chronic-illness/LTC rider was switched on — with LTC off, the tool always assumed the death benefit fully covered the home debt, even if you'd set it lower than what's actually owed. Now that check runs every time, whether or not LTC is in the picture, so the legacy number always reflects a real coverage gap if one exists.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b34</span><p class="topic-exp" style="margin-top:2px;">Fixed a real point of confusion in the "flip tools freely" row: 0% biz credit was shown as its own independent switch sitting right next to velocity chunking, but it does nothing on its own — it only speeds up chunks velocity chunking is already landing. Now it greys out and reads "needs velocity chunking" whenever velocity is off, instead of looking like two separate tools both attacking the mortgage. Turning velocity back on restores your 0% biz credit setting exactly as you left it.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b33</span><p class="topic-exp" style="margin-top:2px;">New: "📄 Generate member report" in the floating ALIS panel — a printable, 7-page report (cover, your starting point, the plan built for you, retirement outcome, stress-test results, playbook highlights, disclosures) built entirely from the numbers already on screen. Auto-runs the stress test first if you haven't clicked it yet, so the report is never incomplete. Print or Save as PDF straight from the browser. The disclosures page pulls its text live from this tool's own existing, already-sourced caveats — nothing new was written — and carries a note that TLA's compliance function should review final wording before this goes to a real member.</p></div>
@@ -1079,6 +1080,21 @@
         </div>
         <p class="way-hint" id="way-hint"></p>
         <p class="topic-exp" style="margin-top:12px;">Fixing-and-flipping houses also counts toward Way 2's hours — often faster than managing rentals. But the flip itself doesn't get this write-off: no depreciation, ordinary income plus a 15.3% extra tax, no 1031.</p>
+      </div>
+
+      <div class="topic">
+        <div class="topic-h">Buy, borrow, die — cover debt with insurance instead of cash</div>
+        <p class="topic-exp">The oldest wealth-transfer move, in three steps: buy an appreciating asset, borrow against it instead of selling (no capital-gains bill on a loan, and the cash is tax-free), then size a death benefit big enough to clear that debt when you go. A death benefit is a far cheaper way to retire a debt than paying it off in real dollars — ALIS below flags it live whenever your plan is leaving real estate or mortgage debt uncovered by insurance or equity.</p>
+        <div class="explainer">
+          <div class="exp-row">
+            <div class="exp-box"><span class="exp-step">Step 1</span><p><b>Buy the asset.</b> The home, a rental, both — appreciating property funded by the plan.</p></div>
+            <div class="exp-arrow">→</div>
+            <div class="exp-box"><span class="exp-step">Step 2</span><p><b>Borrow against it, don't sell it.</b> HELOC, refi, 0% business credit — tax-free cash, no capital-gains bill.</p></div>
+            <div class="exp-arrow">→</div>
+            <div class="exp-box"><span class="exp-step">Step 3</span><p><b>Let the death benefit clear it.</b> One cheap, level cost every year — instead of the estate paying the loan off in real dollars.</p></div>
+          </div>
+        </div>
+        <p class="exp-note">The debt never gets "paid off" out of pocket — the death benefit clears it in one step, for a fraction of what the loan itself is worth. This is an illustration to bring to your agent, not a recommendation to buy or increase coverage.</p>
       </div>
 
       <div class="topic">
@@ -3223,6 +3239,34 @@
       const lines = [];
       if (!(strActive || repActive) && R.suspendedLoss > 500)
         lines.push('<b>'+fmt0.format(R.suspendedLoss)+'</b> of the year-1 write-off is suspended at your income — not lost, waiting. It would be worth <b>'+fmt0.format(R.potentialTaxSavings)+'</b> in real tax savings if unlocked. Way 1 (self-run short-term rental) or Way 2 (real-estate-professional spouse) above unlocks it now — only if it’s genuinely true for you.');
+      // Buy-borrow-die opportunity: home debt not covered by the death benefit (dbShortfall, fixed
+      // 2026-07-07 to run regardless of the LTC toggle) plus rental debt exceeding its own property's
+      // value — real estate/mortgage debt the plan is otherwise leaving to erode legacy.
+      // IMPORTANT PRODUCT DISTINCTION: dbShortfall is entirely about the Protection IUL's death
+      // benefit (ltcDB) — a separate policy from the Accumulation IUL (P.annualPremium/mkPolCost/
+      // facePerPremium). This tool deliberately has NO premium-to-coverage formula for the
+      // Protection IUL (b12: no public rate table exists, an advisor supplies the real quote) — so
+      // closing the gap there is sized in face amount only, never a fabricated premium cost. The
+      // Accumulation IUL side (more premium → bigger face/ACL, correctly modeled) is a genuinely
+      // separate, additive lever — shown honestly as its own thing, not merged into "closes the gap."
+      const reGap = Math.max((chosen.rentalDebtEnd||0) - (chosen.rentalEnd||0), 0);
+      const dbGap = Math.max(chosen.rec.ltc.dbShortfall||0, 0) + reGap;
+      if (dbGap > 500){
+        const ageNow = +$('currentAge').value;
+        // Same "effective funding" basis the rest of the page already shows (s-autoFace/s-autoAcl):
+        // premium PLUS whatever contribution ALIS is routing into the policy — not just the raw
+        // premium slider — so this illustration's baseline matches what the member sees elsewhere.
+        const curPc = (chosenAlloc.a.pcUsed !== undefined && chosenAlloc.a.pcUsed) ? chosenAlloc.a.pcUsed : mkPolCost(P.annualPremium);
+        const curFace = curPc.faceBase + curPc.faceSuppl;
+        const fpp = facePerPremium(ageNow, sex);
+        const addPremium = fpp > 0 ? dbGap / fpp : 0;   // funding needed for +dbGap of face at this age/sex ratio
+        const newAcl = ACL_PER_FACE * (curFace + dbGap);   // ACL scales linearly with face — same constant as mkPolCost
+        const aclGain = Math.max(newAcl - curPc.acl, 0);
+        tiles.push({ label:'Death benefit vs. debt gap', val: fmtCompact(dbGap), risk:true });
+        lines.push('<b>'+fmt0.format(dbGap)+'</b> of home'+(reGap>500?' + rental':'')+' debt isn’t covered by insurance or equity today — it comes straight out of legacy. Buy-borrow-die angle: raising the Protection IUL death benefit (Section 3) by about that amount would let insurance clear it at a fraction of what paying it off in cash would cost — ask your agent for the real premium, this tool doesn’t model that policy’s cost (no public rate table exists for it, same as its "Annual policy fee" topic already notes).'
+          + (curFace > 0.5 ? ' Separately: the <i>Accumulation</i> IUL already funding this plan is a real, modeled lever too — about <b>'+fmt0.format(Math.round(addPremium/250)*250)+'/yr</b> more funding there would grow its own face by a comparable amount and raise the advance contribution limit by about <b>'+fmt0.format(Math.round(aclGain/100)*100)+'/yr</b> — more room to route qualified money into it before the overfunding charge kicks in.' : '')
+          + ' Illustration only, not underwriting or advice.');
+      }
       allPurch.filter(x => !x.ok).forEach(r => {
         const p = propsDef.find(pp => pp.idx === r.idx); if (!p) return;
         const room = p.vehicle === 'heloc' ? r.roomHeloc : r.roomPolicy;
@@ -3284,10 +3328,41 @@
       accYears, horizon: Math.min(horizon, RET_CAP), retireAge, planAge, currentAge, todaySpend,
       qmGrowth, credRate: P.credRate/100, reGrowth, propsDef,
       acc0: Object.assign({}, acc0, { polCost: (chosenAlloc.a.pcUsed !== undefined ? chosenAlloc.a.pcUsed : acc0.polCost) }),
-      packWith: { fr: chosenAlloc.fr, strat: chosen.strat, pace: chosen.inp.ceiling, accOv: {}, inpOv: {} },
       buildInp: (a, pace, defs) => mkInp(a, pace, todaySpend, defs),
-      // Fair comparison: the no-policy world gets ITS best plan (grid re-searched with the policy
-      // off), not the with-policy allocation minus one vehicle.
+      // Fair comparison, both directions: each side gets ITS OWN best plan (grid re-searched with
+      // policy forced on / off), never the CURRENT global-toggle allocation. Before this fix,
+      // "with policy" just reused whatever chosenAlloc/chosen happened to be — which, whenever the
+      // member had switched policy off for planning purposes, had never considered a policy split
+      // in the first place (gridAt skips p>0 splits when !TOOLS.policy), so "with" and "without"
+      // silently collapsed to the same plan. Fixed 2026-07-07.
+      replanWithPolicy: () => {
+        const acc0x = Object.assign({}, acc0, { toolPolicy:true, cv0: P.startCV });
+        let bp = null;
+        const consider = (fr2) => {
+          const pcSplit = mkPolCost(P.annualPremium + annualContrib * fr2.policy);
+          const a2 = accumulate(fr2, Object.assign({}, acc0x, { polCost: pcSplit }));
+          a2.pcUsed = pcSplit;
+          for (const s of STRATS){
+            const paces = s.blend ? CEIL : [CEIL[1]];
+            for (const cl of paces){
+              const inp2 = mkInp(a2, cl, todaySpend);
+              inp2.toolPolicy = true;
+              const r = simulateStrategy(s, inp2);
+              if (!bp || objSort(r, bp.r) < 0) bp = { r, fr: fr2, strat: s, pace: { single: cl.single, mfj: cl.mfj }, pcSplit };
+            }
+          }
+        };
+        for (let q = 0; q <= 10; q++) for (let c = 0; c <= 10-q; c++){
+          const p = 10-q-c;
+          if (q > 0 && !TOOLS.qualified) continue;
+          if (c > 0 && !chunkAllowed) continue;
+          consider({ qm: q/10, chunk: c/10, policy: p/10 });
+        }
+        if (!bp) consider({ qm:0, chunk:0, policy:1 });
+        return { fr: bp.fr, strat: bp.strat, pace: bp.pace,
+                 accOv: { toolPolicy:true, cv0: P.startCV, polCost: bp.pcSplit },
+                 inpOv: { toolPolicy:true } };
+      },
       replanNoPolicy: () => {
         const acc0x = Object.assign({}, acc0, { toolPolicy:false, cv0:0, polCost:null, cumPrem0:0 });
         let bp = null;
@@ -3366,7 +3441,7 @@
     MC_BUSY = true;
     const btn = $('btn-mc');
     btn.disabled = true;
-    const packW = M.packWith;
+    const packW = M.replanWithPolicy();
     const packO = M.replanNoPolicy();
     const totalYears = M.accYears + M.horizon;
     const res = { w: { legacies: [], extracted: [], years: [] }, o: { legacies: [], extracted: [], years: [] }, accts: {} };
@@ -3805,6 +3880,14 @@
   function flipTool(k){
     if (isDependentTool(k)) return;   // disabled buttons shouldn't fire, but guard anyway
     TOOLS[k] = !TOOLS[k];
+    // "The full picture" (the last journey step) is the one free-form sandbox — flipping a tool
+    // there customizes the comparison in place (no tool / each tool's own impact / any combination)
+    // instead of exiting the guided journey. Every earlier step is a fixed, scripted one-tool-at-a-
+    // time lesson, so those still exit on a manual flip — only the last step stays open.
+    if (typeof JOURNEY !== 'undefined' && journeyIdx === JOURNEY.length - 1){
+      renderJourneyStep(journeyIdx, LAST_STATS);
+      return;
+    }
     journeyIdx = null;
     $('journeyCard').style.display = 'none';
     document.querySelectorAll('#journeyBar .journey-step').forEach(b => { b.classList.remove('here'); b.classList.remove('done'); });
@@ -3858,6 +3941,13 @@
     journeyIdx = i;
     const step = JOURNEY[i];
     Object.keys(TOOLS).forEach(k => TOOLS[k] = !!step.tools[k]);
+    renderJourneyStep(i, prev);
+  }
+  // Renders the journey card for step i against whatever TOOLS currently is — split out of
+  // applyJourney so a manual toggle on "the full picture" (the last step) can re-render live
+  // without applyJourney's own TOOLS-from-script overwrite undoing the member's customization.
+  function renderJourneyStep(i, prev){
+    const step = JOURNEY[i];
     syncToolUI();
     $('tool-hint').classList.remove('show');
     renderSection5();

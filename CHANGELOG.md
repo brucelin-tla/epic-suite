@@ -1,5 +1,22 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.3** — **Epic Life Ledger (owner-only), b36 — BETA ONLY, not yet promoted**: three fixes/
+  additions from real use. (1) Fixed a real stress-test bug — switching the policy tool off made
+  "with policy" and "without policy" silently collapse to the identical plan (the comparison just
+  reused whatever the grid search happened to pick under the current toggle, which never included
+  policy once it was off). Each side now gets its own honestly re-searched best plan, policy forced
+  on vs. forced off, independent of the toggle. (2) "The full picture" journey step now stays open
+  when a tool is flipped on/off manually — it used to exit straight back to freeform mode; now the
+  same dashboard recomputes live so a member can genuinely customize the combination without losing
+  the guided view. Earlier scripted journey steps are unchanged (still exit on a manual flip, since
+  those are fixed one-tool-at-a-time lessons). (3) New Section 4 opportunity: flags live whenever
+  home or rental debt isn't covered by insurance or equity, with a "buy, borrow, die" explainer.
+  Two honest, separately-labeled levers — raising the Protection IUL's death benefit (no invented
+  premium number; this tool still doesn't model that policy's cost, same as its existing "Annual
+  policy fee" disclosure) and, separately, funding the Accumulation IUL further (a real, already-
+  modeled lever that also raises the advance contribution limit). Regression: default stress-test
+  numbers byte-identical pre/post ($23,913,001.86 legacy); 0 JS errors throughout.
+
 - **1.52.2** — **Epic Life Ledger (owner-only), b35 — BETA ONLY, not yet promoted**: fixed a real
   estate-math gap Bruce flagged — the "does the death benefit actually cover the home debt" check
   (`dbShortfall`) was hardcoded to `0` whenever the chronic-illness/LTC rider was toggled off, so an
