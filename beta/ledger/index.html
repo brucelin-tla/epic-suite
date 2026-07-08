@@ -467,12 +467,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b36</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b37</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b37</span><p class="topic-exp" style="margin-top:2px;">Playbook cleanup. (1) "Learn it one tool at a time" moved to sit right above the playbook — easier to adjust a tool and immediately read the projection below it, instead of scrolling back up. (2) The playbook tables only show a column when it actually has data this phase — a plan that isn't using the 401(k) or the HELOC no longer carries empty columns just to be thorough. (3) Renamed for clarity: Phase 1 gained "Deployed capital" (the year's total allocation) as its first column, and "Policy premium"→"Fund policy", "401(k)"→"Fund 401(k)", "Refund in pool"→"Tax refunded", "Property cash"→"Rental income", "Mortgage left"→"Mortgage debt". Phase 2: "Need"→"Income", "Property cash"→"Rental income", "Tax"→"Tax bill" (now shown as a negative number, so it reads as money leaving, not just a magnitude).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b36</span><p class="topic-exp" style="margin-top:2px;">Three fixes/additions from real use. (1) Fixed a real bug in the stress test: if you'd switched the policy tool off, "with policy" and "without policy" silently collapsed to the identical plan (turning the toggle off made no difference at all) — each side now gets its own honest best plan, policy forced on vs. forced off, regardless of your current toggle. (2) "The full picture" journey step now stays open when you flip a tool off or on — it used to kick you straight back to freeform mode; now you can customize which tools are in the mix and watch the same dashboard update live, without losing the guided view. (3) New: Section 4 now flags it live whenever home or rental debt isn't covered by insurance or equity, with a "buy, borrow, die" explainer and two honest levers — raising the Protection IUL's death benefit (no invented premium cost — ask your agent for a real quote) and, separately, funding the Accumulation IUL further (a real, modeled lever that also raises how much can go in before the overfunding charge).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b35</span><p class="topic-exp" style="margin-top:2px;">Fixed a real gap in the estate math: the "death benefit vs. the debt" check only ran when the chronic-illness/LTC rider was switched on — with LTC off, the tool always assumed the death benefit fully covered the home debt, even if you'd set it lower than what's actually owed. Now that check runs every time, whether or not LTC is in the picture, so the legacy number always reflects a real coverage gap if one exists.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b34</span><p class="topic-exp" style="margin-top:2px;">Fixed a real point of confusion in the "flip tools freely" row: 0% biz credit was shown as its own independent switch sitting right next to velocity chunking, but it does nothing on its own — it only speeds up chunks velocity chunking is already landing. Now it greys out and reads "needs velocity chunking" whenever velocity is off, instead of looking like two separate tools both attacking the mortgage. Turning velocity back on restores your 0% biz credit setting exactly as you left it.</p></div>
@@ -901,32 +902,6 @@
       </div>
 
       <div class="topic">
-        <div class="topic-h">Learn it one tool at a time</div>
-        <p class="topic-exp">Tap the steps in order. Each one adds a tool and shows exactly what it buys you — more years, more left behind, less tax. Runs on the plan you just set above.</p>
-        <div class="journey-bar" id="journeyBar"></div>
-        <div class="alis-rec" id="journeyCard" style="display:none; margin-top:14px;">
-          <div class="alis-rec-head">
-            <span class="alis-badge" id="journey-step">Step 1</span>
-            <span class="alis-order" id="journey-title">–</span>
-          </div>
-          <p class="journey-copy" id="journey-copy">–</p>
-          <div class="alis-rec-why" id="journey-why"></div>
-          <button type="button" class="float-cta journey-next" id="journey-next">Next →</button>
-        </div>
-        <p class="topic-exp" style="margin-top:16px;">Or flip tools freely — ALIS re-plans with whatever's on:</p>
-        <div class="toggle-row" id="toolBar">
-          <button type="button" class="toggle-btn active" data-tool="velocity">Velocity chunking</button>
-          <button type="button" class="toggle-btn active" data-tool="bizcredit">0% biz credit</button>
-          <button type="button" class="toggle-btn active" data-tool="policy">Policy</button>
-          <button type="button" class="toggle-btn active" data-tool="heloc">HELOC</button>
-          <button type="button" class="toggle-btn active" data-tool="mortgage">Mortgage</button>
-          <button type="button" class="toggle-btn active" data-tool="rental">Rental property</button>
-          <button type="button" class="toggle-btn active" data-tool="qualified">401(k) / qualified</button>
-        </div>
-        <p class="way-hint" id="tool-hint"></p>
-      </div>
-
-      <div class="topic">
         <div class="topic-h">Funding the plan — ALIS allocates your annual contribution</div>
         <p class="topic-exp">Set how much to put in each year (same number as the ALIS panel). ALIS splits it across velocity chunking, the policy, and the 401(k) every year until retirement, then keeps whichever split best serves your goal. Real mechanics: chunks always attack the highest-rate loan first; 401(k) money is pre-tax and capped at the IRS limit; the policy pays its real premium charge; a paid-off loan's payment flows back into the pool; and 0% stacking lands the first five years of chunks early.</p>
         <p class="topic-exp" id="alloc-context">–</p>
@@ -1024,6 +999,32 @@
           <summary><span class="mark">!</span><span>Every assumption this plan makes — in the open</span></summary>
           <div class="caveat-body"><p><b>Other assumptions, in the open.</b> Velocity chunking is auto-optimized across every open loan (home mortgage + any owned rental) — it always attacks whichever one carries the highest rate first, a guaranteed-return waterfall, then spills to the next-highest once the first is paid off; any chunk dollars left over after every loan is cleared now flow into the policy (or qualified room) instead of being lost, same as any other year with nothing left to chunk. Every property carries its own 30-yr fixed loan from its purchase date — the payment is a real bill in the plan, and unused paper losses (depreciation + interest beyond the rent) carry forward: they offset W-2 income up to the $25K allowance while working ($100–150K MAGI phase-out; unlimited with Way&nbsp;1/2), offset other property income without limit, and shield retirement withdrawals up to the same allowance. Down payments for future purchases draw the HELOC or a policy loan at the purchase date — if the room isn't there, the purchase honestly fails. Closing costs aren't modeled; property loan interest uses a start-of-year approximation; the home value securing the HELOC is held flat until retirement. Depreciation runs ~27 years per property. RMDs start at 73 per the IRS Uniform Lifetime Table. Qualified caps at the employee 401(k) limit (no employer match modeled — if you have one, that's free money on top); a mortgage still alive in retirement costs its real P&I and reduces HELOC room (combined LTV). HELOC draw windows run 10 years; the refinance assumes a 30-yr fixed at your Section-1 mortgage rate. The policy cannot lapse in this model — draws cap at 90% of cash value and drift past 95% is serviced in cash (with a wash loan, the loaned slice really credits a lower fixed rate than shown — a licensed illustration is the authority). Federal tax only, sole-income estimate. This models cash movement — a CPA and a licensed illustration confirm the real numbers.</p></div>
         </details>
+      </div>
+
+      <div class="topic">
+        <div class="topic-h">Learn it one tool at a time</div>
+        <p class="topic-exp">Tap the steps in order. Each one adds a tool and shows exactly what it buys you — more years, more left behind, less tax. Runs on the plan you just set above.</p>
+        <div class="journey-bar" id="journeyBar"></div>
+        <div class="alis-rec" id="journeyCard" style="display:none; margin-top:14px;">
+          <div class="alis-rec-head">
+            <span class="alis-badge" id="journey-step">Step 1</span>
+            <span class="alis-order" id="journey-title">–</span>
+          </div>
+          <p class="journey-copy" id="journey-copy">–</p>
+          <div class="alis-rec-why" id="journey-why"></div>
+          <button type="button" class="float-cta journey-next" id="journey-next">Next →</button>
+        </div>
+        <p class="topic-exp" style="margin-top:16px;">Or flip tools freely — ALIS re-plans with whatever's on:</p>
+        <div class="toggle-row" id="toolBar">
+          <button type="button" class="toggle-btn active" data-tool="velocity">Velocity chunking</button>
+          <button type="button" class="toggle-btn active" data-tool="bizcredit">0% biz credit</button>
+          <button type="button" class="toggle-btn active" data-tool="policy">Policy</button>
+          <button type="button" class="toggle-btn active" data-tool="heloc">HELOC</button>
+          <button type="button" class="toggle-btn active" data-tool="mortgage">Mortgage</button>
+          <button type="button" class="toggle-btn active" data-tool="rental">Rental property</button>
+          <button type="button" class="toggle-btn active" data-tool="qualified">401(k) / qualified</button>
+        </div>
+        <p class="way-hint" id="tool-hint"></p>
       </div>
 
       <div class="topic" id="playbookTopic">
@@ -3185,34 +3186,50 @@
     // "pb-desktop") and a stacked-card list for phones (class "pb-cards") — CSS alone picks
     // which one shows per the 480px breakpoint, so there's one data pass, never two to keep in sync.
     const cardRow = (k,v) => v==='—' ? '' : '<div class="pb-card-row"><span class="pb-k">'+k+'</span><span class="pb-v">'+v+'</span></div>';
-    if (chosenAlloc.a.timeline.length){
-      pb.push('<div class="pb-phase">Phase 1 — Build (age '+currentAge+' → '+retireAge+')</div>');
-      pb.push('<table class="pb pb-desktop"><tr><th>Age</th><th>Chunk mortgage</th><th>Policy premium</th><th>401(k)</th><th>Refund in pool</th><th>Property cash</th><th>Mortgage left</th><th>Milestones</th></tr>');
-      const cards1 = ['<div class="pb-cards">'];
-      chosenAlloc.a.timeline.forEach(r => {
-        const milestone = r.evts.some(e=>e.includes('paid off')||e.includes('Buy property'));
-        pb.push('<tr'+(milestone?' class="milestone"':'')+'><td class="num">'+r.age+'</td><td class="num">'+money(r.chunk)+'</td><td class="num">'+money(r.polC)+'</td><td class="num">'+money(r.qmC)+'</td><td class="num">'+money(r.refund)+'</td><td class="num">'+moneyN(r.propCash||0)+'</td><td class="num">'+money(r.mortBal)+'</td><td class="evt">'+r.evts.join(' · ')+'</td></tr>');
-        cards1.push('<div class="pb-card'+(milestone?' milestone':'')+'"><div class="pb-card-head">Age '+r.age+'</div>'
-          +cardRow('Chunk mortgage', money(r.chunk))+cardRow('Policy premium', money(r.polC))+cardRow('401(k)', money(r.qmC))
-          +cardRow('Refund in pool', money(r.refund))+cardRow('Property cash', moneyN(r.propCash||0))+cardRow('Mortgage left', money(r.mortBal))
+    // Shared table+cards builder for both phases, one data pass — and any column that's zero on
+    // EVERY row this phase is dropped entirely (desktop header + cells, and per-row cards already
+    // skip a zero cell via cardRow) so a plan with fewer moving parts doesn't carry empty columns.
+    const buildPbPhase = (timeline, cols, eventsLabel, isMilestone) => {
+      const shown = cols.filter(c => timeline.some(r => Math.abs(c.get(r)) > 0.5));
+      const out = ['<table class="pb pb-desktop"><tr><th>Age</th>'+shown.map(c=>'<th>'+c.label+'</th>').join('')+'<th>'+eventsLabel+'</th></tr>'];
+      const cards = ['<div class="pb-cards">'];
+      timeline.forEach(r => {
+        const milestone = isMilestone(r);
+        out.push('<tr'+(milestone?' class="milestone"':'')+'><td class="num">'+r.age+'</td>'
+          +shown.map(c=>'<td class="num">'+c.fmt(c.get(r))+'</td>').join('')
+          +'<td class="evt">'+r.evts.join(' · ')+'</td></tr>');
+        cards.push('<div class="pb-card'+(milestone?' milestone':'')+'"><div class="pb-card-head">Age '+r.age+'</div>'
+          +shown.map(c=>cardRow(c.label, c.fmt(c.get(r)))).join('')
           +(r.evts.length?'<div class="pb-card-evt">'+r.evts.join(' · ')+'</div>':'')+'</div>');
       });
-      pb.push('</table>');
-      cards1.push('</div>'); pb.push(cards1.join(''));
+      out.push('</table>'); cards.push('</div>');
+      return out.join('') + cards.join('');
+    };
+    if (chosenAlloc.a.timeline.length){
+      pb.push('<div class="pb-phase">Phase 1 — Build (age '+currentAge+' → '+retireAge+')</div>');
+      const cols1 = [
+        { label:'Deployed capital', get: r => r.chunk + r.polC + r.qmC, fmt: money },
+        { label:'Chunk mortgage', get: r => r.chunk, fmt: money },
+        { label:'Fund policy', get: r => r.polC, fmt: money },
+        { label:'Fund 401(k)', get: r => r.qmC, fmt: money },
+        { label:'Tax refunded', get: r => r.refund, fmt: money },
+        { label:'Rental income', get: r => r.propCash||0, fmt: moneyN },
+        { label:'Mortgage debt', get: r => r.mortBal, fmt: money }
+      ];
+      pb.push(buildPbPhase(chosenAlloc.a.timeline, cols1, 'Milestones', r => r.evts.some(e=>e.includes('paid off')||e.includes('Buy property'))));
     }
     if (chosen.timeline.length){
       pb.push('<div class="pb-phase">Phase 2 — Live on it (age '+retireAge+' → '+(retireAge+chosen.years)+')</div>');
-      pb.push('<table class="pb pb-desktop"><tr><th>Age</th><th>Need</th><th>Property cash</th><th>401(k) draw</th><th>Tax</th><th>HELOC draw</th><th>Policy draw</th><th>LTC draw</th><th>Events</th></tr>');
-      const cards2 = ['<div class="pb-cards">'];
-      chosen.timeline.forEach(r => {
-        pb.push('<tr'+(r.evts.length?' class="milestone"':'')+'><td class="num">'+r.age+'</td><td class="num">'+money(r.need)+'</td><td class="num">'+moneyN(r.rent)+'</td><td class="num">'+money(r.Q)+'</td><td class="num">'+money(r.tax)+'</td><td class="num">'+money(r.he)+'</td><td class="num">'+money(r.po)+'</td><td class="num">'+money(r.ltc||0)+'</td><td class="evt">'+r.evts.join(' · ')+'</td></tr>');
-        cards2.push('<div class="pb-card'+(r.evts.length?' milestone':'')+'"><div class="pb-card-head">Age '+r.age+'</div>'
-          +cardRow('Need', money(r.need))+cardRow('Property cash', moneyN(r.rent))+cardRow('401(k) draw', money(r.Q))
-          +cardRow('Tax', money(r.tax))+cardRow('HELOC draw', money(r.he))+cardRow('Policy draw', money(r.po))+cardRow('LTC draw', money(r.ltc||0))
-          +(r.evts.length?'<div class="pb-card-evt">'+r.evts.join(' · ')+'</div>':'')+'</div>');
-      });
-      pb.push('</table>');
-      cards2.push('</div>'); pb.push(cards2.join(''));
+      const cols2 = [
+        { label:'Income', get: r => r.need, fmt: money },
+        { label:'Rental income', get: r => r.rent, fmt: moneyN },
+        { label:'401(k) draw', get: r => r.Q, fmt: money },
+        { label:'Tax bill', get: r => -r.tax, fmt: moneyN },
+        { label:'HELOC draw', get: r => r.he, fmt: money },
+        { label:'Policy draw', get: r => r.po, fmt: money },
+        { label:'LTC draw', get: r => r.ltc||0, fmt: money }
+      ];
+      pb.push(buildPbPhase(chosen.timeline, cols2, 'Events', r => r.evts.length > 0));
       if (!chosen.sustainable) pb.push('<p class="way-hint show" style="margin-top:10px;"><b>The plan runs dry at age '+reachAge(chosen)+'</b> — the playbook stops where the money does.</p>');
     }
     $('playbook').innerHTML = pb.join('');

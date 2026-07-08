@@ -1,5 +1,16 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.4** — **Epic Life Ledger (owner-only), b37 — BETA ONLY, not yet promoted**: playbook
+  cleanup. "Learn it one tool at a time" moved to sit directly above the playbook, so adjusting a
+  tool and reading its effect on the projection no longer means scrolling back and forth. The
+  playbook tables now hide any column that's zero across the whole phase (a plan not using the
+  401(k) or the HELOC no longer carries those empty columns). Renamed for clarity: Phase 1 gained
+  a new "Deployed capital" first column (the year's total allocation) plus "Fund policy"/"Fund
+  401(k)"/"Tax refunded"/"Rental income"/"Mortgage debt"; Phase 2 gained "Income"/"Rental income"/
+  "Tax bill" (now shown as a negative number). Desktop table and mobile cards share one data pass
+  as before, so both stay in sync automatically. Regression: default stress-test numbers byte-
+  identical pre/post ($23,913,001.86 legacy); 0 JS errors.
+
 - **1.52.3** — **Epic Life Ledger (owner-only), b36 — BETA ONLY, not yet promoted**: three fixes/
   additions from real use. (1) Fixed a real stress-test bug — switching the policy tool off made
   "with policy" and "without policy" silently collapse to the identical plan (the comparison just
