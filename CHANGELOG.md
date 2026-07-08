@@ -1,6 +1,6 @@
 # EPIC Suite — changelog (newest first)
 
-- **1.52.10** — **Epic Life Ledger (owner-only), b43 — BETA ONLY, not yet promoted**: one policy
+- **1.52.10** — **Epic Life Ledger (owner-only), b43 — PROMOTED TO LIVE (root + beta in sync)**: one policy
   now does both jobs. The Accumulation IUL carries a built-in chronic illness rider, so the
   separate Protection IUL topic is retired entirely — same death benefit clears the debt AND is
   the chronic-illness pool, and because the policy is issued increasing (DB Option 2, verified
