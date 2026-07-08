@@ -1,5 +1,19 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.8** — **Epic Life Ledger (owner-only), b41 — BETA ONLY, not yet promoted**: Section 2
+  rebuilt around the Protection IUL. Reordered to Protection IUL → Accumulation IUL → rental
+  property → velocity banking (0% biz credit + HELOC folded in right after it). Protection IUL is
+  now its own topic: coverage amount and premium as direct inputs, plus a new premium-stop-age
+  dropdown (both here and on the Accumulation IUL). New Accelerated Death Benefit rider (terminal
+  illness, one-time 30–70% lump sum, on by default — real carriers bundle it free) alongside the
+  existing chronic-illness/LTC rider (now discrete 1/2/4%/mo instead of a slider); only one of the
+  two can be active at a time since both draw the same coverage pool, and whichever is active now
+  defaults to being claimed, not preserved. Renamed "Honest long-run" to "Conservative." Default
+  legacy now genuinely reflects the new default-on ADB claim ($23,513,442 vs. the pre-ADB
+  $23,913,002 — an intentional new-feature change). Verified: stress test, journey, and every prior
+  dependency (HELOC↔mortgage, biz credit↔velocity) still work post-reorder; 0 duplicate element
+  IDs; 0 JS errors.
+
 - **1.52.7** — **Epic Life Ledger (owner-only), b40 — BETA ONLY, not yet promoted**: Section 1
   cleanup. Retirement age and the age to pass down the estate now live only in Section 3, where
   the retirement plan actually runs — removed the duplicate Section 1 sliders. The 401(k) blend

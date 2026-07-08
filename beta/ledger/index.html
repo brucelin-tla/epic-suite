@@ -485,12 +485,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b40</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b41</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b41</span><p class="topic-exp" style="margin-top:2px;">Section 2 rebuilt around the Protection IUL. Reordered to Protection IUL → Accumulation IUL → rental property → velocity banking (with 0% biz credit and the HELOC folded in right after it) — one clean build order. The Protection IUL is now its own topic: coverage amount and annual premium as direct inputs, plus a new premium-stop-age dropdown (both here and on the Accumulation IUL). New: an Accelerated Death Benefit rider (terminal illness, one-time lump sum of 30–70% of what's left of the death benefit, included by default since real carriers bundle it free) alongside the existing chronic-illness/LTC rider (now a discrete 1/2/4%/mo choice instead of a slider) — only one of the two can be active at a time, since both draw against the same coverage pool; whichever is on now defaults to being claimed, not preserved, matching how this design is actually meant to be used. Renamed the "Honest long-run" crediting preset to "Conservative." Regression: default legacy now genuinely includes the new default-on ADB claim ($23,513,442 vs the pre-ADB $23,913,002 — an intentional new-feature change, not a bug); stress test, journey, and every prior dependency (HELOC↔mortgage, biz credit↔velocity) verified working post-reorder; 0 JS errors.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b40</span><p class="topic-exp" style="margin-top:2px;">Section 1 cleanup. Retirement age and the age to pass down the estate moved to live only in Section 3 (right where the retirement plan actually runs) — no more duplicate sliders to keep in sync. The 401(k) explainer is now plain language, no jargon. Removed three lines that were more clutter than insight (years it contributes, average annual withdrawal, total withdrawn) and kept effective tax rate. New: an early-withdrawal-penalty line — and a real gap it uncovered: the plan wasn't charging the actual 10% IRS penalty on money touched before age 59½, even though it's supported retiring as early as 40 since b15. Fixed at the engine level (threaded into the draw-sizing math itself, so an early retirement plan correctly draws more to net the same lifestyle) — a real, not cosmetic, fix. Regression: default (retire at 65) numbers byte-identical; a 50-year-old retirement scenario now correctly shows a real $201,775 penalty and a much lower legacy, exactly as it should; 0 JS errors.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b39</span><p class="topic-exp" style="margin-top:2px;">Two things. (1) Clearer explanation on "Or flip tools freely": that row is the exact same switch as each tool's own "In the plan" button — turning one back on resumes your real numbers from Section 1/2 right where they left off (not a reset to zero), unless there genuinely was no balance yet. (2) The HELOC now depends on the mortgage tool being on, the same way 0% biz credit depends on velocity chunking — a HELOC borrows against home equity, so it needs an actual home mortgage in the plan. Turn the mortgage off and the HELOC greys out, relabels "needs the mortgage," and goes fully inert (not just visually disabled); turn the mortgage back on and the HELOC restores exactly to whatever you had it set to. 0% biz credit was already confirmed to have zero effect outside of velocity chunking — no change needed there.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b38</span><p class="topic-exp" style="margin-top:2px;">Stress test's "with policy" vs. "no policy" is now one side-by-side table instead of two stacked cards — every metric sits on its own row with both numbers next to each other, colored green for whichever side actually wins that row and red for the other (a near-tie stays neutral, not falsely colored). Nothing about the underlying math changed — same 10 metrics, same numbers, just laid out so the comparison reads at a glance instead of scrolling between two separate blocks.</p></div>
@@ -629,7 +630,79 @@
     <section class="sec">
       <span class="sec-num">Section 2</span>
       <h2>Reserves &amp; tools</h2>
-      <p class="sub">The reserves and tools the plan works with, in the order you build them: a cash-value policy as the tax-free engine, the HELOC as the equity harvester, 0% business credit to land chunks early, velocity banking to kill mortgage interest — then the rental property last, funded from the capacity those tools just built. Each one can be switched off if it doesn't apply.</p>
+      <p class="sub">The reserves and tools the plan works with, in the order you build them: the Protection IUL for the death benefit, the Accumulation IUL as the tax-free engine, the rental property for depreciation and cash flow — then velocity banking (with 0% business credit and the HELOC) to kill mortgage interest, funded from the capacity those tools just built. Each one can be switched off if it doesn't apply.</p>
+
+      <div class="topic" data-natopic="piul">
+        <div class="topic-hrow"><div class="topic-h">Protection IUL — the death benefit that clears your debt</div><button type="button" class="toggle-btn na-btn" data-natool="piul">✓ In the plan</button></div>
+        <p class="topic-exp">A separate, simple policy from the accumulation one below — its whole job is a death benefit big enough to clear debt when you're gone (see Section&nbsp;3's estate topic). Two ways to tap it early if a real health need hits, both below — this design is meant to be <b>used</b>, not just sit there: it's built minimum-cash-value, maximum-coverage, so claiming a rider as soon as you qualify is the intended outcome, not a last resort.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="control"><label>Coverage amount (death benefit) <span class="val" id="v-ltcDB">$1,000,000</span></label><input type="range" id="ltcDB" min="200000" max="5000000" step="50000" value="1000000"></div>
+            <div class="control"><label>Annual premium <span class="val" id="v-protPremium">$0</span></label><input type="range" id="protPremium" min="0" max="20000" step="250" value="0"></div>
+            <div class="control"><label>Premium stops at age <span class="val" id="v-protStopAge">100</span></label><select id="protStopAge" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--paper-raised); color:var(--ink); font:inherit;"></select></div>
+            <details class="agent-settings" style="margin-top:10px;">
+              <summary style="cursor:pointer; font-weight:700;">Agent settings — calibration</summary>
+              <div class="control" style="margin-top:10px;"><label>Cost of insurance — % of guaranteed maximum <span class="val" id="v-coiPct">45%</span></label><input type="range" id="coiPct" min="0" max="100" step="5" value="45"></div>
+              <p class="topic-exp" style="margin-top:6px;">45% ≈ Standard non-smoker, calibrated against a real 2026 AIUL&nbsp;26 illustration (male 30, $50K/yr — the chassis reproduces its cash values within ~1% across 20 years). Better classes run lower; adjust per client from their own illustration.</p>
+            </details>
+          </div>
+          <div class="side-results">
+            <div class="ledger">
+              <div class="lline"><span>Protection premium <span class="lbl-sub">A real bill every year until it stops — funded from the contribution pool while working, added to the lifestyle need in retirement</span></span><span class="amt" id="s-protPremium">–</span></div>
+              <div class="lline total"><span>Death benefit remaining today <span class="lbl-sub">Full coverage, minus anything either rider below has already claimed</span></span><span class="amt" id="s-piulDBToday">–</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
+          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Accelerated Death Benefit — terminal illness</div><button type="button" class="toggle-btn ltc-btn" id="btn-adb">✓ Included</button></div>
+          <p class="way-hint" id="rider-exclusive-hint" style="margin-top:2px;">Only one accelerated-benefit rider draws against the death benefit at a time — turning this on switches the chronic-illness/LTC rider below off, and vice versa.</p>
+          <p class="topic-exp">If a doctor gives a terminal diagnosis (life expectancy under ~24 months), this pays out 30–70% of what's left of the death benefit as a lump sum, tax-free — a huge discount off the full amount, and once claimed, that portion of the policy is gone for good (the estate doesn't get it later). Real carriers bundle this at no extra rider cost, which is why it's included by default. Illustrated here as a one-time event at a settable age — not a random draw each render, so the plan's numbers stay stable as you adjust other sliders.</p>
+          <div class="split">
+            <div class="side-controls">
+              <div class="control"><label>% of remaining death benefit claimed <span class="val" id="v-adbPct">50%</span></label><input type="range" id="adbPct" min="30" max="70" step="5" value="50"></div>
+              <div class="control"><label>Age this happens (illustrative) <span class="val" id="v-adbAge">78</span></label><input type="range" id="adbAge" min="55" max="100" step="1" value="78"></div>
+            </div>
+            <div class="side-results">
+              <div class="ledger">
+                <div class="lline"><span>Lump sum claimed <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-adbLump">–</span></div>
+                <div class="lline"><span>Death benefit remaining after</span><span class="amt" id="s-adbAfter">–</span></div>
+              </div>
+              <details class="caveat mini collapsible" id="cav-adb">
+                <summary><span class="mark">!</span><span>Why age 78 — and the real range</span></summary>
+                <div class="caveat-body"><p><b>25–75% is the real industry range</b> for a terminal-illness acceleration (some carriers go to 100%, capped in dollars); 30–70% here is a representative slice. <b>Age 78 is illustrative, not a prediction</b> — SEER cancer data puts the median cancer diagnosis age at 67 with incidence rising through the 60s–80s, and cancer is the leading real-world driver of terminal-illness claims, so a late-life default is realistic without pretending to forecast any one person's health. <b>Scope:</b> modeled only during retirement (Section&nbsp;3), one-time, and shares the SAME death-benefit pool as the chronic-illness rider below — claim one and there's correspondingly less left for the other.</p></div>
+              </details>
+            </div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
+          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Chronic illness / long-term care — a gradual draw</div><button type="button" class="toggle-btn ltc-btn off" id="btn-ltc">✗ Not modeled</button></div>
+          <p class="topic-exp">If a qualifying illness or long-term-care need hits, this lets the member draw a set % of what's left of the death benefit every month, tax-free — capped at $30,000/mo. Unlike the Accelerated Death Benefit above, this doesn't end the policy — it just drains the same pool gradually, for as long as the need lasts. Real income, not free money: every dollar drawn is a dollar less left for the estate.</p>
+          <div class="side-controls">
+            <div class="control"><label>Monthly claim rate</label>
+              <div class="toggle-row">
+                <button type="button" class="toggle-btn ltc-rate-btn" data-rate="1">1%/mo</button>
+                <button type="button" class="toggle-btn ltc-rate-btn active" data-rate="2">2%/mo</button>
+                <button type="button" class="toggle-btn ltc-rate-btn" data-rate="4">4%/mo</button>
+              </div>
+            </div>
+            <div class="control"><label>Age this kicks in <span class="val" id="v-ltcStartAge">80</span></label><input type="range" id="ltcStartAge" min="65" max="100" step="1" value="80"></div>
+            <div class="control"><label>How long the need lasts <span class="val" id="v-ltcYears">3 yrs</span></label><input type="range" id="ltcYears" min="1" max="10" step="1" value="3"></div>
+          </div>
+          <div class="side-results">
+            <div class="ledger">
+              <div class="lline"><span>Monthly draw at trigger <span class="lbl-sub">Rate × what's left of the death benefit, capped at $30,000/mo</span></span><span class="amt" id="s-ltcMonthly">–</span></div>
+              <div class="lline"><span>Total drawn over the horizon <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-ltcTotal">–</span></div>
+              <div class="lline total"><span>Death benefit remaining at the end <span class="lbl-sub">What's left to clear debt — reduced by every dollar either rider draws</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
+            </div>
+            <details class="caveat mini collapsible" id="cav-ltc">
+              <summary><span class="mark">!</span><span>Why age 80, why claim-by-default — and what this does and doesn't cover</span></summary>
+              <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today, with 40% needing care ~2 years and 22% needing 2–4 years (3-yr default here). Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>Defaults to being claimed, not preserved:</b> this design is built minimum-cash-value specifically to be used — see the estate topic's "Preserve vs. draw" choice, defaulted to draw. <b>Scope:</b> modeled only during retirement (Section&nbsp;3); a trigger age before retirement currently has no effect. <b>The trade-off is enforced, not just shown:</b> draws reduce this death-benefit pool, and if what's left can't fully cover Section&nbsp;3's "Life insurance needed" figure, that shortfall comes straight out of legacy.</p></div>
+            </details>
+          </div>
+        </div>
+      </div>
 
       <div class="topic" data-natopic="policy">
         <div class="topic-hrow"><div class="topic-h">Fund the policy — one number: the yearly premium</div><button type="button" class="toggle-btn na-btn" data-natool="policy">✓ In the plan</button></div>
@@ -643,7 +716,7 @@
             <p class="topic-exp" style="margin-top:6px;" id="addWithholdingNote">Off: the policy runs on just the premium above. On: your current tax withholding (Section&nbsp;1) is added on top of it every year, so you can see what redirecting that money — instead of sending it to the IRS all year — actually does to the policy and the tax bill below.</p>
             <div class="control"><label>Crediting rate assumption <span class="val" id="v-credRate">6.40%</span></label><input type="range" id="credRate" min="3" max="9" step="0.01" value="6.40"></div>
             <div class="toggle-row" style="flex-wrap:wrap;">
-              <button type="button" class="toggle-btn cred-preset" data-cred="6.40">Honest long-run — 6.40%</button>
+              <button type="button" class="toggle-btn cred-preset" data-cred="6.40">Conservative — 6.40%</button>
               <button type="button" class="toggle-btn cred-preset" data-cred="7.12">Carrier illustration — 7.12%</button>
               <button type="button" class="toggle-btn cred-preset" data-cred="8.56">Last 14 yrs actual — 8.56%</button>
             </div>
@@ -678,16 +751,8 @@
 
       <div class="topic">
         <div class="topic-h">The policy's real costs — from the actual contract</div>
-        <p class="topic-exp">Real costs from the actual AIUL&nbsp;26 contract: an age-based <b>cost of insurance</b>, <b>face-amount charges</b> (policy years 1–15), an <b>overfunding charge</b> above the contract limit, and a $20/mo admin fee. <b>Nothing to set here</b> — the death benefit sizes itself automatically from age, sex, and how much you fund it. If a premium ever runs too hot, the carrier just refunds the excess — the plan can't blow up. <b>Protection IUL</b> (a separate policy, sized to clear debt at death) is below.</p>
+        <p class="topic-exp">Real costs from the actual AIUL&nbsp;26 contract: an age-based <b>cost of insurance</b>, <b>face-amount charges</b> (policy years 1–15), an <b>overfunding charge</b> above the contract limit, and a $20/mo admin fee. <b>Nothing to set here</b> — the death benefit sizes itself automatically from age, sex, and how much you fund it. If a premium ever runs too hot, the carrier just refunds the excess — the plan can't blow up.</p>
         <div class="split">
-          <div class="side-controls">
-            <div class="control"><label>Protection IUL — annual premium <span class="val" id="v-protPremium">$0</span></label><input type="range" id="protPremium" min="0" max="20000" step="250" value="0"></div>
-            <details class="agent-settings" style="margin-top:10px;">
-              <summary style="cursor:pointer; font-weight:700;">Agent settings — calibration</summary>
-              <div class="control" style="margin-top:10px;"><label>Cost of insurance — % of guaranteed maximum <span class="val" id="v-coiPct">45%</span></label><input type="range" id="coiPct" min="0" max="100" step="5" value="45"></div>
-              <p class="topic-exp" style="margin-top:6px;">45% ≈ Standard non-smoker, calibrated against a real 2026 AIUL&nbsp;26 illustration (male 30, $50K/yr — the chassis reproduces its cash values within ~1% across 20 years). Better classes run lower; adjust per client from their own illustration.</p>
-            </details>
-          </div>
           <div class="side-results">
             <div class="ledger">
               <div class="lline"><span>Death benefit — sized automatically <span class="lbl-sub">Min-non-MEC face for the insured's age & sex, 20/80 base/supplemental — grows if ALIS routes more contribution into the policy</span></span><span class="amt" id="s-autoFace">–</span></div>
@@ -702,96 +767,12 @@
               <div class="lline"><span>Year-1 cost of insurance <span class="lbl-sub">Age-based rate × net amount at risk × %-of-maximum — recomputed every year as both age and cash value move</span></span><span class="amt" id="s-coiYr1">–</span></div>
               <div class="lline"><span>Face-amount charges <span class="lbl-sub">Policy years 1–15 only, then $0 — supplemental face is charged at about half the base rate</span></span><span class="amt" id="s-faceCharge">–</span></div>
               <div class="lline"><span>Overfunding charge, year 1 <span class="lbl-sub">0.72%/yr on cumulative premium above the limit × policy years — new on AIUL 26, it specifically taxes front-loaded funding</span></span><span class="amt" id="s-accCharge">–</span></div>
-              <div class="lline"><span>Protection premium <span class="lbl-sub">A real bill every year — funded from the contribution pool while working, added to the lifestyle need in retirement</span></span><span class="amt" id="s-protPremium">–</span></div>
             </div>
             <details class="caveat mini collapsible" id="cav-policy-costs">
               <summary><span class="mark">!</span><span>What's estimated here vs. from the real contract</span></summary>
               <div class="caveat-body"><p>The COI rates are the contract's <b>guaranteed maximums</b> (2017 CSO) — real charged rates are lower and class-specific, which is what the %-of-maximum slider estimates. Refine it against a real illustration's values. Not modeled: the 7-pay MEC premium limit (the carrier auto-blocks MEC-triggering premiums unless elected) and surrender charges in years 1–15 (loans avoid them; an early full surrender would net less than the cash value shown).</p></div>
             </details>
           </div>
-        </div>
-      </div>
-
-      <div class="topic">
-        <div class="topic-h-row" style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
-          <div class="topic-h">Chronic illness / long-term care — an accelerated draw on the death benefit</div>
-          <button type="button" class="toggle-btn ltc-btn off" id="btn-ltc">✗ Not modeled</button>
-        </div>
-        <p class="topic-exp">If a qualifying illness or long-term-care need hits, this lets the member draw 1–4% of the death benefit per month (capped at $30,000) as tax-free cash. It's real income, not free money — every dollar drawn is a dollar less for the death benefit later. A scenario to explore, not a certainty.</p>
-        <div class="split">
-          <div class="side-controls">
-            <div class="control"><label>Protection IUL death benefit <span class="val" id="v-ltcDB">$1,000,000</span></label><input type="range" id="ltcDB" min="200000" max="5000000" step="50000" value="1000000"></div>
-            <div class="control"><label>Monthly draw rate <span class="val" id="v-ltcRate">2.0%/mo</span></label><input type="range" id="ltcRate" min="1" max="4" step="0.5" value="2"></div>
-            <div class="control"><label>Age this kicks in <span class="val" id="v-ltcStartAge">80</span></label><input type="range" id="ltcStartAge" min="65" max="100" step="1" value="80"></div>
-            <div class="control"><label>How long the need lasts <span class="val" id="v-ltcYears">3 yrs</span></label><input type="range" id="ltcYears" min="1" max="10" step="1" value="3"></div>
-          </div>
-          <div class="side-results">
-            <div class="ledger">
-              <div class="lline"><span>Monthly draw at trigger <span class="lbl-sub">Rate × death benefit, capped at $30,000/mo</span></span><span class="amt" id="s-ltcMonthly">–</span></div>
-              <div class="lline"><span>Total drawn over the horizon <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-ltcTotal">–</span></div>
-              <div class="lline total"><span>Death benefit remaining at the end <span class="lbl-sub">What's left to clear debt — reduced by every dollar drawn</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
-            </div>
-            <details class="caveat mini collapsible" id="cav-ltc">
-              <summary><span class="mark">!</span><span>Why age 80 — and what this does and doesn't cover</span></summary>
-              <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today, with 40% needing care ~2 years and 22% needing 2–4 years (3-yr default here). Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>Scope:</b> modeled only during retirement (Section&nbsp;3); a trigger age before retirement currently has no effect. <b>The trade-off is enforced, not just shown:</b> draws reduce this death-benefit pool, and if what's left can't fully cover Section&nbsp;3's "Life insurance needed" figure, that shortfall comes straight out of legacy — see the estate topic's "Preserve vs. draw" choice.</p></div>
-            </details>
-          </div>
-        </div>
-      </div>
-
-      <div class="topic" data-natopic="heloc">
-        <div class="topic-hrow"><div class="topic-h" id="veh-heloc-h">The HELOC — the equity harvester</div><button type="button" class="toggle-btn na-btn" data-natool="heloc">✓ In the plan</button></div>
-        <p class="topic-exp">Funds future property down payments, then in retirement covers whatever properties and low-tax qualified money don't. Real terms: a line stays open ~10 years from its first draw. Once that window closes, ALIS refinances the balance into a 30-year fixed loan (a real payment the plan funds), and a fresh line can open against the remaining equity.</p>
-        <div class="split">
-          <div class="side-controls">
-            <div class="control"><label>HELOC rate <span class="val" id="v-helocRate">7.46%</span></label><input type="range" id="helocRate" min="5" max="9" step="0.01" value="7.46"></div>
-            <div class="control"><label>Home value securing the HELOC <span class="val" id="v-reEquity">$1,100,000</span></label><input type="range" id="reEquity" min="0" max="3000000" step="25000" value="1100000"></div>
-            <div class="control"><label>Home appreciation <span class="val" id="v-reGrowth">4.44%</span></label><input type="range" id="reGrowth" min="1" max="6" step="0.01" value="4.44"></div>
-            <div class="control"><label>Max loan-to-value <span class="val" id="v-maxLtv">85%</span></label><input type="range" id="maxLtv" min="70" max="90" step="1" value="85"></div>
-          </div>
-          <div class="side-results">
-            <div class="ledger">
-              <div class="lline"><span>Years it contributes in retirement</span><span class="amt" id="s-helocYears">–</span></div>
-              <div class="lline"><span>Typical annual HELOC draw <span class="lbl-sub">Tax-free</span></span><span class="amt" id="s-helocFirstDraw">–</span></div>
-              <div class="lline"><span>Borrowing cap, first draw year <span class="lbl-sub">Max LTV × appreciated home value</span></span><span class="amt" id="s-helocCap">–</span></div>
-              <div class="lline"><span>Refinance to fixed, if needed <span class="lbl-sub" id="s-helocRefiSub">Fires only when the 10-yr draw window closes with a balance</span></span><span class="amt" id="s-helocRefi">–</span></div>
-              <div class="lline subtotal"><span>Home debt at end of retirement <span class="lbl-sub">HELOC + refinanced fixed + any remaining mortgage</span></span><span class="amt" id="s-helocBalEnd">–</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="topic" data-natopic="bizcredit">
-        <div class="topic-hrow"><div class="topic-h">0% business credit — the stacking accelerator</div><button type="button" class="toggle-btn na-btn" data-natool="bizcredit">✓ In the plan</button></div>
-        <p class="topic-exp">When it's on, the first five years of chunks land at the START of each year on 0% business credit (paid down through the year) instead of at the end — the same dollars hit whichever loan they're attacking a year earlier, and every later domino falls sooner. An accelerator on velocity banking, not its own engine.</p>
-      </div>
-
-      <div class="topic" data-natopic="velocity">
-        <div class="topic-hrow"><div class="topic-h">Velocity banking — the 0%-financed chunk</div><button type="button" class="toggle-btn na-btn" data-natool="velocity">✓ In the plan</button></div>
-        <p class="topic-exp">A lump-sum extra principal payment against the Section&nbsp;1 mortgage (or whichever loan carries the highest rate — see Section&nbsp;3), funded by moving real business expenses onto a 0% card instead of cash. Repeat rounds as later cards season.</p>
-        <div class="split">
-          <div class="side-controls">
-            <div class="control"><label>Chunk size <span class="val" id="v-chunk">$100,000</span></label><input type="range" id="chunk" min="0" max="300000" step="5000" value="100000"></div>
-            <div class="control"><label>Applied in month (of year 1) <span class="val" id="v-chunkMonth">Month 6</span></label><input type="range" id="chunkMonth" min="1" max="12" step="1" value="6"></div>
-            <div class="control"><label>Repeat rounds <span class="val" id="v-rounds">1 round</span></label><input type="range" id="rounds" min="1" max="5" step="1" value="1"></div>
-            <div class="control"><label>Months between rounds <span class="val" id="v-gap">12 mo</span></label><input type="range" id="gap" min="6" max="24" step="1" value="12"></div>
-          </div>
-          <div class="side-results">
-            <div class="chartwrap">
-              <canvas id="chart" width="1000" height="200"></canvas>
-              <div class="legend"><span><span class="swatch" style="background:var(--chart-base)"></span> No chunks</span><span><span class="swatch" style="background:var(--chart-accel)"></span> With chunk(s)</span></div>
-            </div>
-            <div class="ledger">
-              <div class="lline"><span>Total chunked in</span><span class="amt" id="s-totalChunked">–</span></div>
-              <div class="lline"><span>New payoff time</span><span class="amt" id="s-newYears">–</span></div>
-              <div class="lline subtotal"><span>Payoff moves up by</span><span class="amt" id="s-monthsSaved">–</span></div>
-              <div class="lline total"><span>Interest saved by chunking</span><span class="amt" id="s-interestSaved">–</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="caveat mini" id="cav-velocity">
-          <span class="mark">!</span>
-          <p>Every chunk still has to get repaid before its card's 0% window closes, from ordinary cash flow.</p>
         </div>
       </div>
 
@@ -875,6 +856,62 @@
         <p class="topic-exp">A property is a <b>later</b> move, not a day-one one: pick a future age, and the down payment comes out of the resources the plan has actually built by then — HELOC room against the home, or a policy loan against the cash value. Each property carries its own 30-year loan from its purchase date; the rent, the loan payment, the depreciation write-off, and the eventual value all flow through the whole plan. If the room isn't there at that age, the purchase honestly doesn't happen — the readout shows what would fit instead. Immediate write-off % and Way&nbsp;1/2/3 status follow the sliders above.</p>
         <div id="propCards"></div>
         <button type="button" class="toggle-btn" id="addProp" style="margin-top:10px;">+ Add a future property</button>
+      </div>
+
+      <div class="topic" data-natopic="velocity">
+        <div class="topic-hrow"><div class="topic-h">Velocity banking — the 0%-financed chunk</div><button type="button" class="toggle-btn na-btn" data-natool="velocity">✓ In the plan</button></div>
+        <p class="topic-exp">A lump-sum extra principal payment against the Section&nbsp;1 mortgage (or whichever loan carries the highest rate — see Section&nbsp;3), funded by moving real business expenses onto a 0% card instead of cash. Repeat rounds as later cards season. <b>Requires an actual loan to attack</b> — a home mortgage or an owned rental's own loan; with neither, there's nothing to chunk.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="control"><label>Chunk size <span class="val" id="v-chunk">$100,000</span></label><input type="range" id="chunk" min="0" max="300000" step="5000" value="100000"></div>
+            <div class="control"><label>Applied in month (of year 1) <span class="val" id="v-chunkMonth">Month 6</span></label><input type="range" id="chunkMonth" min="1" max="12" step="1" value="6"></div>
+            <div class="control"><label>Repeat rounds <span class="val" id="v-rounds">1 round</span></label><input type="range" id="rounds" min="1" max="5" step="1" value="1"></div>
+            <div class="control"><label>Months between rounds <span class="val" id="v-gap">12 mo</span></label><input type="range" id="gap" min="6" max="24" step="1" value="12"></div>
+          </div>
+          <div class="side-results">
+            <div class="chartwrap">
+              <canvas id="chart" width="1000" height="200"></canvas>
+              <div class="legend"><span><span class="swatch" style="background:var(--chart-base)"></span> No chunks</span><span><span class="swatch" style="background:var(--chart-accel)"></span> With chunk(s)</span></div>
+            </div>
+            <div class="ledger">
+              <div class="lline"><span>Total chunked in</span><span class="amt" id="s-totalChunked">–</span></div>
+              <div class="lline"><span>New payoff time</span><span class="amt" id="s-newYears">–</span></div>
+              <div class="lline subtotal"><span>Payoff moves up by</span><span class="amt" id="s-monthsSaved">–</span></div>
+              <div class="lline total"><span>Interest saved by chunking</span><span class="amt" id="s-interestSaved">–</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="caveat mini" id="cav-velocity">
+          <span class="mark">!</span>
+          <p>Every chunk still has to get repaid before its card's 0% window closes, from ordinary cash flow.</p>
+        </div>
+      </div>
+
+      <div class="topic" data-natopic="bizcredit">
+        <div class="topic-hrow"><div class="topic-h">0% business credit — the stacking accelerator</div><button type="button" class="toggle-btn na-btn" data-natool="bizcredit">✓ In the plan</button></div>
+        <p class="topic-exp">When it's on, the first five years of chunks land at the START of each year on 0% business credit (paid down through the year) instead of at the end — the same dollars hit whichever loan they're attacking a year earlier, and every later domino falls sooner. An accelerator on velocity banking, not its own engine.</p>
+      </div>
+
+      <div class="topic" data-natopic="heloc">
+        <div class="topic-hrow"><div class="topic-h" id="veh-heloc-h">The HELOC — the equity harvester</div><button type="button" class="toggle-btn na-btn" data-natool="heloc">✓ In the plan</button></div>
+        <p class="topic-exp">Funds future property down payments, then in retirement covers whatever properties and low-tax qualified money don't. Real terms: a line stays open ~10 years from its first draw. Once that window closes, ALIS refinances the balance into a 30-year fixed loan (a real payment the plan funds), and a fresh line can open against the remaining equity. <b>Requires the mortgage tool to be on</b> — a HELOC borrows against home equity, so it needs an actual home mortgage in the plan.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="control"><label>HELOC rate <span class="val" id="v-helocRate">7.46%</span></label><input type="range" id="helocRate" min="5" max="9" step="0.01" value="7.46"></div>
+            <div class="control"><label>Home value securing the HELOC <span class="val" id="v-reEquity">$1,100,000</span></label><input type="range" id="reEquity" min="0" max="3000000" step="25000" value="1100000"></div>
+            <div class="control"><label>Home appreciation <span class="val" id="v-reGrowth">4.44%</span></label><input type="range" id="reGrowth" min="1" max="6" step="0.01" value="4.44"></div>
+            <div class="control"><label>Max loan-to-value <span class="val" id="v-maxLtv">85%</span></label><input type="range" id="maxLtv" min="70" max="90" step="1" value="85"></div>
+          </div>
+          <div class="side-results">
+            <div class="ledger">
+              <div class="lline"><span>Years it contributes in retirement</span><span class="amt" id="s-helocYears">–</span></div>
+              <div class="lline"><span>Typical annual HELOC draw <span class="lbl-sub">Tax-free</span></span><span class="amt" id="s-helocFirstDraw">–</span></div>
+              <div class="lline"><span>Borrowing cap, first draw year <span class="lbl-sub">Max LTV × appreciated home value</span></span><span class="amt" id="s-helocCap">–</span></div>
+              <div class="lline"><span>Refinance to fixed, if needed <span class="lbl-sub" id="s-helocRefiSub">Fires only when the 10-yr draw window closes with a balance</span></span><span class="amt" id="s-helocRefi">–</span></div>
+              <div class="lline subtotal"><span>Home debt at end of retirement <span class="lbl-sub">HELOC + refinanced fixed + any remaining mortgage</span></span><span class="amt" id="s-helocBalEnd">–</span></div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1546,8 +1583,12 @@
   let loanType = 'auto';        // 'auto' = ALIS runs both loan types on the plan and keeps the winner
   let LOAN_RESOLVED = 'index';  // the concrete type the last plan run resolved 'auto' to
   let strActive = false;
-  let ltcOn = false;   // chronic illness/LTC accelerated-benefit draw — auto-follows the Protection IUL premium
-  let ltcManualOverride = false;  // once the member clicks the LTC button directly, stop auto-following
+  // Two mutually-exclusive accelerated-benefit riders share the SAME Protection IUL death-benefit
+  // pool — only one draws against it at a time (Bruce's call, 2026-07-07). ADB holds the default-on
+  // slot (real carriers bundle it free); LTC is the alternative, chosen instead of ADB, not with it.
+  let adbOn = true;    // Accelerated Death Benefit — one-time terminal-illness claim
+  let ltcOn = false;   // chronic illness/LTC — gradual monthly draw
+  let ltcRatePct = 2;  // discrete 1/2/4%/mo, set via the toggle-row buttons (not a continuous slider)
   let addWithholding = false;  // member's choice: fund the policy with the premium slider ALONE (off)
                                 // or that premium PLUS their real tax withholding on top (on) — off by
                                 // default so this never silently changes what the plan already shows.
@@ -2083,7 +2124,11 @@
       heloc:  { years:0, totalDrawn:0, purchaseDrawn:0, capAtStart:0, refis:[], cashInterest:0 },
       policy: { years:0, totalDrawn:0, purchaseDrawn:0, cvAtStart:0, serviceTotal:0 },
       rent:   { yr1:0, yrN:0, total:0 },
+      // "ltc" tracks the SHARED Protection IUL death-benefit pool both accelerated-benefit riders
+      // draw against (they're mutually exclusive in the UI, but the pool/shortfall math stays under
+      // this one name to avoid touching every existing dbShortfall/dbRemaining reference).
       ltc:    { totalDrawn:0, dbStart: inp.ltcDB||0 },
+      adb:    { totalDrawn:0, claimed:false },
       conv:   { total:0, tax:0, penalty:0, years:0 },
       purchases: []
     };
@@ -2157,7 +2202,7 @@
       let lifestyle = inp.todaySpend * Math.pow(1+inp.inflation, t);
       if (mortBal > 0.5) lifestyle += mortPay*12;
       if (refiBal > 0.5) lifestyle += refiMonthlyPay*12;
-      lifestyle += helocCashInterest + policyService + (inp.protPremium||0);
+      lifestyle += helocCashInterest + policyService + (age < (inp.protStopAge||121) ? (inp.protPremium||0) : 0);
       // Each owned property's own loan payment is a real bill the plan funds.
       let propPI = 0;
       for (const p of props) if (p.owned && p.mortBal > 0.5) propPI += p.mPay*12;
@@ -2174,7 +2219,18 @@
         ltcDbRemaining -= ltcDraw;
         rec.ltc.totalDrawn += ltcDraw;
       }
-      lifestyle = Math.max(lifestyle - ltcDraw, 0);
+      // --- Accelerated Death Benefit: a ONE-TIME terminal-illness claim, not a gradual draw — a
+      // settable % of whatever's left of the SAME shared death-benefit pool, at a settable age.
+      // Mutually exclusive with the LTC rider in the UI (inp.ltcOn and inp.adbOn are never both
+      // true), but the engine doesn't need to assume that — it just shares ltcDbRemaining honestly.
+      let adbDraw = 0;
+      if (inp.adbOn && !rec.adb.claimed && Math.round(age) === Math.round(inp.adbAge) && ltcDbRemaining > 0.5){
+        adbDraw = ltcDbRemaining * (inp.adbPct/100);
+        ltcDbRemaining -= adbDraw;
+        rec.adb.totalDrawn += adbDraw;
+        rec.adb.claimed = true;
+      }
+      lifestyle = Math.max(lifestyle - ltcDraw - adbDraw, 0);
 
       // --- Properties: cash + paper (tax) result. Cash in = NOI (rent net of operating costs);
       // taxable = NOI − depreciation (incl. purchase-year bonus) − loan interest. Net paper losses
@@ -2381,6 +2437,10 @@
         evts.push('Chronic-illness/LTC draw — '+fmtCompact(ltcDraw)+' tax-free, '+fmtCompact(ltcDbRemaining)+' left of the death benefit');
         if (ltcDbRemaining <= 0.5) evts.push('Death benefit fully accelerated — nothing left for the estate from this policy');
       }
+      if (adbDraw > 1){
+        evts.push('Accelerated Death Benefit claimed — '+fmtCompact(adbDraw)+' tax-free, '+fmtCompact(ltcDbRemaining)+' left of the death benefit');
+        if (ltcDbRemaining <= 0.5) evts.push('Death benefit fully accelerated — nothing left for the estate from this policy');
+      }
       qmBal -= Q + conv; if (qmBal < 0) qmBal = 0;
       // Under the stress test (inp.mcSeq) the year's growth comes from the drawn market path
       // (already age-blended when the sequence was built); otherwise the deterministic
@@ -2450,7 +2510,7 @@
     // the identical number of years at the identical lifestyle).
     rec.ltc.dbRemaining = ltcDbRemaining;
     rec.ltc.dbShortfall = dbShortfall;
-    const totalExtracted = rec.rent.total + (rec.qm.totalDrawn - rec.qm.totalTax) + rec.heloc.totalDrawn + rec.policy.totalDrawn + rec.ltc.totalDrawn;
+    const totalExtracted = rec.rent.total + (rec.qm.totalDrawn - rec.qm.totalTax) + rec.heloc.totalDrawn + rec.policy.totalDrawn + rec.ltc.totalDrawn + rec.adb.totalDrawn;
     return { strat, key:strat.key, years:H, planYears:HORIZON, sustainable, failAge, capped:(H>=RET_CAP),
              lifetimeTax, shieldTaxSaved, rmdTotal, rec, helocEnd, refiEnd, policyEnd, homeEnd, rentalEnd,
              rentalDebtEnd, homeDebtEnd, qmEnd:qmBal, cvEnd, mortEnd:mortBal, legacy, totalExtracted, timeline, inp };
@@ -2548,7 +2608,7 @@
         if (polLoan > guard){ const svc = polLoan - guard; polLoan = guard; carryCost += svc; polService += svc; }
       }
 
-      let pool = acc.contribution + refund + purchRefund + (bal <= 0.5 ? mpay*12 : 0) + propCash - carryCost - (acc.protPremium||0);
+      let pool = acc.contribution + refund + purchRefund + (bal <= 0.5 ? mpay*12 : 0) + propCash - carryCost - (age < (acc.protStopAge||121) ? (acc.protPremium||0) : 0);
       if (pool < 0){ shortfall += -pool; pool = 0; }          // bills exceed the pool → outside cash
       const cap = age >= 50 ? 31000 : 23500;                 // employee 401(k) limit (+catch-up)
       const qmWant = pool * fr.qm;
@@ -2693,14 +2753,23 @@
     const protPremium = +$('protPremium').value;
     const pc = mkPolCost(P.annualPremium);
     $('v-protPremium').textContent = fmt0.format(protPremium);
+    $('v-protStopAge').textContent = $('protStopAge').value;
     $('v-coiPct').textContent = pc.coiPct + '%';
-    $('s-protPremium').textContent = protPremium > 0 ? fmt0.format(protPremium)+'/yr' : '$0 — enter a real quote';
-    const ltcDBVal = +$('ltcDB').value, ltcRateVal = +$('ltcRate').value;
+    $('s-protPremium').textContent = protPremium > 0 ? fmt0.format(protPremium)+'/yr, until age '+$('protStopAge').value : '$0 — enter a real quote';
+    const ltcDBVal = +$('ltcDB').value, ltcRateVal = ltcRatePct;
     $('v-ltcDB').textContent = fmt0.format(ltcDBVal);
-    $('v-ltcRate').textContent = ltcRateVal.toFixed(1)+'%/mo';
     $('v-ltcStartAge').textContent = $('ltcStartAge').value;
     $('v-ltcYears').textContent = $('ltcYears').value+' yrs';
     $('s-ltcMonthly').textContent = ltcOn ? fmt0.format(Math.min(ltcDBVal*(ltcRateVal/100), LTC_MONTHLY_CAP))+'/mo' : 'off';
+    // ADB illustration — a direct read of today's coverage, not the full retirement sim (accurate
+    // since ADB/LTC are mutually exclusive: if ADB is on here, nothing else has touched this pool).
+    const adbPctVal = +$('adbPct').value;
+    $('v-adbPct').textContent = adbPctVal+'%';
+    $('v-adbAge').textContent = $('adbAge').value;
+    const adbLumpVal = ltcDBVal * (adbPctVal/100);
+    $('s-adbLump').textContent = adbOn ? fmt0.format(adbLumpVal) : 'off';
+    $('s-adbAfter').textContent = adbOn ? fmt0.format(ltcDBVal - adbLumpVal) : '—';
+    $('s-piulDBToday').textContent = fmt0.format(ltcDBVal);
     const accYears = retireAge - currentAge;
     const mtr = marginalRatePct(+$('income').value, filingStatus)/100;
 
@@ -2746,10 +2815,11 @@
       mortBalRet: a.mortBalRet, mortRatePct: M1 ? M1.ratePct : 0, mortMonthlyPay: M1 ? M1.monthlyPay : 0,
       shieldCap: (strActive || repActive) ? Infinity : 25000,
       ceiling: { single: ceil.single, mfj: ceil.mfj },
-      protPremium: +$('protPremium').value,
+      protPremium: +$('protPremium').value, protStopAge: +$('protStopAge').value,
       polCost: (a.pcUsed !== undefined ? a.pcUsed : pc), cumPrem0: (a.cumPremEnd || 0),
-      ltcOn, ltcDB: +$('ltcDB').value, ltcRatePct: +$('ltcRate').value,
-      ltcStartAge: +$('ltcStartAge').value, ltcYears: +$('ltcYears').value
+      ltcOn, ltcDB: +$('ltcDB').value, ltcRatePct,
+      ltcStartAge: +$('ltcStartAge').value, ltcYears: +$('ltcYears').value,
+      adbOn, adbPct: +$('adbPct').value, adbAge: +$('adbAge').value
     });
     // The chosen goal decides EVERY ranking from here down. Tax is never in this comparison.
     // legacy = most left behind · income = most net cash taken · both = total wealth (income + legacy).
@@ -2768,7 +2838,7 @@
       mortMonthlyPay: (TOOLS.mortgage && M1) ? M1.monthlyPay : 0,
       props: propsDef, homeValue0: homeValue, maxLtv, helocRate, loanType: (loanType === 'auto' ? LOAN_RESOLVED : loanType),
       allowanceNow, shieldUnlimited: (strActive || repActive),
-      protPremium: +$('protPremium').value,
+      protPremium: +$('protPremium').value, protStopAge: +$('protStopAge').value,
       polCost: TOOLS.policy ? pc : null, cumPrem0: TOOLS.policy ? (P.cumPremStart || 0) : 0,
       toolQualified: TOOLS.qualified
     };
@@ -4100,38 +4170,64 @@
   $('btn-addWithholding').addEventListener('click', () => { addWithholding = !addWithholding; renderSection3(); });
   // Section 2's setup button and Section 3's estate-topic choice are the SAME decision, kept in
   // sync (same pattern as the goal buttons) — Section 3 is where the trade-off is actually visible.
-  function setLtcButton(){
+  // Section 2's rider buttons and Section 3's estate-topic "preserve vs. draw" choice are the SAME
+  // decision, kept in sync (same pattern as the goal buttons) — Section 3 is where the trade-off
+  // is actually visible. Only one rider (ADB or LTC) is ever on at a time — choosing one silently
+  // switches the other off, since both draw against the SAME death-benefit pool.
+  function setRiderButtons(){
+    $('btn-adb').classList.toggle('active', adbOn);
+    $('btn-adb').classList.toggle('off', !adbOn);
+    $('btn-adb').textContent = adbOn ? '✓ Included' : '✗ Not included';
     $('btn-ltc').classList.toggle('active', ltcOn);
     $('btn-ltc').classList.toggle('off', !ltcOn);
     $('btn-ltc').textContent = ltcOn ? '✓ Modeled' : '✗ Not modeled';
     $('btn-ltc-preserve').classList.toggle('active', !ltcOn);
     $('btn-ltc-draw').classList.toggle('active', ltcOn);
   }
-  ['coiPct'].forEach(id => $(id).addEventListener('input', renderSection3));
-  // Adjusting the Protection IUL premium means the member is setting up that policy, so the
-  // chronic-illness/LTC rider that comes with it defaults ON — a real product feature, not an
-  // opt-in extra. A manual choice (either button below) is the member's explicit override and
-  // always wins from then on (never auto-flipped back).
-  $('protPremium').addEventListener('input', () => {
-    if (!ltcManualOverride){ ltcOn = (+$('protPremium').value) > 0; setLtcButton(); }
-    renderSection5();
-  });
-  ['ltcDB','ltcRate','ltcStartAge','ltcYears'].forEach(id => $(id).addEventListener('input', renderSection5));
-  function chooseLtc(on){
-    ltcOn = on;
-    ltcManualOverride = true;
-    setLtcButton();
+  ['coiPct','protPremium','protStopAge'].forEach(id => $(id).addEventListener('input', renderSection3));
+  ['ltcDB','ltcStartAge','ltcYears','adbPct','adbAge'].forEach(id => $(id).addEventListener('input', renderSection5));
+  function chooseAdb(on){
+    adbOn = on;
+    if (on) ltcOn = false;   // mutually exclusive — same shared death-benefit pool
+    setRiderButtons();
     renderSection5();
   }
+  function chooseLtc(on){
+    ltcOn = on;
+    if (on) adbOn = false;   // mutually exclusive — same shared death-benefit pool
+    setRiderButtons();
+    renderSection5();
+  }
+  $('btn-adb').addEventListener('click', () => chooseAdb(!adbOn));
   $('btn-ltc').addEventListener('click', () => chooseLtc(!ltcOn));
   $('btn-ltc-preserve').addEventListener('click', () => chooseLtc(false));
   $('btn-ltc-draw').addEventListener('click', () => chooseLtc(true));
+  document.querySelectorAll('.ltc-rate-btn').forEach(b => b.addEventListener('click', () => {
+    ltcRatePct = +b.dataset.rate;
+    document.querySelectorAll('.ltc-rate-btn').forEach(x => x.classList.toggle('active', x === b));
+    renderSection5();
+  }));
+  // Premium-stop-age dropdown: options depend on current age, so build it once at load and again
+  // whenever current age changes (same "typical numbers" trigger point as the rest of Section 1).
+  function fillStopAgeOptions(){
+    const cur = +$('currentAge').value;
+    const sel = $('protStopAge');
+    const prev = sel.value || '100';
+    sel.innerHTML = '';
+    for (let a = Math.max(cur, 45); a <= 120; a++){
+      const o = document.createElement('option'); o.value = a; o.textContent = a===121?'Never (age 121)':a;
+      sel.appendChild(o);
+    }
+    sel.value = (+prev >= cur) ? prev : '100';
+  }
+  fillStopAgeOptions();
   ['todaySpend','inflation','qmBalance','qmGrowth','helocRate','reEquity','reGrowth','maxLtv','planAge','annualContrib'].forEach(id => $(id).addEventListener('input', renderSection5));
   // Ages also drive Section 2's "policy year at retirement" readout — route them through
   // renderSection3 (which cascades into renderSection5) so everything refreshes exactly once.
   // The current-age slider additionally applies life-stage presets while nothing's customized.
   function rerenderAll(){ renderSection1(); renderSection2(); renderSection3(); }
   $('currentAge').addEventListener('input', () => {
+    fillStopAgeOptions();
     if (!presetsDirty){ applyAgePresets(); rerenderAll(); } else renderSection3();
   });
   $('retireAge').addEventListener('input', renderSection3);
@@ -4190,7 +4286,7 @@
 
   renderPropCards();
   syncToolUI();
-  setLtcButton();
+  setRiderButtons();
   renderSection1();
   renderSection2();
   renderSection3();
