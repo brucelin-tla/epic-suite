@@ -1,5 +1,14 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.5** — **Epic Life Ledger (owner-only), b38 — BETA ONLY, not yet promoted**: the stress
+  test's "with policy" vs. "no policy" result is now one side-by-side comparison table instead of
+  two stacked cards — all 10 metrics as matched rows, both numbers next to each other, the actual
+  winner colored green and the other red (a near-tie stays neutral rather than a false color).
+  Purely a display change — same underlying numbers, same 10 metrics; verified the honest split
+  still shows through (policy wins legacy/wealth/worst-case metrics, no-policy can win on income-
+  extraction in the same run — real trade-offs, not a scripted bias). No horizontal overflow at
+  375px. Regression: default numbers byte-identical pre/post; 0 JS errors.
+
 - **1.52.4** — **Epic Life Ledger (owner-only), b37 — BETA ONLY, not yet promoted**: playbook
   cleanup. "Learn it one tool at a time" moved to sit directly above the playbook, so adjusting a
   tool and reading its effect on the projection no longer means scrolling back and forth. The

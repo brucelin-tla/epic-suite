@@ -177,6 +177,24 @@
   .takeaway { font-size: 13.5px; color: var(--ink); margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); }
   .takeaway b { color: var(--ledger); }
   .stat-tile .stat-sub { display: block; font-size: 10.5px; color: var(--ink-soft); margin-top: 1px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+
+  /* Stress-test with/without-policy comparison — one table, matched rows, not two stacked cards,
+     so the same metric sits side by side and the winner is visible at a glance (green/red). */
+  .mc-compare-wrap { background: var(--ledger-soft); border: 1px solid color-mix(in srgb, var(--ledger) 40%, var(--line)); border-radius: 10px; padding: 4px 14px 10px; overflow-x: auto; }
+  table.mc-compare { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.mc-compare th { text-align: right; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: var(--ink-soft); padding: 10px 8px 6px; white-space: nowrap; }
+  table.mc-compare th:first-child { text-align: left; }
+  table.mc-compare tr.mc-compare-head td { font-family: Georgia, serif; font-size: 15px; font-weight: 700; color: var(--ledger); text-align: right; padding-bottom: 8px; border-bottom: 1px solid var(--line-strong); }
+  table.mc-compare td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  table.mc-compare td:first-child { text-align: left; font-family: inherit; color: var(--ink-soft); white-space: normal; font-size: 12px; }
+  table.mc-compare td.win { color: var(--go); font-weight: 700; }
+  table.mc-compare td.lose { color: var(--risk); }
+  table.mc-compare tbody tr:last-child td { border-bottom: none; }
+  @media (max-width: 480px) {
+    table.mc-compare { font-size: 11.5px; }
+    table.mc-compare td:first-child { font-size: 10.5px; }
+    table.mc-compare tr.mc-compare-head td { font-size: 13px; }
+  }
   .stat-tile .stat-sub.up { color: var(--go); font-weight: 700; }
   .stat-tile .stat-sub.down { color: var(--risk); font-weight: 700; }
 
@@ -467,12 +485,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b37</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b38</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b38</span><p class="topic-exp" style="margin-top:2px;">Stress test's "with policy" vs. "no policy" is now one side-by-side table instead of two stacked cards — every metric sits on its own row with both numbers next to each other, colored green for whichever side actually wins that row and red for the other (a near-tie stays neutral, not falsely colored). Nothing about the underlying math changed — same 10 metrics, same numbers, just laid out so the comparison reads at a glance instead of scrolling between two separate blocks.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b37</span><p class="topic-exp" style="margin-top:2px;">Playbook cleanup. (1) "Learn it one tool at a time" moved to sit right above the playbook — easier to adjust a tool and immediately read the projection below it, instead of scrolling back up. (2) The playbook tables only show a column when it actually has data this phase — a plan that isn't using the 401(k) or the HELOC no longer carries empty columns just to be thorough. (3) Renamed for clarity: Phase 1 gained "Deployed capital" (the year's total allocation) as its first column, and "Policy premium"→"Fund policy", "401(k)"→"Fund 401(k)", "Refund in pool"→"Tax refunded", "Property cash"→"Rental income", "Mortgage left"→"Mortgage debt". Phase 2: "Need"→"Income", "Property cash"→"Rental income", "Tax"→"Tax bill" (now shown as a negative number, so it reads as money leaving, not just a magnitude).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b36</span><p class="topic-exp" style="margin-top:2px;">Three fixes/additions from real use. (1) Fixed a real bug in the stress test: if you'd switched the policy tool off, "with policy" and "without policy" silently collapsed to the identical plan (turning the toggle off made no difference at all) — each side now gets its own honest best plan, policy forced on vs. forced off, regardless of your current toggle. (2) "The full picture" journey step now stays open when you flip a tool off or on — it used to kick you straight back to freeform mode; now you can customize which tools are in the mix and watch the same dashboard update live, without losing the guided view. (3) New: Section 4 now flags it live whenever home or rental debt isn't covered by insurance or equity, with a "buy, borrow, die" explainer and two honest levers — raising the Protection IUL's death benefit (no invented premium cost — ask your agent for a real quote) and, separately, funding the Accumulation IUL further (a real, modeled lever that also raises how much can go in before the overfunding charge).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b35</span><p class="topic-exp" style="margin-top:2px;">Fixed a real gap in the estate math: the "death benefit vs. the debt" check only ran when the chronic-illness/LTC rider was switched on — with LTC off, the tool always assumed the death benefit fully covered the home debt, even if you'd set it lower than what's actually owed. Now that check runs every time, whether or not LTC is in the picture, so the legacy number always reflects a real coverage gap if one exists.</p></div>
@@ -1115,13 +1134,14 @@
         <p class="topic-exp">Everything above assumes the same smooth return every year — real markets don't work that way, and bad-year timing can sink a plan that looks fine on average. This runs your exact plan through 1,000 different market histories, with real S&amp;P&nbsp;500 volatility. The policy's indexed crediting rides those same years, but through a real 0% floor and 11.65% cap. Then the same 1,000 histories run again with no policy at all, on its own best plan — so the only difference left is the floor.</p>
         <button type="button" class="toggle-btn" id="btn-mc">Run the stress test — 1,000 market histories</button>
         <div id="mcResults" style="display:none; margin-top:14px;">
-          <div class="alis-rec">
-            <div class="alis-rec-head"><span class="alis-badge">With the policy</span><span class="alis-order" id="mc-headW">–</span></div>
-            <div class="alis-rec-why" id="mcDashWith">–</div>
-          </div>
-          <div class="alis-rec" style="margin-top:10px;">
-            <div class="alis-rec-head"><span class="alis-badge">No policy — its own best plan</span><span class="alis-order" id="mc-headO">–</span></div>
-            <div class="alis-rec-why" id="mcDashWithout">–</div>
+          <div class="mc-compare-wrap">
+            <table class="mc-compare">
+              <thead>
+                <tr><th></th><th>With the policy</th><th>No policy</th></tr>
+                <tr class="mc-compare-head"><td></td><td id="mc-headW">–</td><td id="mc-headO">–</td></tr>
+              </thead>
+              <tbody id="mcCompareBody"></tbody>
+            </table>
           </div>
           <p class="takeaway" id="mc-take" style="text-align:left;"></p>
           <div class="chartwrap" style="margin-top:8px;"><canvas id="mcCanvas" style="height:260px;"></canvas></div>
@@ -3537,22 +3557,29 @@
     const ex10o = pctile(exOl,0.10), ex50o = pctile(exOl,0.50), ex90o = pctile(exOl,0.90);
     const wt10w = pctile(wealthW,0.10), wt50w = pctile(wealthW,0.50), wt90w = pctile(wealthW,0.90);
     const wt10o = pctile(wealthO,0.10), wt50o = pctile(wealthO,0.50), wt90o = pctile(wealthO,0.90);
-    $('mc-headW').textContent = (survW*100).toFixed(1)+'% of markets reach age '+M.planAge;
-    $('mc-headO').textContent = (survO*100).toFixed(1)+'% of markets reach age '+M.planAge;
-    const tilesFor = (surv, p10, p50, p90, ex10, ex50, ex90, wt10, wt50, wt90) => [
-      { label:'Reaches age '+M.planAge, val:(surv*100).toFixed(1)+'%', risk: surv < 0.995 },
-      { label:'Worst 1-in-10 legacy', val: fmtCompact(p10), risk: p10 < 0 },
-      { label:'Median legacy', val: fmtCompact(p50) },
-      { label:'Best 1-in-10 legacy', val: fmtCompact(p90) },
-      { label:'Worst 1-in-10 income extracted', val: fmtCompact(ex10), risk: ex10 < 0 },
-      { label:'Median income extracted', val: fmtCompact(ex50) },
-      { label:'Best 1-in-10 income extracted', val: fmtCompact(ex90) },
-      { label:'Worst 1-in-10 total wealth', val: fmtCompact(wt10), risk: wt10 < 0 },
-      { label:'Median total wealth', val: fmtCompact(wt50) },
-      { label:'Best 1-in-10 total wealth', val: fmtCompact(wt90) }
-    ];
-    renderStatCard('mcDashWith', tilesFor(survW, p10w, p50w, p90w, ex10w, ex50w, ex90w, wt10w, wt50w, wt90w), null);
-    renderStatCard('mcDashWithout', tilesFor(survO, p10o, p50o, p90o, ex10o, ex50o, ex90o, wt10o, wt50o, wt90o), null);
+    $('mc-headW').textContent = (survW*100).toFixed(1)+'%';
+    $('mc-headO').textContent = (survO*100).toFixed(1)+'%';
+    // Side-by-side comparison: one row per metric, both policy states in matched columns, the
+    // better side colored green and the other red — a tie (within the epsilon) stays neutral
+    // rather than flashing a color over a difference too small to mean anything.
+    const mcRow = (label, w, o, fmt, eps) => {
+      const d = w - o, tie = Math.abs(d) <= eps;
+      const wCls = tie ? '' : (d > 0 ? 'win' : 'lose'), oCls = tie ? '' : (d > 0 ? 'lose' : 'win');
+      return '<tr><td>'+label+'</td><td class="'+wCls+'">'+fmt(w)+'</td><td class="'+oCls+'">'+fmt(o)+'</td></tr>';
+    };
+    const pct = v => (v*100).toFixed(1)+'%';
+    $('mcCompareBody').innerHTML = [
+      mcRow('Reaches age '+M.planAge, survW, survO, pct, 0.0005),
+      mcRow('Worst 1-in-10 legacy', p10w, p10o, fmtCompact, 500),
+      mcRow('Median legacy', p50w, p50o, fmtCompact, 500),
+      mcRow('Best 1-in-10 legacy', p90w, p90o, fmtCompact, 500),
+      mcRow('Worst 1-in-10 income extracted', ex10w, ex10o, fmtCompact, 500),
+      mcRow('Median income extracted', ex50w, ex50o, fmtCompact, 500),
+      mcRow('Best 1-in-10 income extracted', ex90w, ex90o, fmtCompact, 500),
+      mcRow('Worst 1-in-10 total wealth', wt10w, wt10o, fmtCompact, 500),
+      mcRow('Median total wealth', wt50w, wt50o, fmtCompact, 500),
+      mcRow('Best 1-in-10 total wealth', wt90w, wt90o, fmtCompact, 500)
+    ].join('');
     // Computed-true takeaway — states only what THIS run's numbers actually show, never a script.
     const survDiff = (survW - survO) * 100;
     const downDiff = p10w - p10o, medDiff = p50w - p50o;
