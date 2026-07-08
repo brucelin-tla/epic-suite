@@ -1,5 +1,25 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.11** — **Epic Life Ledger (owner-only), b44 — LIVE (root + beta in sync, no staging step —
+  Bruce's standing call until there's a stable baseline)**: chronic illness rider now on by default,
+  locked at its real 1%/mo elected rate (the 2%/4% choice is gone — the design elects 1% and can't
+  change it later); once triggered it draws every year for the rest of the plan instead of a fixed
+  "years of need," decaying toward but never quite reaching a $0 death benefit. Accelerated Death
+  Benefit rider removed entirely — most members have never had a policy like this, so there's no
+  reason to model a second rider on top of the chronic-illness one. The increasing-to-level switch
+  is ALIS-only now (no manual age/"never" selector). Removed "The policy's real costs" as its own
+  section. Policy premium defaults to $0 everywhere, including every age-based preset. **New: a
+  "Lock in your plan" wizard at the start of Section 3** — four sequential steps (your numbers →
+  401(k) → property & mortgage → the AIUL, with its own separate total-premium/stop-age/years-in-
+  force/claim-age inputs) that actually drive the real plan; Section 2's policy topic is now
+  explicitly illustration-only except for the shared tax-reserve-vehicle toggle and years-in-force.
+  Mortgage years-paid-in also gained month-level precision. Verified headlessly: real engine premium
+  provably decoupled from Section 2's illustrative slider, mirrored toggle/slider sync both
+  directions, month-precision balance change, lock/unlock button behavior, full plan run with real
+  numbers, 375px mobile pass — 0 real JS errors. (Caught and fixed one real bug pre-push: an
+  apostrophe in new copy broke the page's JS parsing entirely — blank-screen risk, fixed before
+  shipping.)
+
 - **1.52.10** — **Epic Life Ledger (owner-only), b43 — PROMOTED TO LIVE (root + beta in sync)**: one policy
   now does both jobs. The Accumulation IUL carries a built-in chronic illness rider, so the
   separate Protection IUL topic is retired entirely — same death benefit clears the debt AND is
