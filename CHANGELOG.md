@@ -1,5 +1,22 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.6** — **Epic Life Ledger (owner-only), b39 — BETA ONLY, not yet promoted**: two things.
+  (1) Clearer copy on "Or flip tools freely" (Section 3) and the generic tool-off hint — both now
+  explain that this row is the exact same switch as each tool's own "In the plan" button, and that
+  turning a tool back on resumes its real Section 1/2 numbers where they stand (today's mortgage
+  balance, 401(k) balance, policy cash value), not a reset to zero — verified directly: toggling
+  mortgage/policy off then back on via the Section 3 toolbar reproduces the exact real number
+  again (e.g. $459,872.19 mortgage balance, $1,270,821.60 policy cash value), byte-for-byte. (2)
+  The HELOC now depends on the mortgage tool being on, same pattern as 0% biz credit depending on
+  velocity chunking — a HELOC needs an actual home mortgage in the plan to mean anything. Turning
+  mortgage off greys out HELOC, relabels it "needs the mortgage," and makes it fully inert at the
+  engine level (not just visually disabled) — verified `helocEnd`/`refiEnd` both go to exactly 0.
+  Turning mortgage back on restores HELOC to whatever the member had it set to (its own TOOLS flag
+  is never mutated by the dependency), confirmed byte-identical to the pre-toggle legacy number.
+  Confirmed (not changed): 0% biz credit already has zero effect anywhere outside velocity
+  chunking — no code change was needed there, just verification. Regression: default numbers
+  byte-identical pre/post; 0 JS errors.
+
 - **1.52.5** — **Epic Life Ledger (owner-only), b38 — BETA ONLY, not yet promoted**: the stress
   test's "with policy" vs. "no policy" result is now one side-by-side comparison table instead of
   two stacked cards — all 10 metrics as matched rows, both numbers next to each other, the actual

@@ -485,12 +485,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b38</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b39</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b39</span><p class="topic-exp" style="margin-top:2px;">Two things. (1) Clearer explanation on "Or flip tools freely": that row is the exact same switch as each tool's own "In the plan" button — turning one back on resumes your real numbers from Section 1/2 right where they left off (not a reset to zero), unless there genuinely was no balance yet. (2) The HELOC now depends on the mortgage tool being on, the same way 0% biz credit depends on velocity chunking — a HELOC borrows against home equity, so it needs an actual home mortgage in the plan. Turn the mortgage off and the HELOC greys out, relabels "needs the mortgage," and goes fully inert (not just visually disabled); turn the mortgage back on and the HELOC restores exactly to whatever you had it set to. 0% biz credit was already confirmed to have zero effect outside of velocity chunking — no change needed there.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b38</span><p class="topic-exp" style="margin-top:2px;">Stress test's "with policy" vs. "no policy" is now one side-by-side table instead of two stacked cards — every metric sits on its own row with both numbers next to each other, colored green for whichever side actually wins that row and red for the other (a near-tie stays neutral, not falsely colored). Nothing about the underlying math changed — same 10 metrics, same numbers, just laid out so the comparison reads at a glance instead of scrolling between two separate blocks.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b37</span><p class="topic-exp" style="margin-top:2px;">Playbook cleanup. (1) "Learn it one tool at a time" moved to sit right above the playbook — easier to adjust a tool and immediately read the projection below it, instead of scrolling back up. (2) The playbook tables only show a column when it actually has data this phase — a plan that isn't using the 401(k) or the HELOC no longer carries empty columns just to be thorough. (3) Renamed for clarity: Phase 1 gained "Deployed capital" (the year's total allocation) as its first column, and "Policy premium"→"Fund policy", "401(k)"→"Fund 401(k)", "Refund in pool"→"Tax refunded", "Property cash"→"Rental income", "Mortgage left"→"Mortgage debt". Phase 2: "Need"→"Income", "Property cash"→"Rental income", "Tax"→"Tax bill" (now shown as a negative number, so it reads as money leaving, not just a magnitude).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b36</span><p class="topic-exp" style="margin-top:2px;">Three fixes/additions from real use. (1) Fixed a real bug in the stress test: if you'd switched the policy tool off, "with policy" and "without policy" silently collapsed to the identical plan (turning the toggle off made no difference at all) — each side now gets its own honest best plan, policy forced on vs. forced off, regardless of your current toggle. (2) "The full picture" journey step now stays open when you flip a tool off or on — it used to kick you straight back to freeform mode; now you can customize which tools are in the mix and watch the same dashboard update live, without losing the guided view. (3) New: Section 4 now flags it live whenever home or rental debt isn't covered by insurance or equity, with a "buy, borrow, die" explainer and two honest levers — raising the Protection IUL's death benefit (no invented premium cost — ask your agent for a real quote) and, separately, funding the Accumulation IUL further (a real, modeled lever that also raises how much can go in before the overfunding charge).</p></div>
@@ -1033,7 +1034,7 @@
           <div class="alis-rec-why" id="journey-why"></div>
           <button type="button" class="float-cta journey-next" id="journey-next">Next →</button>
         </div>
-        <p class="topic-exp" style="margin-top:16px;">Or flip tools freely — ALIS re-plans with whatever's on:</p>
+        <p class="topic-exp" style="margin-top:16px;">Or flip tools freely — ALIS re-plans with whatever's on. <b>This is the exact same switch as the "✓ In the plan" button on that tool's own topic above</b> — flip it here or there, it's one setting either way. Turning a tool back on doesn't reset it: it picks up your real numbers from Section&nbsp;1/2 (today's mortgage balance, 401(k) balance, or policy cash value) right where they stand, growing forward from there — not from zero. The only time it genuinely starts at $0 is if there was never a real balance to begin with (a 401(k) you haven't opened yet, say) — the plan flags that explicitly wherever it applies, same as any other honest number here.</p>
         <div class="toggle-row" id="toolBar">
           <button type="button" class="toggle-btn active" data-tool="velocity">Velocity chunking</button>
           <button type="button" class="toggle-btn active" data-tool="bizcredit">0% biz credit</button>
@@ -2730,7 +2731,7 @@
       todaySpend: spendVal, inflation, qmBalance: a.qmStart, qmGrowth, helocRate, homeValue, reGrowth, maxLtv,
       retireAge, horizon, policyYearAtRetireStart,
       startCV: a.cvStart, credRate: P.credRate/100, loanType: (loanType === 'auto' ? LOAN_RESOLVED : loanType), filingStatus,
-      toolHeloc: TOOLS.heloc, toolPolicy: TOOLS.policy,
+      toolHeloc: TOOLS.heloc && TOOLS.mortgage, toolPolicy: TOOLS.policy,
       props: (defs || propsDef).map(p => {
         const st = (a.propsState||[]).find(s => s.idx === p.idx) || { owned:false, mortBal:0, mPay:0 };
         return { idx:p.idx, buyT: p.buyAge - retireAge, price:p.price, downPct:p.downPct, ratePct:p.ratePct,
@@ -2757,7 +2758,7 @@
     // room, no P&I, no chunk target); no policy = no Section-3 cash value; no 401(k) = no balance.
     const acc0 = {
       years: accYears, currentAge, contribution: annualContrib,
-      stacking: TOOLS.bizcredit && TOOLS.velocity, mtr, toolPolicy: TOOLS.policy, toolHeloc: TOOLS.heloc,
+      stacking: TOOLS.bizcredit && TOOLS.velocity, mtr, toolPolicy: TOOLS.policy, toolHeloc: TOOLS.heloc && TOOLS.mortgage,
       qm0: TOOLS.qualified ? qmBalance : 0, qmGrowth,
       cv0: TOOLS.policy ? P.startCV : 0, credRate: P.credRate/100, polYearsStart: P.polYears,
       mortBal: (TOOLS.mortgage && M1) ? M1.curBal : 0,
@@ -3729,7 +3730,7 @@
     if (TOOLS.qualified) toolLines.push('<b>401(k) / qualified</b> — '+fmt0.format(+$('qmBalance').value)+' today, growing along an age-based glide path (stock return assumption '+(+$('qmGrowth').value).toFixed(2)+'%/yr)');
     if (TOOLS.mortgage) toolLines.push('<b>Home mortgage</b> — '+($('s-curBal').textContent)+' balance today on a '+$('v-propValue').textContent+' home');
     if (TOOLS.policy) toolLines.push('<b>Cash-value policy</b> — '+fmt0.format(P.annualPremium)+'/yr premium, '+P.polYears+' years in force so far');
-    if (TOOLS.heloc) toolLines.push('<b>HELOC</b> — '+(+$('helocRate').value).toFixed(2)+'% rate against the home’s equity');
+    if (TOOLS.heloc && TOOLS.mortgage) toolLines.push('<b>HELOC</b> — '+(+$('helocRate').value).toFixed(2)+'% rate against the home’s equity');
     if (TOOLS.rental) toolLines.push('<b>Rental property</b> — '+$('v-invPrice').textContent+' purchase, buying at age '+$('v-buyAge1').textContent);
     if (TOOLS.velocity) toolLines.push('<b>Velocity banking</b> — '+$('v-chunk').textContent+' chunks against the mortgage'+(TOOLS.bizcredit ? ' (stacked with 0% business credit)' : ''));
     pages.push(
@@ -3889,20 +3890,22 @@
 
   // One source of truth for tool availability: the Section-3 tool bar AND every per-topic
   // "In the plan / Not applicable" button flip the same TOOLS flag and stay in sync.
-  // 0% biz credit is NOT a peer of velocity chunking — it's a modifier that only speeds up
-  // chunks velocity is already landing (stacking = TOOLS.bizcredit && TOOLS.velocity in the
-  // engine); showing it as an equal, independently-clickable toggle read as two tools both
-  // attacking the mortgage when really one does nothing without the other. So its button is
-  // shown OFF and disabled whenever velocity is off, regardless of its own stored TOOLS value —
-  // honest about what's actually happening, and it remembers the member's real preference for
-  // whenever velocity comes back on.
-  function isDependentTool(k){ return k === 'bizcredit' && !TOOLS.velocity; }
+  // Some tools are modifiers, not peers — they do nothing without a real host to attach to:
+  // 0% biz credit only speeds up chunks velocity is already landing (stacking = TOOLS.bizcredit
+  // && TOOLS.velocity in the engine); the HELOC borrows against home equity, so it needs an
+  // actual home mortgage in the plan (a HELOC against a home the plan doesn't model isn't real —
+  // Bruce's call 2026-07-07). Each dependent tool's button shows OFF and disabled whenever its
+  // host is off, regardless of its own stored TOOLS value — honest about what's actually
+  // happening — and remembers the member's real preference for whenever the host comes back on
+  // (TOOLS[k] itself is never mutated by the dependency, only its display/engine effect).
+  const TOOL_DEPS = { bizcredit: { on: 'velocity', label: 'velocity chunking' }, heloc: { on: 'mortgage', label: 'the mortgage' } };
+  function isDependentTool(k){ const d = TOOL_DEPS[k]; return !!d && !TOOLS[d.on]; }
   function syncToolUI(){
     document.querySelectorAll('#toolBar .toggle-btn').forEach(b => {
       const k = b.dataset.tool, dep = isDependentTool(k);
       b.classList.toggle('active', TOOLS[k] && !dep);
       b.disabled = dep;
-      b.title = dep ? '0% biz credit only speeds up velocity chunking — turn velocity chunking on first' : '';
+      b.title = dep ? ('Needs '+TOOL_DEPS[k].label+' turned on first') : '';
     });
     document.querySelectorAll('.na-btn').forEach(b => {
       const k = b.dataset.natool, dep = isDependentTool(k);
@@ -3910,14 +3913,14 @@
       b.classList.toggle('off', !on);
       b.classList.toggle('active', on);
       b.disabled = dep;
-      b.textContent = dep ? '— needs velocity chunking' : (on ? '✓ In the plan' : '✗ Not applicable');
+      b.textContent = dep ? ('— needs '+TOOL_DEPS[k].label) : (on ? '✓ In the plan' : '✗ Not applicable');
     });
     document.querySelectorAll('[data-natopic]').forEach(t => t.classList.toggle('na-off', !TOOLS[t.dataset.natopic] || isDependentTool(t.dataset.natopic)));
     const off = new Set(Object.keys(TOOLS).filter(x => !TOOLS[x] || isDependentTool(x)));
     const hint = $('tool-hint');
     if (off.size){
       const names = { velocity:'velocity chunking', bizcredit:'0% biz credit', policy:'the policy', heloc:'the HELOC', mortgage:'the mortgage', rental:'the rental', qualified:'the 401(k)' };
-      hint.innerHTML = '<b>Planning without:</b> '+[...off].map(x=>names[x]).join(', ')+'. Flip a tool back on to see what it adds.';
+      hint.innerHTML = '<b>Planning without:</b> '+[...off].map(x=>names[x]).join(', ')+'. Flip one back on to see what it adds — it resumes your real Section&nbsp;1/2 numbers where they stand (or starts from $0 if there was never a real balance there).';
       hint.classList.add('show');
     } else hint.classList.remove('show');
   }
