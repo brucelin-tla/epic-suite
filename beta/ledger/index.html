@@ -485,12 +485,13 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b42</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.07-b43</span>
     <h1>Epic Life Ledger</h1>
     <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
     <details class="details-toggle">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b43</span><p class="topic-exp" style="margin-top:2px;">One policy now does both jobs. The Accumulation IUL carries a built-in <b>chronic illness rider</b> — the separate Protection IUL topic is gone, because this design makes a second policy unnecessary: the same death benefit that clears your debt is also the chronic-illness pool, and because the policy is issued <b>increasing</b> (Option 2), your cash value stacks on top of the face amount — the death benefit and the chronic-illness pool both grow as the cash value grows. New: <b>ALIS picks the year the policy switches from increasing to level</b> (the real trade-off: stay increasing longer and the death benefit keeps growing but the insurance cost keeps riding the full face; switch and the cost shrinks as cash value fills the gap) — shown with the honest dollar difference vs. never switching, and you can override it. Recalibrated everything to six fresh 2026 carrier illustrations of this exact design (both sexes, ages 30/45/60, rider included): bigger death benefit per premium dollar, new target premiums, cost model reproduces all six within 1–7% across every illustrated year (now split by sex — women's charges run genuinely lower). Chronic-illness draws now honestly cap at the IRS per-diem limit ($430/day for 2026, ≈$13,079/mo — the old $30K/mo cap belonged to the retired product) and every draw also reduces cash value proportionately, exactly as the rider actually works. The estate math now uses the real net death benefit (face + stacked cash value − loans − anything the riders drew) instead of just cash value — the "one tool beats all" story, priced honestly. Also fixed from the contract: the overfunding charge stops after policy year 20 (it was being charged forever).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b42</span><p class="topic-exp" style="margin-top:2px;">The Accumulation IUL topic reorganized around what actually matters, in this order: death benefit, total annual premium, premium expense charge, current cash value, the year's tax-loan, loan available (capped at 90% of cash value — the same never-lapse limit the retirement engine already enforces, now applied here too, not just later), net gain on the loan's interest rate, net gain in dollars, cash value remaining, tax bill out of pocket. Everything an agent needs but a member doesn't (enhanced target premium, year-1 cost of insurance, face-amount charges, overfunding charge, the $20/mo admin fee, and a new "Total AIUL policy expense" that adds them all up) moved into one collapsed "stats for agents" panel — no commission math spelled out, just labeled as agent stats. New: a premium-stop-age dropdown for the Accumulation IUL (current age → 120), same as the Protection IUL already had. Clarity fixes: the premium line now says "Withholding not selected" outright when the toggle is off instead of a vague example; the loan's net cost/gain no longer uses a "negative means gain" convention — a real cost now reads as a cost, a real gain as a gain. Regression: default numbers unchanged where nothing above actually changed the math; the 90%-cap loan fix only bites when cash value is thin enough that 90% of it is less than the tax bill (a real, disclosed behavior change, not a bug); 0 JS errors.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b41</span><p class="topic-exp" style="margin-top:2px;">Section 2 rebuilt around the Protection IUL. Reordered to Protection IUL → Accumulation IUL → rental property → velocity banking (with 0% biz credit and the HELOC folded in right after it) — one clean build order. The Protection IUL is now its own topic: coverage amount and annual premium as direct inputs, plus a new premium-stop-age dropdown (both here and on the Accumulation IUL). New: an Accelerated Death Benefit rider (terminal illness, one-time lump sum of 30–70% of what's left of the death benefit, included by default since real carriers bundle it free) alongside the existing chronic-illness/LTC rider (now a discrete 1/2/4%/mo choice instead of a slider) — only one of the two can be active at a time, since both draw against the same coverage pool; whichever is on now defaults to being claimed, not preserved, matching how this design is actually meant to be used. Renamed the "Honest long-run" crediting preset to "Conservative." Regression: default legacy now genuinely includes the new default-on ADB claim ($23,513,442 vs the pre-ADB $23,913,002 — an intentional new-feature change, not a bug); stress test, journey, and every prior dependency (HELOC↔mortgage, biz credit↔velocity) verified working post-reorder; 0 JS errors.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b40</span><p class="topic-exp" style="margin-top:2px;">Section 1 cleanup. Retirement age and the age to pass down the estate moved to live only in Section 3 (right where the retirement plan actually runs) — no more duplicate sliders to keep in sync. The 401(k) explainer is now plain language, no jargon. Removed three lines that were more clutter than insight (years it contributes, average annual withdrawal, total withdrawn) and kept effective tax rate. New: an early-withdrawal-penalty line — and a real gap it uncovered: the plan wasn't charging the actual 10% IRS penalty on money touched before age 59½, even though it's supported retiring as early as 40 since b15. Fixed at the engine level (threaded into the draw-sizing math itself, so an early retirement plan correctly draws more to net the same lifestyle) — a real, not cosmetic, fix. Regression: default (retire at 65) numbers byte-identical; a 50-year-old retirement scenario now correctly shows a real $201,775 penalty and a much lower legacy, exactly as it should; 0 JS errors.</p></div>
@@ -631,83 +632,11 @@
     <section class="sec">
       <span class="sec-num">Section 2</span>
       <h2>Reserves &amp; tools</h2>
-      <p class="sub">The reserves and tools the plan works with, in the order you build them: the Protection IUL for the death benefit, the Accumulation IUL as the tax-free engine, the rental property for depreciation and cash flow — then velocity banking (with 0% business credit and the HELOC) to kill mortgage interest, funded from the capacity those tools just built. Each one can be switched off if it doesn't apply.</p>
-
-      <div class="topic" data-natopic="piul">
-        <div class="topic-hrow"><div class="topic-h">Protection IUL — the death benefit that clears your debt</div><button type="button" class="toggle-btn na-btn" data-natool="piul">✓ In the plan</button></div>
-        <p class="topic-exp">A separate, simple policy from the accumulation one below — its whole job is a death benefit big enough to clear debt when you're gone (see Section&nbsp;3's estate topic). Two ways to tap it early if a real health need hits, both below — this design is meant to be <b>used</b>, not just sit there: it's built minimum-cash-value, maximum-coverage, so claiming a rider as soon as you qualify is the intended outcome, not a last resort.</p>
-        <div class="split">
-          <div class="side-controls">
-            <div class="control"><label>Coverage amount (death benefit) <span class="val" id="v-ltcDB">$1,000,000</span></label><input type="range" id="ltcDB" min="200000" max="5000000" step="50000" value="1000000"></div>
-            <div class="control"><label>Annual premium <span class="val" id="v-protPremium">$0</span></label><input type="range" id="protPremium" min="0" max="20000" step="250" value="0"></div>
-            <div class="control"><label>Premium stops at age <span class="val" id="v-protStopAge">100</span></label><select id="protStopAge" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--paper-raised); color:var(--ink); font:inherit;"></select></div>
-            <details class="agent-settings" style="margin-top:10px;">
-              <summary style="cursor:pointer; font-weight:700;">Agent settings — calibration</summary>
-              <div class="control" style="margin-top:10px;"><label>Cost of insurance — % of guaranteed maximum <span class="val" id="v-coiPct">45%</span></label><input type="range" id="coiPct" min="0" max="100" step="5" value="45"></div>
-              <p class="topic-exp" style="margin-top:6px;">45% ≈ Standard non-smoker, calibrated against a real 2026 AIUL&nbsp;26 illustration (male 30, $50K/yr — the chassis reproduces its cash values within ~1% across 20 years). Better classes run lower; adjust per client from their own illustration.</p>
-            </details>
-          </div>
-          <div class="side-results">
-            <div class="ledger">
-              <div class="lline"><span>Protection premium <span class="lbl-sub">A real bill every year until it stops — funded from the contribution pool while working, added to the lifestyle need in retirement</span></span><span class="amt" id="s-protPremium">–</span></div>
-              <div class="lline total"><span>Death benefit remaining today <span class="lbl-sub">Full coverage, minus anything either rider below has already claimed</span></span><span class="amt" id="s-piulDBToday">–</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
-          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Accelerated Death Benefit — terminal illness</div><button type="button" class="toggle-btn ltc-btn" id="btn-adb">✓ Included</button></div>
-          <p class="way-hint" id="rider-exclusive-hint" style="margin-top:2px;">Only one accelerated-benefit rider draws against the death benefit at a time — turning this on switches the chronic-illness/LTC rider below off, and vice versa.</p>
-          <p class="topic-exp">If a doctor gives a terminal diagnosis (life expectancy under ~24 months), this pays out 30–70% of what's left of the death benefit as a lump sum, tax-free — a huge discount off the full amount, and once claimed, that portion of the policy is gone for good (the estate doesn't get it later). Real carriers bundle this at no extra rider cost, which is why it's included by default. Illustrated here as a one-time event at a settable age — not a random draw each render, so the plan's numbers stay stable as you adjust other sliders.</p>
-          <div class="split">
-            <div class="side-controls">
-              <div class="control"><label>% of remaining death benefit claimed <span class="val" id="v-adbPct">50%</span></label><input type="range" id="adbPct" min="30" max="70" step="5" value="50"></div>
-              <div class="control"><label>Age this happens (illustrative) <span class="val" id="v-adbAge">78</span></label><input type="range" id="adbAge" min="55" max="100" step="1" value="78"></div>
-            </div>
-            <div class="side-results">
-              <div class="ledger">
-                <div class="lline"><span>Lump sum claimed <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-adbLump">–</span></div>
-                <div class="lline"><span>Death benefit remaining after</span><span class="amt" id="s-adbAfter">–</span></div>
-              </div>
-              <details class="caveat mini collapsible" id="cav-adb">
-                <summary><span class="mark">!</span><span>Why age 78 — and the real range</span></summary>
-                <div class="caveat-body"><p><b>25–75% is the real industry range</b> for a terminal-illness acceleration (some carriers go to 100%, capped in dollars); 30–70% here is a representative slice. <b>Age 78 is illustrative, not a prediction</b> — SEER cancer data puts the median cancer diagnosis age at 67 with incidence rising through the 60s–80s, and cancer is the leading real-world driver of terminal-illness claims, so a late-life default is realistic without pretending to forecast any one person's health. <b>Scope:</b> modeled only during retirement (Section&nbsp;3), one-time, and shares the SAME death-benefit pool as the chronic-illness rider below — claim one and there's correspondingly less left for the other.</p></div>
-              </details>
-            </div>
-          </div>
-        </div>
-
-        <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
-          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Chronic illness / long-term care — a gradual draw</div><button type="button" class="toggle-btn ltc-btn off" id="btn-ltc">✗ Not modeled</button></div>
-          <p class="topic-exp">If a qualifying illness or long-term-care need hits, this lets the member draw a set % of what's left of the death benefit every month, tax-free — capped at $30,000/mo. Unlike the Accelerated Death Benefit above, this doesn't end the policy — it just drains the same pool gradually, for as long as the need lasts. Real income, not free money: every dollar drawn is a dollar less left for the estate.</p>
-          <div class="side-controls">
-            <div class="control"><label>Monthly claim rate</label>
-              <div class="toggle-row">
-                <button type="button" class="toggle-btn ltc-rate-btn" data-rate="1">1%/mo</button>
-                <button type="button" class="toggle-btn ltc-rate-btn active" data-rate="2">2%/mo</button>
-                <button type="button" class="toggle-btn ltc-rate-btn" data-rate="4">4%/mo</button>
-              </div>
-            </div>
-            <div class="control"><label>Age this kicks in <span class="val" id="v-ltcStartAge">80</span></label><input type="range" id="ltcStartAge" min="65" max="100" step="1" value="80"></div>
-            <div class="control"><label>How long the need lasts <span class="val" id="v-ltcYears">3 yrs</span></label><input type="range" id="ltcYears" min="1" max="10" step="1" value="3"></div>
-          </div>
-          <div class="side-results">
-            <div class="ledger">
-              <div class="lline"><span>Monthly draw at trigger <span class="lbl-sub">Rate × what's left of the death benefit, capped at $30,000/mo</span></span><span class="amt" id="s-ltcMonthly">–</span></div>
-              <div class="lline"><span>Total drawn over the horizon <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-ltcTotal">–</span></div>
-              <div class="lline total"><span>Death benefit remaining at the end <span class="lbl-sub">What's left to clear debt — reduced by every dollar either rider draws</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
-            </div>
-            <details class="caveat mini collapsible" id="cav-ltc">
-              <summary><span class="mark">!</span><span>Why age 80, why claim-by-default — and what this does and doesn't cover</span></summary>
-              <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today, with 40% needing care ~2 years and 22% needing 2–4 years (3-yr default here). Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>Defaults to being claimed, not preserved:</b> this design is built minimum-cash-value specifically to be used — see the estate topic's "Preserve vs. draw" choice, defaulted to draw. <b>Scope:</b> modeled only during retirement (Section&nbsp;3); a trigger age before retirement currently has no effect. <b>The trade-off is enforced, not just shown:</b> draws reduce this death-benefit pool, and if what's left can't fully cover Section&nbsp;3's "Life insurance needed" figure, that shortfall comes straight out of legacy.</p></div>
-            </details>
-          </div>
-        </div>
-      </div>
+      <p class="sub">The reserves and tools the plan works with, in the order you build them: ONE policy — the Accumulation IUL with its built-in chronic illness rider — carrying both the death benefit that clears your debt AND the tax-free engine, the rental property for depreciation and cash flow — then velocity banking (with 0% business credit and the HELOC) to kill mortgage interest, funded from the capacity those tools just built. Each one can be switched off if it doesn't apply.</p>
 
       <div class="topic" data-natopic="policy">
-        <div class="topic-hrow"><div class="topic-h">Fund the policy — one number: the yearly premium</div><button type="button" class="toggle-btn na-btn" data-natool="policy">✓ In the plan</button></div>
-        <p class="topic-exp">How much goes into the policy every year — often the tax withholding you're already over-paying (Section&nbsp;1, or just flip the toggle below). A real premium charge applies: 7% in year 1, 6% in years 2–10, then 2%. Pick a crediting story below; everything else — face amount, loan type — sizes itself automatically.</p>
+        <div class="topic-hrow"><div class="topic-h">The policy — protection and accumulation in one</div><button type="button" class="toggle-btn na-btn" data-natool="policy">✓ In the plan</button></div>
+        <p class="topic-exp">One Accumulation IUL does both jobs: it carries the death benefit that clears your debt (see Section&nbsp;3's estate topic) AND grows the tax-free cash value the plan lives on — no separate protection policy needed, which is the whole point: one policy's costs instead of two. It's issued <b>increasing</b> (Option&nbsp;2): the death benefit is the face amount <b>plus</b> the cash value, so both the coverage and the chronic-illness pool below grow every year the cash value grows. Set the yearly premium — often the tax withholding you're already over-paying (Section&nbsp;1, or flip the toggle below). A real premium charge applies: 7% in year 1, 6% in years 2–10, then 2%. Pick a crediting story; everything else — face amount, loan type, the increasing-to-level switch — sizes itself automatically.</p>
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Annual premium into the policy <span class="val" id="v-polPremiumAnnual">$10,000</span></label><input type="range" id="polPremiumAnnual" min="0" max="100000" step="1000" value="10000"></div>
@@ -724,6 +653,7 @@
             </div>
             <p class="topic-exp" style="margin-top:6px;"><b>6.40%</b> is what the real 0% floor / 11.65% cap produces if markets average their full 1928–2025 record (~10%/yr) — the defensible default. <b>7.12%</b> is the carrier's current illustrated rate, calibrated to the stronger recent era. <b>8.56%</b> is what the carrier's first IUL actually credited on average, 2011–2025. Pick the story you want the plan built on — the stress test shows the floor/cap's honest implied rate either way.</p>
             <div class="control"><label>Already have this policy? — years in force <span class="val" id="v-polYears">3 yrs</span></label><input type="range" id="polYears" min="0" max="20" step="1" value="3"></div>
+            <div class="control"><label>Increasing → level switch year</label><select id="switchAgeSel" style="width:100%; padding:8px; border-radius:8px; border:1px solid var(--line); background:var(--paper-raised); color:var(--ink); font:inherit;"></select></div>
             <div class="toggle-row">
               <button type="button" class="toggle-btn active" id="btn-autoLoan">ALIS picks the loan</button>
               <button type="button" class="toggle-btn" id="btn-indexLoan">Fixed Index — 5.00% + 0.65% bonus</button>
@@ -732,7 +662,9 @@
           </div>
           <div class="side-results">
             <div class="ledger">
-              <div class="lline"><span>Death benefit <span class="lbl-sub">Sized automatically from age, sex, and how much you fund it — grows if ALIS routes more contribution in</span></span><span class="amt" id="s-autoFace">–</span></div>
+              <div class="lline"><span>Face amount at issue <span class="lbl-sub">Sized automatically from age, sex, and how much you fund it — grows if ALIS routes more contribution in</span></span><span class="amt" id="s-autoFace">–</span></div>
+            <div class="lline"><span>Death benefit today <span class="lbl-sub">Increasing (Option 2): face + today's cash value — the chronic-illness pool below rides this same growing number</span></span><span class="amt" id="s-dbToday">–</span></div>
+            <div class="lline"><span>Switch to level at age <span class="lbl-sub" id="s-switchPickSub">ALIS finds the year where freezing the death benefit (and letting cash value shrink the insurance cost) beats letting it keep growing</span></span><span class="amt" id="s-switchPick">–</span></div>
               <div class="lline"><span>Total annual premium <span class="lbl-sub" id="s-premiumSub">e.g., redirected monthly over-withholding × 12</span></span><span class="amt" id="s-premium">–</span></div>
               <div class="lline"><span>Premium expense charge <span class="lbl-sub" id="s-premChargeSub">–</span></span><span class="amt" id="s-premCharge">–</span></div>
               <div class="lline subtotal"><span>Current cash value <span class="lbl-sub">After policy year <span id="s-polYearsLbl">3</span>'s premium charge and crediting — this is what the policy holds today</span></span><span class="amt" id="s-cashValue">–</span></div>
@@ -757,7 +689,58 @@
               <div class="lline"><span>Overfunding charge <span class="lbl-sub">Only on premium above the advance-contribution limit</span></span><span class="amt" id="s-accCharge">–</span></div>
               <div class="lline"><span>Admin fee <span class="lbl-sub">$20/mo, every policy year it's in force</span></span><span class="amt" id="s-adminFee">–</span></div>
               <div class="lline total"><span>Total AIUL policy expense <span class="lbl-sub">Cost of insurance + face charges + overfunding charge + admin + premium expense charge — everything the policy costs beyond the premium itself</span></span><span class="amt" id="s-totalAiulExpense">–</span></div>
+              <div class="control" style="margin-top:10px;"><label>Cost of insurance — % of guaranteed maximum <span class="val" id="v-coiPct">70%</span></label><input type="range" id="coiPct" min="0" max="120" step="1" value="70"></div>
+              <p class="topic-exp" style="margin-top:6px;">Calibrated against six real 2026 AIUL&nbsp;26 illustrations of this exact design (Standard non-smoker, chronic illness rider included, no-Vitality scale): ~70% fits the male illustrations, ~57% the female — the default follows the Male/Female toggle until you move this slider yourself. The aggregate includes the rider's own monthly charge. Reproduces all six within 1–7% across every illustrated year, erring low (conservative) in the early years. Better classes run lower; adjust per client from their own illustration.</p>
             </details>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
+          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Chronic illness rider — built into this policy</div><button type="button" class="toggle-btn ltc-btn off" id="btn-ltc">✗ Not modeled</button></div>
+          <p class="way-hint" id="rider-exclusive-hint" style="margin-top:2px;">Only one accelerated-benefit rider draws against the death benefit at a time — turning this on switches the terminal-illness benefit below off, and vice versa.</p>
+          <p class="topic-exp">This is why one policy replaces two: if a qualifying chronic illness or long-term-care need hits (unable to do 2 of 6 daily-living activities, or severe cognitive impairment), the member draws a set % of the <b>current death benefit</b> every month, tax-free — and because the policy is increasing, that pool is the face amount plus every dollar of cash value stacked on top. Capped at the IRS per-diem limit ($430/day for 2026 — about $13,079/mo). Real income, not free money: every dollar drawn permanently reduces the death benefit AND proportionately reduces the cash value, exactly as the rider works in the contract.</p>
+          <div class="side-controls">
+            <div class="control"><label>Monthly claim rate <span class="lbl-sub" style="display:block;">Elected at issue — TLA's illustrated design uses 1%</span></label>
+              <div class="toggle-row">
+                <button type="button" class="toggle-btn ltc-rate-btn active" data-rate="1">1%/mo</button>
+                <button type="button" class="toggle-btn ltc-rate-btn" data-rate="2">2%/mo</button>
+                <button type="button" class="toggle-btn ltc-rate-btn" data-rate="4">4%/mo</button>
+              </div>
+            </div>
+            <div class="control"><label>Age this kicks in <span class="val" id="v-ltcStartAge">80</span></label><input type="range" id="ltcStartAge" min="65" max="100" step="1" value="80"></div>
+            <div class="control"><label>How long the need lasts <span class="val" id="v-ltcYears">3 yrs</span></label><input type="range" id="ltcYears" min="1" max="10" step="1" value="3"></div>
+          </div>
+          <div class="side-results">
+            <div class="ledger">
+              <div class="lline"><span>Monthly draw at trigger <span class="lbl-sub">Rate × the death benefit at that age, capped at the IRS per-diem limit (~$13,079/mo in 2026)</span></span><span class="amt" id="s-ltcMonthly">–</span></div>
+              <div class="lline"><span>Total drawn over the horizon <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-ltcTotal">–</span></div>
+              <div class="lline total"><span>Death benefit remaining at the end <span class="lbl-sub">What's left to clear debt — reduced by every dollar either benefit draws</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
+            </div>
+            <details class="caveat mini collapsible" id="cav-ltc">
+              <summary><span class="mark">!</span><span>Why age 80 — and what this does and doesn't cover</span></summary>
+              <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today, with 40% needing care ~2 years and 22% needing 2–4 years (3-yr default here). Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>The monthly rate is elected at issue and can't be raised later</b> — TLA's illustrated design elects 1%. <b>Real rider mechanics modeled:</b> a 90-day elimination period and once-per-12-months payment cadence exist in the contract but are approximated here as annual draws; each draw reduces the death benefit and the cash value proportionately; the IRS per-diem cap ($430/day, 2026, Rev. Proc. 2025-32) binds whenever 1% of the death benefit exceeds ~$13,079/mo. <b>Scope:</b> modeled only during retirement (Section&nbsp;3); a trigger age before retirement currently has no effect. Draws come off the same death benefit the estate math counts on — the trade-off is enforced, not just shown.</p></div>
+            </details>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
+          <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Accelerated Death Benefit — terminal illness</div><button type="button" class="toggle-btn ltc-btn" id="btn-adb">✓ Included</button></div>
+          <p class="topic-exp">If a doctor gives a terminal diagnosis (life expectancy under ~24 months), this pays out 30–70% of what's left of the death benefit as a lump sum, tax-free — and once claimed, that portion of the policy is gone for good (the estate doesn't get it later). Carriers bundle this at no extra rider cost, which is why it's included by default. Illustrated here as a one-time event at a settable age — not a random draw each render, so the plan's numbers stay stable as you adjust other sliders.</p>
+          <div class="split">
+            <div class="side-controls">
+              <div class="control"><label>% of remaining death benefit claimed <span class="val" id="v-adbPct">50%</span></label><input type="range" id="adbPct" min="30" max="70" step="5" value="50"></div>
+              <div class="control"><label>Age this happens (illustrative) <span class="val" id="v-adbAge">78</span></label><input type="range" id="adbAge" min="55" max="100" step="1" value="78"></div>
+            </div>
+            <div class="side-results">
+              <div class="ledger">
+                <div class="lline"><span>Lump sum claimed <span class="lbl-sub">Tax-free — counted in Income extracted</span></span><span class="amt" id="s-adbLump">–</span></div>
+                <div class="lline"><span>Death benefit remaining after</span><span class="amt" id="s-adbAfter">–</span></div>
+              </div>
+              <details class="caveat mini collapsible" id="cav-adb">
+                <summary><span class="mark">!</span><span>Why age 78 — and the real range</span></summary>
+                <div class="caveat-body"><p><b>25–75% is the real industry range</b> for a terminal-illness acceleration (some carriers go to 100%, capped in dollars); 30–70% here is a representative slice. <b>Age 78 is illustrative, not a prediction</b> — SEER cancer data puts the median cancer diagnosis age at 67 with incidence rising through the 60s–80s, and cancer is the leading real-world driver of terminal-illness claims, so a late-life default is realistic without pretending to forecast any one person's health. <b>Scope:</b> modeled only during retirement (Section&nbsp;3), one-time, and shares the SAME death-benefit pool as the chronic illness rider above — claim one and there's correspondingly less left for the other.</p></div>
+              </details>
+            </div>
           </div>
         </div>
       </div>
@@ -1038,7 +1021,7 @@
 
       <div class="topic">
         <div class="topic-h">The estate — coverage to clear the debt</div>
-        <p class="topic-exp">Borrowed balances get cleared at death, not out of the lifestyle — life insurance is sized to clear all the home debt (the HELOC, any refinance, whatever's left of the mortgage). <b>If chronic illness/LTC is on (Section&nbsp;2), it draws from that SAME death benefit</b> — every dollar taken for income is a dollar less to clear this debt.</p>
+        <p class="topic-exp">Borrowed balances get cleared at death, not out of the lifestyle — the policy's death benefit (the face amount plus every dollar of cash value stacked on top while it's increasing) clears all the home debt: the HELOC, any refinance, whatever's left of the mortgage. What's left after the debt goes to the estate. <b>If the chronic illness rider is drawing (Section&nbsp;2), it draws from that SAME death benefit</b> — every dollar taken for income is a dollar less to clear this debt.</p>
         <div class="toggle-row" id="ltcTradeoffRow" style="margin-bottom:14px;">
           <button type="button" class="toggle-btn" id="btn-ltc-preserve">Preserve the death benefit for the estate</button>
           <button type="button" class="toggle-btn" id="btn-ltc-draw">Draw it down for extra income if LTC hits</button>
@@ -1049,7 +1032,7 @@
               <div class="lline"><span>Home value at end of horizon</span><span class="amt" id="s-reValueEnd">–</span></div>
               <div class="lline"><span>Rental mortgages still owed <span class="lbl-sub">Cleared by the properties' own value, not the lifestyle</span></span><span class="amt" id="s-rentalDebtEnd">–</span></div>
               <div class="lline total"><span>Life insurance needed — clears all home debt</span><span class="amt" id="s-lifeInsNeeded">–</span></div>
-              <div class="lline"><span>Death benefit vs. the debt <span class="lbl-sub" id="s-ltcCoverageSub">What's left of the death benefit (after any LTC draws) vs. what's needed to clear the debt above</span></span><span class="amt" id="s-ltcCoverage">–</span></div>
+              <div class="lline"><span>Death benefit vs. the debt <span class="lbl-sub" id="s-ltcCoverageSub">The policy's net death benefit (after loans and any rider draws) vs. what's needed to clear the debt above</span></span><span class="amt" id="s-ltcCoverage">–</span></div>
               <div class="lline"><span>Policy loan balance <span class="lbl-sub">Self-covered by the policy's own death benefit</span></span><span class="amt" id="s-p3SelfCovered">–</span></div>
             </div>
           </div>
@@ -1478,13 +1461,13 @@
   // male 30, $50,000/yr premium → $1,174,665 total face where the Guideline Annual Premium lands
   // at $49,983 ≈ the premium; 7-pay MEC limit $66,104 sits safely above). Face = ratio × planned
   // annual premium, split 20% base / 80% supplemental (supplemental costs ~half per $1,000).
-  // Face-per-premium ratio by ISSUE AGE and SEX — from 6 real AIUL 26 illustrations (Standard
-  // non-smoker, $50k/yr, min-non-MEC design): the ratio SHRINKS with age (an older insured buys
-  // less death benefit for the same premium at the same cost-to-overfund) and runs HIGHER for
-  // women (lower mortality → a larger min-non-MEC face for the same premium). The 20/80 base/
-  // supplemental split was EXACT across all six. Linear interpolation between the 30/45/60
-  // anchors; clamped outside 30–60 (conservative — slightly overstates face, hence COI, past 60).
-  const FACE_RATIO = { male:{30:23.49,45:17.98,60:14.54}, female:{30:27.83,45:18.57,60:15.95} };
+  // Face-per-premium ratio by ISSUE AGE and SEX — from 6 real 2026 AIUL 26 illustrations of the
+  // CURRENT design (Standard non-smoker, $50k/yr, GPT/DB-Option-2 "EMAX" design WITH the Chronic
+  // Illness Rider — replaces the earlier no-rider batch wholesale, 2026-07-07): the ratio SHRINKS
+  // with age and runs HIGHER for women. The 20/80 base/supplemental split was EXACT across all
+  // six. Linear interpolation between the 30/45/60 anchors; clamped outside 30–60 (conservative —
+  // slightly overstates face, hence COI, past 60).
+  const FACE_RATIO = { male:{30:30.578,45:21.830,60:14.974}, female:{30:36.226,45:25.690,60:17.539} };
   const FACE_BASE_SHARE = 0.20, ACL_PER_FACE = 12001/1100000;
   function interpAgeSex(tbl, age, sex){
     const t = tbl[sex] || tbl.male;
@@ -1493,19 +1476,30 @@
     return age <= 45 ? t[30] + (t[45]-t[30])*(age-30)/15 : t[45] + (t[60]-t[45])*(age-45)/15;
   }
   function facePerPremium(age, sex){ return interpAgeSex(FACE_RATIO, age, sex); }
+  // The increasing→level switch: 'alis' (ALIS computes the best year), a specific age, or 'never'.
+  // SWITCH_RESOLVED is the age ALIS's last pick pass resolved to (null = never wins; undefined =
+  // not computed yet, fall back to retirement age — the structural default: increasing while
+  // building, level once income starts).
+  let switchSel = 'alis';
+  let SWITCH_RESOLVED = undefined;
+  function switchAgeEff(){
+    if (switchSel === 'never') return null;
+    if (switchSel !== 'alis') return +switchSel;
+    return SWITCH_RESOLVED === undefined ? +$('retireAge').value : SWITCH_RESOLVED;
+  }
   function mkPolCost(annualPolPremium){
     const F = facePerPremium(+$('currentAge').value, sex) * Math.max(annualPolPremium, 0);
     return { faceBase: FACE_BASE_SHARE * F, faceSuppl: (1 - FACE_BASE_SHARE) * F,
-             coiPct: +$('coiPct').value, acl: Math.max(ACL_PER_FACE * F, 1) };
+             coiPct: +$('coiPct').value, acl: Math.max(ACL_PER_FACE * F, 1),
+             switchAge: switchAgeEff() };
   }
-  // Target premium — the commission basis, NOT what the member pays. From the same 6 illustrations
-  // ($50k/yr): both face and its base component scale linearly with premium at a fixed age/sex, so
-  // target premium scales linearly too — interpolate the $50k anchor by age/sex, then scale by the
-  // real premium. (Sex COI note: applying the male COI-rate table to women is intentional and
-  // <0.5% — verified against these illustrations, the sex effect on cash value is dominated by the
-  // sex-specific FACE size above, which the tool already uses; a separate female mortality table
-  // would move results below the tool's own calibration noise.)
-  const TARGET_AT50K = { male:{30:2585.52,45:4154.75,60:7004.09}, female:{30:2486.64,45:3365.40,60:6143.17} };
+  // Target premium — the commission basis, NOT what the member pays. From the same 6 CI-rider
+  // illustrations ($50k/yr): both face and its base component scale linearly with premium at a
+  // fixed age/sex, so target premium scales linearly too — interpolate the $50k anchor by age/sex,
+  // then scale by the real premium. (On this design women's target premiums run slightly HIGHER
+  // than men's — their bigger faces outweigh their lower rates; the old no-rider batch had it the
+  // other way around. Data over intuition.)
+  const TARGET_AT50K = { male:{30:4002.66,45:6005.57,60:8832.97}, female:{30:4158.44,45:6175.98,60:9131.68} };
   function targetPremium(age, sex, annualPremium){
     return interpAgeSex(TARGET_AT50K, age, sex) * (Math.max(annualPremium,0)/50000);
   }
@@ -1569,20 +1563,40 @@
   function dbFactor(age){ const a = Math.round(age); if (a >= 95) return 1.0; return DBF[Math.min(Math.max(a,35),94)]; }
   // Per-$1,000 face-amount charges, policy years 1-15 then zero (specimen rates: base face
   // 0.3002/mo, supplemental face 0.1474/mo), and the AIUL 26 Advance Contribution Charge:
-  // 0.06%/mo on cumulative premium above (limit × policy years) — a real drag that specifically
-  // hits front-loaded overfunding. All gated behind face > 0: with no face amount entered the
-  // chassis is off and the policy behaves as the pure-savings shorthand it was before.
+  // 0.06%/mo on cumulative premium above (limit × policy years), deducted for the FIRST 20
+  // POLICY YEARS ONLY (per the 2026 illustration's own description — it was previously charged
+  // forever). All gated behind face > 0: with no face amount entered the chassis is off and the
+  // policy behaves as the pure-savings shorthand it was before.
   const FACE_CHARGE_BASE = 0.3002, FACE_CHARGE_SUPPL = 0.1474, FACE_CHARGE_YEARS = 15;
-  const ACC_CHARGE_MONTHLY = 0.0006;
-  function policyCosts(pc, age, policyYear, cv, cumPrem){
+  const ACC_CHARGE_MONTHLY = 0.0006, ACC_CHARGE_YEARS = 20;
+  // Death-benefit option mechanics (verified against the six illustrations: Net Death Benefit =
+  // face + policy value to the dollar, every year). While INCREASING (Option 2): DB = face + cv,
+  // so the net amount at risk stays = face and COI rides the full face forever. After the SWITCH
+  // to level (Option 1): the total DB is preserved at the moment of the switch (standard carrier
+  // treatment — face resets to face + cash value, no new underwriting), then stays level, so NAR
+  // shrinks as cash value keeps growing. The IRS corridor (dbFactor) floors DB in both modes.
+  // `st` is PER-RUN mutable state ({faceLevel, faceScale}) owned by each engine run — pc objects
+  // are shared across runs and must never carry it. faceScale tracks chronic-illness/terminal
+  // accelerations (each draw shrinks face and cash value proportionately, per the contract).
+  function policyDB(pc, st, age, cv){
     if (!pc || pc.faceBase + pc.faceSuppl <= 0.5) return 0;
-    const face = pc.faceBase + pc.faceSuppl;
-    const db = Math.max(face, dbFactor(age) * cv);
+    if (st && st.faceLevel !== null) return Math.max(st.faceLevel, dbFactor(age) * cv);
+    const face = (pc.faceBase + pc.faceSuppl) * (st ? st.faceScale : 1);
+    return Math.max(face + cv, dbFactor(age) * cv);
+  }
+  function mkPolState(from){ return from ? { faceLevel: from.faceLevel, faceScale: from.faceScale } : { faceLevel: null, faceScale: 1 }; }
+  function policyCosts(pc, age, policyYear, cv, cumPrem, st){
+    if (!pc || pc.faceBase + pc.faceSuppl <= 0.5) return 0;
+    if (st && st.faceLevel === null && pc.switchAge != null && age >= pc.switchAge){
+      st.faceLevel = Math.max((pc.faceBase + pc.faceSuppl) * st.faceScale + cv, dbFactor(age) * cv);
+    }
+    const db = policyDB(pc, st, age, cv);
     const nar = Math.max(db - cv, 0);
     const coi = coiMaxRate(age) * (pc.coiPct/100) * nar * 12;
     const faceCharge = policyYear <= FACE_CHARGE_YEARS
       ? (FACE_CHARGE_BASE * pc.faceBase/1000 + FACE_CHARGE_SUPPL * pc.faceSuppl/1000) * 12 : 0;
-    const accCharge = ACC_CHARGE_MONTHLY * 12 * Math.max(cumPrem - pc.acl * policyYear, 0);
+    const accCharge = policyYear <= ACC_CHARGE_YEARS
+      ? ACC_CHARGE_MONTHLY * 12 * Math.max(cumPrem - pc.acl * policyYear, 0) : 0;
     return coi + faceCharge + accCharge;
   }
 
@@ -1591,12 +1605,17 @@
   let loanType = 'auto';        // 'auto' = ALIS runs both loan types on the plan and keeps the winner
   let LOAN_RESOLVED = 'index';  // the concrete type the last plan run resolved 'auto' to
   let strActive = false;
-  // Two mutually-exclusive accelerated-benefit riders share the SAME Protection IUL death-benefit
-  // pool — only one draws against it at a time (Bruce's call, 2026-07-07). ADB holds the default-on
-  // slot (real carriers bundle it free); LTC is the alternative, chosen instead of ADB, not with it.
+  // Two mutually-exclusive accelerated benefits share the AIUL's OWN death-benefit pool — the
+  // face amount plus the stacked cash value (Option 2), frozen at the switch year. Only one draws
+  // at a time (Bruce's call, 2026-07-07). ADB holds the default-on slot (carriers bundle it
+  // free); the chronic illness rider is the alternative, chosen instead of ADB, not with it.
   let adbOn = true;    // Accelerated Death Benefit — one-time terminal-illness claim
-  let ltcOn = false;   // chronic illness/LTC — gradual monthly draw
-  let ltcRatePct = 2;  // discrete 1/2/4%/mo, set via the toggle-row buttons (not a continuous slider)
+  let ltcOn = false;   // chronic illness rider — gradual monthly draw against the current DB
+  let ltcRatePct = 1;  // elected at issue: 1/2/4%/mo — TLA's illustrated design elects 1%
+  // COI calibration defaults by sex (six 2026 CI-rider illustrations, Bronze/no-Vitality scale):
+  // the default tracks the Male/Female toggle until the agent moves the slider themselves.
+  const COI_DEFAULT = { male: 70, female: 57 };
+  let COI_TOUCHED = false;
   let addWithholding = false;  // member's choice: fund the policy with the premium slider ALONE (off)
                                 // or that premium PLUS their real tax withholding on top (on) — off by
                                 // default so this never silently changes what the plan already shows.
@@ -2005,12 +2024,14 @@
     const pc0 = mkPolCost(annualPremium);
     const ageNow = +$('currentAge').value;
     let cashValue = 0, cumPrem3 = 0;
+    const st3 = mkPolState(null);   // the switch may already sit behind an in-force policy's clock
     for (let y=1; y<=polYears; y++){
       const netPrem = annualPremium * (1 - premChargePct(y));
       cumPrem3 += annualPremium;
-      const costs = policyCosts(pc0, ageNow - polYears + y, y, cashValue, cumPrem3) + POLICY_ADMIN_ANNUAL;
+      const costs = policyCosts(pc0, ageNow - polYears + y, y, cashValue, cumPrem3, st3) + POLICY_ADMIN_ANNUAL;
       cashValue = Math.max((cashValue + netPrem) * (1+cr) - costs, 0);
     }
+    P.polSt = st3;
     const thisYearCharge = premChargePct(polYears);
 
     // Real loan mechanics (AIUL 26): Fixed Index loan charges 5.00% current (never above 5.5%
@@ -2107,7 +2128,10 @@
   // 90% loan-to-CV, and if drift pushes past 95% the plan pays loan interest in cash to hold it.
   const HELOC_DRAW_YEARS = 10;
   const POLICY_DRAW_MAX = 0.90, POLICY_LAPSE_GUARD = 0.95;
-  const LTC_MONTHLY_CAP = 30000; // hard $/mo cap on the accelerated chronic-illness/LTC draw
+  // IRS per-diem limit on chronic-illness accelerated benefits (IRC §7702B(d)(4)): $430/day for
+  // 2026 (Rev. Proc. 2025-32) ≈ $13,079/mo. The rider's payments are restricted to this by
+  // contract. (The old $30K/mo cap belonged to the retired Protection IUL product.)
+  const CI_PER_DIEM_MONTHLY = 13079;
 
   function simulateStrategy(strat, inp){
     let qmBal = inp.qmBalance;
@@ -2134,20 +2158,37 @@
     // Properties: local copies (the engine mutates them). buyT is retirement-relative (negative =
     // bought during the working years; its loan state arrived via mortBal/mPay).
     const props = (inp.props||[]).map(p => ({...p}));
+    // Per-run policy DB state: increasing→level switch + accelerated-benefit reductions. Cloned
+    // from the accumulation phase's end state (the switch may already have fired while building).
+    const polSt = mkPolState(inp.polSt0);
     const rec = {
       qm:     { years:0, totalDrawn:0, totalTax:0, totalPenalty:0 },
       heloc:  { years:0, totalDrawn:0, purchaseDrawn:0, capAtStart:0, refis:[], cashInterest:0 },
-      policy: { years:0, totalDrawn:0, purchaseDrawn:0, cvAtStart:0, serviceTotal:0 },
+      policy: { years:0, totalDrawn:0, purchaseDrawn:0, cvAtStart:0, serviceTotal:0,
+                dbAtStart: policyDB(inp.polCost, polSt, inp.retireAge, inp.startCV + (inp.cvLoanAcct0||0)) },
       rent:   { yr1:0, yrN:0, total:0 },
-      // "ltc" tracks the SHARED Protection IUL death-benefit pool both accelerated-benefit riders
-      // draw against (they're mutually exclusive in the UI, but the pool/shortfall math stays under
-      // this one name to avoid touching every existing dbShortfall/dbRemaining reference).
-      ltc:    { totalDrawn:0, dbStart: inp.ltcDB||0 },
-      adb:    { totalDrawn:0, claimed:false },
+      // "ltc" tracks the AIUL's OWN death-benefit pool both accelerated benefits draw against —
+      // the face plus the stacked cash value (Option 2), frozen at the switch year. (The name
+      // stays "ltc" to avoid touching every existing dbShortfall/dbRemaining reference.)
+      ltc:    { totalDrawn:0, dbStart: 0, monthlyAtTrigger: 0 },
+      adb:    { totalDrawn:0, claimed:false, dbAfter: 0 },
       conv:   { total:0, tax:0, penalty:0, years:0 },
       purchases: []
     };
-    let ltcDbRemaining = inp.ltcDB||0;
+    rec.ltc.dbStart = rec.policy.dbAtStart;
+    // Apply one accelerated-benefit payment of X against the current DB: the death benefit drops
+    // by the full payment, and the cash value drops proportionately (cv/DB share) — the real
+    // contract mechanic, so post-draw DB = face' + cv' stays exactly DB − X.
+    const applyAccel = (X, dbNow) => {
+      if (dbNow <= 0.5) return;
+      const cvTot = cvFree + cvLoanAcct;
+      const cvPart = X * (cvTot / dbNow);
+      const fromFree = Math.min(cvPart, cvFree);
+      cvFree -= fromFree;
+      cvLoanAcct = Math.max(cvLoanAcct - (cvPart - fromFree), 0);
+      if (polSt.faceLevel !== null) polSt.faceLevel = Math.max(polSt.faceLevel * (1 - X/dbNow), 0);
+      else polSt.faceScale = Math.max(polSt.faceScale * (1 - X/dbNow), 0);
+    };
     const HORIZON = Math.min(inp.horizon, RET_CAP); // years from retirement to plan-through age
     // Mortgage carried into retirement (if the accumulation plan didn't finish it): its P&I is a
     // real extra expense the vehicles must fund, and its balance reduces HELOC room (combined LTV).
@@ -2217,33 +2258,39 @@
       let lifestyle = inp.todaySpend * Math.pow(1+inp.inflation, t);
       if (mortBal > 0.5) lifestyle += mortPay*12;
       if (refiBal > 0.5) lifestyle += refiMonthlyPay*12;
-      lifestyle += helocCashInterest + policyService + (age < (inp.protStopAge||121) ? (inp.protPremium||0) : 0);
+      lifestyle += helocCashInterest + policyService;
       // Each owned property's own loan payment is a real bill the plan funds.
       let propPI = 0;
       for (const p of props) if (p.owned && p.mortBal > 0.5) propPI += p.mPay*12;
       lifestyle += propPI;
 
-      // --- Chronic illness/LTC accelerated draw: while active, a real tax-free income source that
-      // fills part of the year's need up front — but every dollar drawn permanently reduces what's
-      // left of the death benefit (a real accelerated-benefit mechanic, not free money). Annual
-      // approximation of the monthly-rate/cap rider, against the CURRENT (declining) death benefit.
+      // --- Chronic illness rider draw: while active, a real tax-free income source that fills
+      // part of the year's need up front. The pool is the policy's CURRENT death benefit — face
+      // plus stacked cash value (Option 2), frozen at the switch — net of policy debt. Monthly
+      // benefit = elected rate × current DB, capped at the IRS per-diem limit; every dollar drawn
+      // permanently reduces the DB and proportionately reduces the cash value (real contract
+      // mechanics, annual approximation of the monthly rider).
+      const dbNowForRiders = policyDB(inp.polCost, polSt, age, cvFree + cvLoanAcct);
+      const dbAvail = Math.max(dbNowForRiders - loanBal, 0);   // only the net DB can accelerate
       let ltcDraw = 0;
-      if (inp.ltcOn && age >= inp.ltcStartAge && age < inp.ltcStartAge + inp.ltcYears && ltcDbRemaining > 0.5){
-        const monthly = Math.min(ltcDbRemaining * (inp.ltcRatePct/100), LTC_MONTHLY_CAP);
-        ltcDraw = Math.min(monthly * 12, ltcDbRemaining);
-        ltcDbRemaining -= ltcDraw;
+      if (inp.ltcOn && age >= inp.ltcStartAge && age < inp.ltcStartAge + inp.ltcYears && dbAvail > 0.5){
+        const monthly = Math.min(dbNowForRiders * (inp.ltcRatePct/100), CI_PER_DIEM_MONTHLY);
+        ltcDraw = Math.min(monthly * 12, dbAvail);
+        if (rec.ltc.monthlyAtTrigger <= 0.5) rec.ltc.monthlyAtTrigger = monthly;
+        applyAccel(ltcDraw, dbNowForRiders);
         rec.ltc.totalDrawn += ltcDraw;
       }
       // --- Accelerated Death Benefit: a ONE-TIME terminal-illness claim, not a gradual draw — a
-      // settable % of whatever's left of the SAME shared death-benefit pool, at a settable age.
-      // Mutually exclusive with the LTC rider in the UI (inp.ltcOn and inp.adbOn are never both
-      // true), but the engine doesn't need to assume that — it just shares ltcDbRemaining honestly.
+      // settable % of whatever's left of the SAME death-benefit pool, at a settable age.
+      // Mutually exclusive with the chronic illness rider in the UI (inp.ltcOn and inp.adbOn are
+      // never both true), but the engine doesn't need to assume that — the pool is shared honestly.
       let adbDraw = 0;
-      if (inp.adbOn && !rec.adb.claimed && Math.round(age) === Math.round(inp.adbAge) && ltcDbRemaining > 0.5){
-        adbDraw = ltcDbRemaining * (inp.adbPct/100);
-        ltcDbRemaining -= adbDraw;
+      if (inp.adbOn && !rec.adb.claimed && Math.round(age) === Math.round(inp.adbAge) && dbAvail > 0.5){
+        adbDraw = Math.max(dbAvail - ltcDraw, 0) * (inp.adbPct/100);
+        applyAccel(adbDraw, policyDB(inp.polCost, polSt, age, cvFree + cvLoanAcct));
         rec.adb.totalDrawn += adbDraw;
         rec.adb.claimed = true;
+        rec.adb.dbAfter = Math.max(policyDB(inp.polCost, polSt, age, cvFree + cvLoanAcct) - loanBal, 0);
       }
       lifestyle = Math.max(lifestyle - ltcDraw - adbDraw, 0);
 
@@ -2448,13 +2495,11 @@
       if (conv > 1) evts.push('Withdraw '+fmtCompact(conv)+' from the 401(k) to pay down the policy loan — '+fmtCompact(convTax+convPen)+' tax now beats the projected RMD-age rate');
       if (policyService > 1) evts.push('Pay '+fmtCompact(policyService)+' policy loan interest (no-lapse)');
       if (helocCashInterest > 1) evts.push('Pay '+fmtCompact(helocCashInterest)+' HELOC interest in cash');
-      if (ltcDraw > 1){
-        evts.push('Chronic-illness/LTC draw — '+fmtCompact(ltcDraw)+' tax-free, '+fmtCompact(ltcDbRemaining)+' left of the death benefit');
-        if (ltcDbRemaining <= 0.5) evts.push('Death benefit fully accelerated — nothing left for the estate from this policy');
-      }
-      if (adbDraw > 1){
-        evts.push('Accelerated Death Benefit claimed — '+fmtCompact(adbDraw)+' tax-free, '+fmtCompact(ltcDbRemaining)+' left of the death benefit');
-        if (ltcDbRemaining <= 0.5) evts.push('Death benefit fully accelerated — nothing left for the estate from this policy');
+      if (ltcDraw > 1 || adbDraw > 1){
+        const dbLeftNow = Math.max(policyDB(inp.polCost, polSt, age, cvFree + cvLoanAcct) - loanBal, 0);
+        if (ltcDraw > 1) evts.push('Chronic illness rider draw — '+fmtCompact(ltcDraw)+' tax-free, '+fmtCompact(dbLeftNow)+' of death benefit left');
+        if (adbDraw > 1) evts.push('Accelerated Death Benefit claimed — '+fmtCompact(adbDraw)+' tax-free, '+fmtCompact(dbLeftNow)+' of death benefit left');
+        if (dbLeftNow <= 0.5) evts.push('Death benefit fully accelerated — nothing left for the estate from this policy');
       }
       qmBal -= Q + conv; if (qmBal < 0) qmBal = 0;
       // Under the stress test (inp.mcSeq) the year's growth comes from the drawn market path
@@ -2468,7 +2513,7 @@
       // crediting are completely unaffected by it (this is the whole point of the redesign: real
       // designs can't accept ad hoc extra premium, but paying down existing debt needs no such
       // acceptance — it's just a smaller loanBal going into next year's interest accrual).
-      const polCostYr = policyCosts(inp.polCost, age, policyYear, cvFree + cvLoanAcct, cumPrem);
+      const polCostYr = policyCosts(inp.polCost, age, policyYear, cvFree + cvLoanAcct, cumPrem, polSt);
       cvFree = Math.max(cvFree*(1 + (inp.mcSeq ? inp.mcSeq.cred[t] : inp.credRate)) - POLICY_ADMIN_ANNUAL - polCostYr, 0);
       if (cvLoanAcct > 0.5) cvLoanAcct *= (1 + washCredited(policyYear)/100);
       // AIUL 26 Fixed Index loan: the loaned collateral earns a guaranteed 0.65% bonus on top of
@@ -2505,26 +2550,30 @@
     const homeDebtEnd = helocEnd + refiEnd + mortBal;      // everything secured by the home at death
     const sustainable = covered >= HORIZON;         // funded the lifestyle all the way to plan-through age
     const failAge = sustainable ? null : (inp.retireAge + covered);
-    // The trade-off, ENFORCED: the Protection IUL's death benefit is what's actually supposed to
-    // clear homeDebtEnd (that's its whole job — see the estate topic). Every LTC dollar accelerated
-    // is a dollar of that SAME coverage gone. If what's left can't fully cover the debt anymore,
-    // the shortfall comes straight out of legacy — the estate doesn't get free insurance money it
-    // no longer has. Runs unconditionally — an undersized death benefit falls short of the home debt
-    // whether or not the member ever draws against it via LTC (fixed 2026-07-07: this used to be
-    // hardcoded to 0 whenever the LTC toggle was off, silently assuming full coverage regardless of
-    // the actual death benefit vs. debt).
-    const dbShortfall = Math.max(homeDebtEnd - ltcDbRemaining, 0);
+    // The estate gets the policy's REAL net death benefit — face (level or still increasing) plus
+    // the stacked cash value under Option 2, minus policy debt, minus everything the accelerated
+    // benefits already drew (tracked in polSt) — not just cash-value-net-of-loan. This is the
+    // "one policy does both jobs" integration: the same DB the riders drain is what clears the
+    // home debt at death, so every accelerated dollar honestly costs the estate a dollar.
+    const dbEndGross = policyDB(inp.polCost, polSt, inp.retireAge + H, cvEnd);
+    const netDBEnd = Math.max(dbEndGross - policyEnd, 0);
+    // Informational (drives the coverage/risk display): how far the net DB falls short of the
+    // home debt it's supposed to clear. NOT separately subtracted from legacy anymore — with the
+    // net DB actually credited to the estate below, any shortfall already lands on legacy
+    // arithmetically through the − homeDebtEnd term.
+    const dbShortfall = Math.max(homeDebtEnd - netDBEnd, 0);
     // Legacy: what the estate keeps after the debts clear — home + properties net of their loans +
-    // leftover qualified + policy cash value net of its own loan (death benefit ≥ this) − home debt
-    // − any LTC coverage shortfall.
-    const legacy = homeEnd + (rentalEnd - rentalDebtEnd) + qmBal + Math.max(cvEnd - policyEnd, 0) - homeDebtEnd - dbShortfall;
+    // leftover qualified + the policy's net death benefit − home debt.
+    const legacy = homeEnd + (rentalEnd - rentalDebtEnd) + qmBal + netDBEnd - homeDebtEnd;
     // NET of tax, not gross withdrawn — rent/HELOC/policy are already tax-free/shielded, so the
     // qualified leg has to subtract what actually went to the IRS or this overstates real income by
     // counting tax dollars as if the member kept them (caught 2026-07-06: a strategy that draws more
     // gross qualified — and pays more tax — showed as "more income" even when every strategy funded
     // the identical number of years at the identical lifestyle).
-    rec.ltc.dbRemaining = ltcDbRemaining;
+    rec.ltc.dbRemaining = netDBEnd;
     rec.ltc.dbShortfall = dbShortfall;
+    rec.policy.dbEnd = netDBEnd;
+    rec.policy.switchedAtAge = polSt.faceLevel !== null ? (inp.polCost && inp.polCost.switchAge) : null;
     const totalExtracted = rec.rent.total + (rec.qm.totalDrawn - rec.qm.totalTax) + rec.heloc.totalDrawn + rec.policy.totalDrawn + rec.ltc.totalDrawn + rec.adb.totalDrawn;
     return { strat, key:strat.key, years:H, planYears:HORIZON, sustainable, failAge, capped:(H>=RET_CAP),
              lifetimeTax, shieldTaxSaved, rmdTotal, rec, helocEnd, refiEnd, policyEnd, homeEnd, rentalEnd,
@@ -2547,6 +2596,9 @@
     let helocBal = 0, helocWindowEndY = null, refiBal = 0, refiPay = 0;
     let polLoan = 0, cvLoanAcct = 0, passiveCarry = 0, shortfall = 0, polService = 0;
     let cumPrem = acc.cumPrem0 || 0;   // premiums paid before today (Section 3) + each build year's
+    // Policy DB state (increasing→level switch can fire during the build years too); starts from
+    // Section 3's today-state and is handed on to the retirement engine at the end.
+    const polSt = mkPolState(acc.polSt0);
     const purchases = [];
     const timeline = [];   // year-by-year playbook rows for the accumulation phase
     for (let y=0; y<acc.years; y++){
@@ -2623,7 +2675,7 @@
         if (polLoan > guard){ const svc = polLoan - guard; polLoan = guard; carryCost += svc; polService += svc; }
       }
 
-      let pool = acc.contribution + refund + purchRefund + (bal <= 0.5 ? mpay*12 : 0) + propCash - carryCost - (age < (acc.protStopAge||121) ? (acc.protPremium||0) : 0);
+      let pool = acc.contribution + refund + purchRefund + (bal <= 0.5 ? mpay*12 : 0) + propCash - carryCost;
       if (pool < 0){ shortfall += -pool; pool = 0; }          // bills exceed the pool → outside cash
       const cap = age >= 50 ? 31000 : 23500;                 // employee 401(k) limit (+catch-up)
       const qmWant = pool * fr.qm;
@@ -2633,8 +2685,8 @@
       const denom = fr.chunk + fr.policy;
       let chunkC = denom > 0 ? rest * (fr.chunk/denom) : 0;
       let polC   = denom > 0 ? rest * (fr.policy/denom) : 0;
-      // Premium stops at the AIUL's own stop-age (independent of Protection IUL's protStopAge) —
-      // past that age, this year's would-be policy share reroutes the same way an unavailable
+      // Premium stops at the AIUL's stop-age — past it, this year's would-be policy share
+      // reroutes the same way an unavailable
       // policy already does elsewhere (extra qualified room under the IRS cap, else whichever loan
       // is open, else idle cash — never silently dropped).
       const policyOpenThisYear = acc.toolPolicy !== false && age < (acc.aiulStopAge||121);
@@ -2717,7 +2769,7 @@
       // Real contract costs: premium into the policy raises cumPrem (overfunding charge base);
       // COI/face/overfunding charges deduct alongside the admin fee when a face amount is set.
       cumPrem += polC;
-      const polCostYr = policyCosts(acc.polCost, age, policyYear, cv + polC*(1-premChargePct(policyYear)) + cvLoanAcct, cumPrem);
+      const polCostYr = policyCosts(acc.polCost, age, policyYear, cv + polC*(1-premChargePct(policyYear)) + cvLoanAcct, cumPrem, polSt);
       cv = Math.max((cv + polC*(1-premChargePct(policyYear))) * (1 + (acc.mcSeq ? acc.mcSeq.cred[y] : acc.credRate)) - POLICY_ADMIN_ANNUAL - polCostYr, 0);
       if (cvLoanAcct > 0.5) cvLoanAcct *= (1 + washCredited(policyYear)/100);
       // AIUL 26 Fixed Index loan: guaranteed 0.65% bonus on the loaned collateral.
@@ -2733,7 +2785,7 @@
     }
     if (bal <= 0.5 && freedAtYear === null) freedAtYear = acc.years;
     return { qmStart:qm, cvStart:cv, mortBalRet:bal, freedAtYear, totalChunked, capBound, refundTotal, idleCash,
-             cumPremEnd: cumPrem,
+             cumPremEnd: cumPrem, polStEnd: polSt,
              timeline, purchases, shortfall, polServiceAcc: polService,
              helocBal0: helocBal, helocWindowEnd0: helocWindowEndY !== null ? helocWindowEndY - acc.years : null,
              refiBal0: refiBal, refiMonthlyPay0: refiPay, loanBal0: polLoan, cvLoanAcct0: cvLoanAcct,
@@ -2777,27 +2829,16 @@
     $('v-annualContrib').textContent = fmt0.format(annualContrib);
     $('annualContrib2').value = annualContrib;
     $('v-annualContrib2').textContent = fmt0.format(annualContrib);
-    const protPremium = +$('protPremium').value;
     const pc = mkPolCost(P.annualPremium);
-    $('v-protPremium').textContent = fmt0.format(protPremium);
-    $('v-protStopAge').textContent = $('protStopAge').value;
     $('v-aiulStopAge').textContent = $('aiulStopAge').value;
     $('v-coiPct').textContent = pc.coiPct + '%';
-    $('s-protPremium').textContent = protPremium > 0 ? fmt0.format(protPremium)+'/yr, until age '+$('protStopAge').value : '$0 — enter a real quote';
-    const ltcDBVal = +$('ltcDB').value, ltcRateVal = ltcRatePct;
-    $('v-ltcDB').textContent = fmt0.format(ltcDBVal);
     $('v-ltcStartAge').textContent = $('ltcStartAge').value;
     $('v-ltcYears').textContent = $('ltcYears').value+' yrs';
-    $('s-ltcMonthly').textContent = ltcOn ? fmt0.format(Math.min(ltcDBVal*(ltcRateVal/100), LTC_MONTHLY_CAP))+'/mo' : 'off';
-    // ADB illustration — a direct read of today's coverage, not the full retirement sim (accurate
-    // since ADB/LTC are mutually exclusive: if ADB is on here, nothing else has touched this pool).
-    const adbPctVal = +$('adbPct').value;
-    $('v-adbPct').textContent = adbPctVal+'%';
+    $('v-adbPct').textContent = (+$('adbPct').value)+'%';
     $('v-adbAge').textContent = $('adbAge').value;
-    const adbLumpVal = ltcDBVal * (adbPctVal/100);
-    $('s-adbLump').textContent = adbOn ? fmt0.format(adbLumpVal) : 'off';
-    $('s-adbAfter').textContent = adbOn ? fmt0.format(ltcDBVal - adbLumpVal) : '—';
-    $('s-piulDBToday').textContent = fmt0.format(ltcDBVal);
+    // The rider ledgers (monthly draw, lump sum, DB remaining) are filled AFTER the plan runs,
+    // from the chosen run's real record — the pool is the policy's own growing death benefit now,
+    // so there's no standalone slider value to read here anymore.
     const accYears = retireAge - currentAge;
     const mtr = marginalRatePct(+$('income').value, filingStatus)/100;
 
@@ -2843,9 +2884,9 @@
       mortBalRet: a.mortBalRet, mortRatePct: M1 ? M1.ratePct : 0, mortMonthlyPay: M1 ? M1.monthlyPay : 0,
       shieldCap: (strActive || repActive) ? Infinity : 25000,
       ceiling: { single: ceil.single, mfj: ceil.mfj },
-      protPremium: +$('protPremium').value, protStopAge: +$('protStopAge').value,
       polCost: (a.pcUsed !== undefined ? a.pcUsed : pc), cumPrem0: (a.cumPremEnd || 0),
-      ltcOn, ltcDB: +$('ltcDB').value, ltcRatePct,
+      polSt0: a.polStEnd || null,
+      ltcOn, ltcRatePct,
       ltcStartAge: +$('ltcStartAge').value, ltcYears: +$('ltcYears').value,
       adbOn, adbPct: +$('adbPct').value, adbAge: +$('adbAge').value
     });
@@ -2866,8 +2907,8 @@
       mortMonthlyPay: (TOOLS.mortgage && M1) ? M1.monthlyPay : 0,
       props: propsDef, homeValue0: homeValue, maxLtv, helocRate, loanType: (loanType === 'auto' ? LOAN_RESOLVED : loanType),
       allowanceNow, shieldUnlimited: (strActive || repActive),
-      protPremium: +$('protPremium').value, protStopAge: +$('protStopAge').value,
       polCost: TOOLS.policy ? pc : null, cumPrem0: TOOLS.policy ? (P.cumPremStart || 0) : 0,
+      polSt0: TOOLS.policy ? P.polSt : null,
       toolQualified: TOOLS.qualified, aiulStopAge: +$('aiulStopAge').value
     };
 
@@ -2973,6 +3014,44 @@
         return;
       }
     }
+    // ALIS picks the increasing→level switch year (same resolve-and-rerun pattern as the loan
+    // pick above): re-run the winning allocation at each candidate switch age — around retirement,
+    // where the trade-off actually lives — plus "never", rank by the SAME objective as everything
+    // else (sustainable → goal metric → legacy → years), and re-render once if the winner moved.
+    // The real trade-off it prices: stay increasing longer and the death benefit (and the
+    // chronic-illness pool) keeps growing but COI keeps riding the full face; switch and the cost
+    // shrinks as cash value fills the corridor — but the DB freezes. A manual pick in Section 2
+    // skips all of this.
+    let switchPick = null;
+    if (TOOLS.policy && switchSel === 'alis'){
+      const evalSwitchAt = sw => {
+        const pcBase = (allocOpt.a.pcUsed !== undefined && allocOpt.a.pcUsed) ? allocOpt.a.pcUsed : pc;
+        const pcS = Object.assign({}, pcBase, { switchAge: sw });
+        const accS = Object.assign({}, acc0, { polCost: pcS });
+        const aS = accumulate(allocOpt.fr, accS); aS.pcUsed = pcS;
+        return [...runStrategies(ceil => mkInp(aS, ceil, todaySpend))].sort(objSort)[0];
+      };
+      const candAges = [...new Set([retireAge - 10, retireAge - 5, retireAge, retireAge + 5, retireAge + 10, retireAge + 15]
+        .filter(a2 => a2 > currentAge && a2 < planAge))];
+      const neverRun = evalSwitchAt(null);
+      let best = { sw: null, r: neverRun };
+      for (const c of candAges){
+        const r = evalSwitchAt(c);
+        if (objSort(r, best.r) < 0) best = { sw: c, r };
+      }
+      switchPick = { age: best.sw, deltaVsNever: modeMetric(best.r) - modeMetric(neverRun) };
+      const resolvedNow = SWITCH_RESOLVED === undefined ? retireAge : SWITCH_RESOLVED;
+      const resolvedKey = best.sw === null ? -1 : best.sw;
+      const currentKey = resolvedNow === null ? -1 : resolvedNow;
+      if (resolvedKey !== currentKey && !window.__switchRerun){
+        SWITCH_RESOLVED = best.sw;
+        window.__switchRerun = true;
+        renderSection3();   // pc.switchAge comes from switchAgeEff(), so the whole page re-runs on the pick
+        window.__switchRerun = false;
+        return;
+      }
+      SWITCH_RESOLVED = best.sw;
+    }
     let chosenAlloc = allocOpt;
     if (viewAllocKey){ const f = allocs.find(x => x.key === viewAllocKey); if (f) chosenAlloc = f; }
     // Split labels tell the truth about the 401(k)'s state: dropped entirely when it's marked
@@ -3050,6 +3129,25 @@
       const pcC = (chosenAlloc.a.pcUsed !== undefined && chosenAlloc.a.pcUsed) ? chosenAlloc.a.pcUsed : (TOOLS.policy ? pc : null);
       if (pcC && pcC.faceBase + pcC.faceSuppl > 0.5){
         $('s-autoFace').textContent = fmt0.format(Math.round(pcC.faceBase + pcC.faceSuppl)) + '  (' + fmtCompact(pcC.faceBase) + ' base + ' + fmtCompact(pcC.faceSuppl) + ' suppl)';
+        // Death benefit today = face + today's cash value (Option 2 — the increasing design).
+        $('s-dbToday').textContent = fmt0.format(Math.round(pcC.faceBase + pcC.faceSuppl + P.startCV));
+        // The switch-year line: what's driving the number the whole page is running on.
+        {
+          const eff = switchAgeEff();
+          const goalName = optimizeMode === 'legacy' ? 'legacy' : optimizeMode === 'income' ? 'income' : 'total wealth';
+          if (switchSel === 'alis' && switchPick){
+            $('s-switchPick').textContent = switchPick.age === null ? 'never — stay increasing' : 'age ' + switchPick.age;
+            $('s-switchPickSub').textContent = 'ALIS pick — ' + (switchPick.deltaVsNever > 500
+              ? '+' + fmtCompact(switchPick.deltaVsNever) + ' ' + goalName + ' vs never switching'
+              : 'within noise of never switching at these numbers') + '; override with the selector on the left';
+          } else if (switchSel === 'alis'){
+            $('s-switchPick').textContent = eff === null ? 'never' : 'age ' + eff;
+            $('s-switchPickSub').textContent = 'ALIS default until the plan runs';
+          } else {
+            $('s-switchPick').textContent = eff === null ? 'never — stay increasing' : 'age ' + eff;
+            $('s-switchPickSub').textContent = 'Your manual pick — set the selector back to "ALIS picks" to let it optimize';
+          }
+        }
         $('s-autoAcl').textContent = fmt0.format(Math.round(pcC.acl)) + '/yr';
         // Target premium (commission basis) on the SAME issued design: it scales with the plan's
         // effective year-1 policy funding — the member's stated premium PLUS whatever contribution
@@ -3074,7 +3172,9 @@
           plannedPremium: P.annualPremium };
         // Year-1 cost readout on the SAME design (the plan pays these from its first build year)
         const cvNow = P.startCV, pyNow = Math.max(P.polYears, 1), cumNow = (P.cumPremStart || 0) + P.annualPremium + annualContrib * chosenAlloc.fr.policy;
-        const db = Math.max(pcC.faceBase + pcC.faceSuppl, dbFactor(currentAge) * cvNow);
+        // Option 2 (increasing): DB = face + cash value, so the net amount at risk stays = face
+        // (corridor-floored) — the same NAR the engines charge on.
+        const db = Math.max(pcC.faceBase + pcC.faceSuppl + cvNow, dbFactor(currentAge) * cvNow);
         const nar = Math.max(db - cvNow, 0);
         const coiYr1 = coiMaxRate(currentAge) * (pcC.coiPct/100) * nar * 12;
         const faceChargeYr1 = pyNow <= FACE_CHARGE_YEARS
@@ -3088,6 +3188,9 @@
         $('s-totalAiulExpense').textContent = fmt0.format(coiYr1 + faceChargeYr1 + accC + POLICY_ADMIN_ANNUAL + premChargeYr1)+'/yr';
       } else {
         $('s-autoFace').textContent = TOOLS.policy ? 'none — no premium set' : 'policy not in the plan';
+        $('s-dbToday').textContent = '—';
+        $('s-switchPick').textContent = '—';
+        $('s-switchPickSub').textContent = 'Needs a funded policy in the plan';
         $('s-autoAcl').textContent = '—';
         $('s-targetPrem').textContent = '—';
         $('s-targetPremEnh').textContent = '—';
@@ -3201,9 +3304,18 @@
     $('s-legacy').textContent = fmt0.format(chosen.legacy);
     $('s-wealth').textContent = fmt0.format(chosen.legacy + chosen.totalExtracted);
     $('s-tax').textContent = fmt0.format(chosen.lifetimeTax);
-    $('s-ltcTotal').textContent = ltcOn ? fmt0.format(chosen.rec.ltc.totalDrawn) : 'off';
-    $('s-ltcDBEnd').textContent = ltcOn ? fmt0.format(chosen.rec.ltc.dbRemaining) : '—';
-    $('s-ltcDBEnd').closest('.lline').classList.toggle('risk', ltcOn && chosen.rec.ltc.totalDrawn > 1);
+    // Rider readouts — all from the chosen run's REAL record, since the pool is the policy's own
+    // growing death benefit (face + stacked cash value), not a standalone slider anymore.
+    $('s-ltcMonthly').textContent = ltcOn
+      ? (chosen.rec.ltc.monthlyAtTrigger > 0.5 ? fmt0.format(Math.round(chosen.rec.ltc.monthlyAtTrigger))+'/mo' : 'never triggers in this plan')
+      : 'off';
+    $('s-ltcTotal').textContent = ltcOn ? fmt0.format(Math.round(chosen.rec.ltc.totalDrawn)) : 'off';
+    $('s-ltcDBEnd').textContent = fmt0.format(Math.round(chosen.rec.ltc.dbRemaining));
+    $('s-ltcDBEnd').closest('.lline').classList.toggle('risk', (chosen.rec.ltc.totalDrawn + chosen.rec.adb.totalDrawn) > 1);
+    $('s-adbLump').textContent = adbOn
+      ? (chosen.rec.adb.totalDrawn > 0.5 ? fmt0.format(Math.round(chosen.rec.adb.totalDrawn)) : 'never triggers in this plan')
+      : 'off';
+    $('s-adbAfter').textContent = adbOn && chosen.rec.adb.totalDrawn > 0.5 ? fmt0.format(Math.round(chosen.rec.adb.dbAfter)) : '—';
 
     // ---- Properties block ----
     $('s-rentLocSub').textContent = propsDef.length > 1
@@ -3290,16 +3402,18 @@
     $('s-reValueEnd').textContent = fmt0.format(chosen.homeEnd);
     $('s-rentalDebtEnd').textContent = chosen.rentalDebtEnd > 1 ? fmt0.format(chosen.rentalDebtEnd) : 'none ✓';
     $('s-lifeInsNeeded').textContent = fmt0.format(chosen.homeDebtEnd);
-    // Runs regardless of the LTC toggle — an undersized death benefit falls short of the home debt
-    // whether or not any LTC draws ever happened (fixed 2026-07-07, see dbShortfall above).
+    // The policy's NET death benefit at the end (face — level or still increasing — plus stacked
+    // cash value, minus policy loans, minus everything the riders drew) vs. the home debt it's
+    // supposed to clear. Runs regardless of the rider toggles.
     {
-      const covered = Math.max(chosen.homeDebtEnd - (chosen.rec.ltc.dbShortfall||0), 0);
-      $('s-ltcCoverage').textContent = fmt0.format(covered) + ' of ' + fmt0.format(chosen.homeDebtEnd);
+      const covered = Math.min(chosen.rec.ltc.dbRemaining || 0, chosen.homeDebtEnd);
+      $('s-ltcCoverage').textContent = fmt0.format(Math.round(covered)) + ' of ' + fmt0.format(chosen.homeDebtEnd);
       $('s-ltcCoverage').closest('.lline').classList.toggle('risk', chosen.rec.ltc.dbShortfall > 1);
       $('s-ltcCoverageSub').textContent = chosen.rec.ltc.dbShortfall > 1
         ? fmtCompact(chosen.rec.ltc.dbShortfall)+' short — that much comes straight out of legacy instead of being covered free'
-        : (ltcOn ? 'Fully covered — LTC draws didn’t eat into what’s needed to clear the debt'
-                 : 'Fully covered — the death benefit alone clears the debt');
+        : ((chosen.rec.ltc.totalDrawn + chosen.rec.adb.totalDrawn) > 1
+            ? 'Fully covered — even after the accelerated-benefit draws, the net death benefit clears the debt'
+            : 'Fully covered — the policy’s net death benefit (face + stacked cash value − loans) clears the debt');
     }
     $('s-p3SelfCovered').textContent = fmt0.format(chosen.policyEnd);
 
@@ -3382,16 +3496,12 @@
       const lines = [];
       if (!(strActive || repActive) && R.suspendedLoss > 500)
         lines.push('<b>'+fmt0.format(R.suspendedLoss)+'</b> of the year-1 write-off is suspended at your income — not lost, waiting. It would be worth <b>'+fmt0.format(R.potentialTaxSavings)+'</b> in real tax savings if unlocked. Way 1 (self-run short-term rental) or Way 2 (real-estate-professional spouse) above unlocks it now — only if it’s genuinely true for you.');
-      // Buy-borrow-die opportunity: home debt not covered by the death benefit (dbShortfall, fixed
-      // 2026-07-07 to run regardless of the LTC toggle) plus rental debt exceeding its own property's
-      // value — real estate/mortgage debt the plan is otherwise leaving to erode legacy.
-      // IMPORTANT PRODUCT DISTINCTION: dbShortfall is entirely about the Protection IUL's death
-      // benefit (ltcDB) — a separate policy from the Accumulation IUL (P.annualPremium/mkPolCost/
-      // facePerPremium). This tool deliberately has NO premium-to-coverage formula for the
-      // Protection IUL (b12: no public rate table exists, an advisor supplies the real quote) — so
-      // closing the gap there is sized in face amount only, never a fabricated premium cost. The
-      // Accumulation IUL side (more premium → bigger face/ACL, correctly modeled) is a genuinely
-      // separate, additive lever — shown honestly as its own thing, not merged into "closes the gap."
+      // Buy-borrow-die opportunity: home debt the policy's NET death benefit doesn't cover
+      // (dbShortfall) plus rental debt exceeding its own property's value — real estate/mortgage
+      // debt the plan is otherwise leaving to erode legacy. With one policy doing both jobs now,
+      // the lever is the fully-modeled one: fund the Accumulation IUL harder — more premium buys
+      // more face at the real age/sex ratio, the cash value keeps stacking the DB higher on top
+      // (Option 2), and the advance contribution limit rises with the face.
       const reGap = Math.max((chosen.rentalDebtEnd||0) - (chosen.rentalEnd||0), 0);
       const dbGap = Math.max(chosen.rec.ltc.dbShortfall||0, 0) + reGap;
       if (dbGap > 500){
@@ -3406,9 +3516,7 @@
         const newAcl = ACL_PER_FACE * (curFace + dbGap);   // ACL scales linearly with face — same constant as mkPolCost
         const aclGain = Math.max(newAcl - curPc.acl, 0);
         tiles.push({ label:'Death benefit vs. debt gap', val: fmtCompact(dbGap), risk:true });
-        lines.push('<b>'+fmt0.format(dbGap)+'</b> of home'+(reGap>500?' + rental':'')+' debt isn’t covered by insurance or equity today — it comes straight out of legacy. Buy-borrow-die angle: raising the Protection IUL death benefit (Section 3) by about that amount would let insurance clear it at a fraction of what paying it off in cash would cost — ask your agent for the real premium, this tool doesn’t model that policy’s cost (no public rate table exists for it, same as its "Annual policy fee" topic already notes).'
-          + (curFace > 0.5 ? ' Separately: the <i>Accumulation</i> IUL already funding this plan is a real, modeled lever too — about <b>'+fmt0.format(Math.round(addPremium/250)*250)+'/yr</b> more funding there would grow its own face by a comparable amount and raise the advance contribution limit by about <b>'+fmt0.format(Math.round(aclGain/100)*100)+'/yr</b> — more room to route qualified money into it before the overfunding charge kicks in.' : '')
-          + ' Illustration only, not underwriting or advice.');
+        lines.push('<b>'+fmt0.format(dbGap)+'</b> of home'+(reGap>500?' + rental':'')+' debt isn’t covered by the policy’s net death benefit or the property’s own value — it comes straight out of legacy. Buy-borrow-die angle: about <b>'+fmt0.format(Math.round(addPremium/250)*250)+'/yr</b> more into the policy would grow its face by roughly that gap at your age/sex ratio (the cash value then stacks the death benefit even higher while it stays increasing), and would raise the advance contribution limit by about <b>'+fmt0.format(Math.round(aclGain/100)*100)+'/yr</b> — more room to route qualified money in before the overfunding charge kicks in. A later increasing→level switch year (Section 2) also keeps the death benefit growing longer, at a real insurance cost ALIS already prices. Illustration only, not underwriting or advice.');
       }
       allPurch.filter(x => !x.ok).forEach(r => {
         const p = propsDef.find(pp => pp.idx === r.idx); if (!p) return;
@@ -3462,8 +3570,8 @@
                         : '<p class="takeaway">Nothing left on the table at these numbers — the plan is using what it has.</p>');
     })();
 
-    window.EPIC_DEBUG = { chosen, chosenAlloc, results, propsDef };
-    window.EPIC_DEBUG_FN = { simulateStrategy, accumulate, washCharged, washCredited, premChargePct, federalTax, STRATS, policyCosts, coiMaxRate, dbFactor, eqShare, qmRet, qmGrow, BOND_MEAN, BOND_SD };
+    window.EPIC_DEBUG = { chosen, chosenAlloc, results, propsDef, switchPick, switchAgeUsed: switchAgeEff() };
+    window.EPIC_DEBUG_FN = { simulateStrategy, accumulate, washCharged, washCredited, premChargePct, federalTax, STRATS, policyCosts, policyDB, mkPolState, coiMaxRate, dbFactor, eqShare, qmRet, qmGrow, BOND_MEAN, BOND_SD };
     // --- Stress-test pack: everything the on-demand Monte Carlo needs to replay the CHOSEN plan
     // (and its honest no-policy counterpart) under random market paths. Rebuilt every render so it
     // always reflects the current sliders. The MC runner itself lives outside this closure.
@@ -3535,8 +3643,17 @@
     };
   }
 
-  $('btn-sexM').addEventListener('click', () => { sex='male'; $('btn-sexM').classList.add('active'); $('btn-sexF').classList.remove('active'); renderSection3(); });
-  $('btn-sexF').addEventListener('click', () => { sex='female'; $('btn-sexF').classList.add('active'); $('btn-sexM').classList.remove('active'); renderSection3(); });
+  // Sex toggle also retargets the COI calibration default (male ~70% / female ~57% of guaranteed
+  // max, from the six 2026 illustrations) — but only until the agent moves the slider themselves.
+  function setSex(s){
+    sex = s;
+    $('btn-sexM').classList.toggle('active', s==='male');
+    $('btn-sexF').classList.toggle('active', s==='female');
+    if (!COI_TOUCHED) $('coiPct').value = COI_DEFAULT[s];
+    renderSection3();
+  }
+  $('btn-sexM').addEventListener('click', () => setSex('male'));
+  $('btn-sexF').addEventListener('click', () => setSex('female'));
   $('btn-single').addEventListener('click', () => { filingStatus='single'; $('btn-single').classList.add('active'); $('btn-mfj').classList.remove('active'); renderSection2(); renderSection5(); });
   $('btn-mfj').addEventListener('click', () => { filingStatus='mfj'; $('btn-mfj').classList.add('active'); $('btn-single').classList.remove('active'); renderSection2(); renderSection5(); });
   const setLoanBtns = () => ['autoLoan','indexLoan','washLoan'].forEach(k =>
@@ -4139,10 +4256,11 @@
     } else if (i === 2){ // Use the bank's money: the INCREMENTAL win of landing chunks via 0% credit
       tiles.push({ label:'Extra interest saved (stacking)', val: fmtCompact(R.stackingExtraInterest) });
       tiles.push({ label:'Extra months faster (stacking)', val: R.stackingExtraMonths>0 ? R.stackingExtraMonths+' mo' : 'no change' });
-    } else if (i === 3){ // Tax-free engine: TWO separate products, itemized, not blended
-      tiles.push({ label:'Accumulation IUL — cash value at retirement', val: fmtCompact((window.EPIC_DEBUG && window.EPIC_DEBUG.chosenAlloc.a.cvStart) || 0) });
-      const ltcDBVal = +$('ltcDB').value;
-      tiles.push({ label:'Protection IUL — death benefit', val: fmtCompact(ltcDBVal), sub: ltcOn ? '+ chronic illness coverage' : undefined });
+    } else if (i === 3){ // Tax-free engine: ONE policy, both jobs itemized
+      const dbg = window.EPIC_DEBUG;
+      tiles.push({ label:'Cash value at retirement', val: fmtCompact((dbg && dbg.chosenAlloc.a.cvStart) || 0) });
+      tiles.push({ label:'Death benefit at retirement', val: fmtCompact((dbg && dbg.chosen && dbg.chosen.rec.policy.dbAtStart) || 0),
+                   sub: 'face + stacked cash value — chronic illness rider included' });
     } else if (i === 5){ // Buy a property: the depreciation write-off, clawed back or waiting to be
       tiles.push({ label:'Year-1 depreciation write-off', val: fmtCompact(R.year1Deduction||0) });
       if (R.taxSavings > 500){
@@ -4218,8 +4336,10 @@
     $('btn-ltc-preserve').classList.toggle('active', !ltcOn);
     $('btn-ltc-draw').classList.toggle('active', ltcOn);
   }
-  ['coiPct','protPremium','protStopAge','aiulStopAge'].forEach(id => $(id).addEventListener('input', renderSection3));
-  ['ltcDB','ltcStartAge','ltcYears','adbPct','adbAge'].forEach(id => $(id).addEventListener('input', renderSection5));
+  ['coiPct','aiulStopAge'].forEach(id => $(id).addEventListener('input', renderSection3));
+  // A hand-moved COI slider ends the sex-based auto-default (the agent's own calibration wins).
+  $('coiPct').addEventListener('input', () => { COI_TOUCHED = true; });
+  ['ltcStartAge','ltcYears','adbPct','adbAge'].forEach(id => $(id).addEventListener('input', renderSection5));
   function chooseAdb(on){
     adbOn = on;
     if (on) ltcOn = false;   // mutually exclusive — same shared death-benefit pool
@@ -4241,9 +4361,8 @@
     document.querySelectorAll('.ltc-rate-btn').forEach(x => x.classList.toggle('active', x === b));
     renderSection5();
   }));
-  // Premium-stop-age dropdowns (Protection IUL and, separately, the AIUL): options depend on
-  // current age, so build them once at load and again whenever current age changes (same "typical
-  // numbers" trigger point as the rest of Section 1).
+  // Premium-stop-age dropdown (the AIUL): options depend on current age, so build once at load
+  // and again whenever current age changes (same "typical numbers" trigger point as Section 1).
   function fillStopAgeOptions(selId){
     const cur = +$('currentAge').value;
     const sel = $(selId);
@@ -4255,16 +4374,35 @@
     }
     sel.value = (+prev >= cur) ? prev : '100';
   }
-  fillStopAgeOptions('protStopAge');
   fillStopAgeOptions('aiulStopAge');
+  // The increasing→level switch selector: ALIS pick (default) / a specific age / never.
+  function fillSwitchOptions(){
+    const cur = +$('currentAge').value;
+    const sel = $('switchAgeSel');
+    const prev = sel.value || 'alis';
+    sel.innerHTML = '';
+    const oA = document.createElement('option'); oA.value = 'alis'; oA.textContent = 'ALIS picks the year (recommended)'; sel.appendChild(oA);
+    for (let a = cur + 1; a <= 120; a++){
+      const o = document.createElement('option'); o.value = a; o.textContent = 'Age ' + a; sel.appendChild(o);
+    }
+    const oN = document.createElement('option'); oN.value = 'never'; oN.textContent = 'Never — stay increasing'; sel.appendChild(oN);
+    sel.value = (prev === 'alis' || prev === 'never' || +prev > cur) ? prev : 'alis';
+    switchSel = sel.value;
+  }
+  fillSwitchOptions();
+  $('switchAgeSel').addEventListener('change', () => {
+    switchSel = $('switchAgeSel').value;
+    if (switchSel === 'alis') SWITCH_RESOLVED = undefined;   // force a fresh ALIS pick pass
+    renderSection3();
+  });
   ['todaySpend','inflation','qmBalance','qmGrowth','helocRate','reEquity','reGrowth','maxLtv','planAge','annualContrib'].forEach(id => $(id).addEventListener('input', renderSection5));
   // Ages also drive Section 2's "policy year at retirement" readout — route them through
   // renderSection3 (which cascades into renderSection5) so everything refreshes exactly once.
   // The current-age slider additionally applies life-stage presets while nothing's customized.
   function rerenderAll(){ renderSection1(); renderSection2(); renderSection3(); }
   $('currentAge').addEventListener('input', () => {
-    fillStopAgeOptions('protStopAge');
     fillStopAgeOptions('aiulStopAge');
+    fillSwitchOptions();
     if (!presetsDirty){ applyAgePresets(); rerenderAll(); } else renderSection3();
   });
   $('retireAge').addEventListener('input', renderSection3);

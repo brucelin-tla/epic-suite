@@ -1,5 +1,26 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.10** — **Epic Life Ledger (owner-only), b43 — BETA ONLY, not yet promoted**: one policy
+  now does both jobs. The Accumulation IUL carries a built-in chronic illness rider, so the
+  separate Protection IUL topic is retired entirely — same death benefit clears the debt AND is
+  the chronic-illness pool, and because the policy is issued increasing (DB Option 2, verified
+  against the carrier's own ledgers: net death benefit = face + policy value to the dollar),
+  the cash value stacks on top of the face, growing both the coverage and the rider pool every
+  year. New: ALIS computes the optimal increasing→level switch year (same resolve-and-rerun
+  pattern as the loan-type pick; objective = the member's chosen goal; manual override + "never"
+  available), shown with the honest delta vs. never switching. Recalibrated to six fresh 2026
+  carrier illustrations of this exact design (30/45/60 × M/F, CI rider included, $50k/yr):
+  new face-per-premium and target-premium tables, and the cost chassis re-fit on the Bronze
+  no-Vitality scale — one COI scalar per sex (male ~70%, female ~57% of guaranteed max; the
+  default now follows the sex toggle until the agent moves the slider), reproducing all six
+  within 1–7% MAPE across every illustrated year, erring conservative early. Chronic-illness
+  draws now cap at the real IRS per-diem limit ($430/day 2026, Rev. Proc. 2025-32 ≈ $13,079/mo —
+  the old $30K/mo cap belonged to the retired product), the elected monthly rate defaults to the
+  illustrated 1%, and every draw reduces the death benefit AND the cash value proportionately,
+  per the contract. Estate math now credits the policy's real net death benefit (face + stacked
+  CV − loans − rider draws) instead of just cash-value-net-of-loans. Also fixed from the
+  contract: the overfunding (advance contribution) charge stops after policy year 20.
+
 - **1.52.9** — **Epic Life Ledger (owner-only), b42 — BETA ONLY, not yet promoted**: the
   Accumulation IUL topic reorganized around what matters, in order: death benefit, total annual
   premium, premium expense charge, current cash value, the year's tax-loan, loan available
