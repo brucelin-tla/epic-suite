@@ -1,5 +1,19 @@
 # EPIC Suite — changelog (newest first)
 
+- **1.52.9** — **Epic Life Ledger (owner-only), b42 — BETA ONLY, not yet promoted**: the
+  Accumulation IUL topic reorganized around what matters, in order: death benefit, total annual
+  premium, premium expense charge, current cash value, the year's tax-loan, loan available
+  (capped at 90% of cash value — the same never-lapse limit the retirement engine already
+  enforced, now applied here too), net gain on the loan's interest rate, net gain in dollars, cash
+  value remaining, tax bill out of pocket. Agent-only stats (enhanced target premium, year-1 cost
+  of insurance, face-amount charges, overfunding charge, the $20/mo admin fee, and a new "Total
+  AIUL policy expense" rollup) moved into one collapsed panel, no commission math spelled out. New
+  premium-stop-age dropdown for the Accumulation IUL (current age → 120), matching Protection
+  IUL's. Clarity fixes: the premium line says "Withholding not selected" outright when off; the
+  loan's net cost/gain no longer uses a "negative means gain" convention. Verified headlessly incl.
+  a 375px mobile pass: 0 real JS errors, no horizontal overflow, the 90%-cap loan fix and the
+  stop-age engine gate both confirmed to have real, correctly-directional effects.
+
 - **1.52.8** — **Epic Life Ledger (owner-only), b41 — BETA ONLY, not yet promoted**: Section 2
   rebuilt around the Protection IUL. Reordered to Protection IUL → Accumulation IUL → rental
   property → velocity banking (0% biz credit + HELOC folded in right after it). Protection IUL is
