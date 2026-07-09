@@ -577,11 +577,16 @@
         <div class="split">
           <div class="side-controls">
             <div class="headline-card risk">
-              <div class="headline-line">Savings only — parked, then drained</div>
+              <div class="toggle-row" style="margin-bottom:10px;">
+                <button type="button" class="toggle-btn active" id="btn-demo-bank">Bank</button>
+                <button type="button" class="toggle-btn" id="btn-demo-wallstreet">Wall Street</button>
+                <button type="button" class="toggle-btn" id="btn-demo-insurance">Insurance</button>
+              </div>
+              <div class="headline-line" id="demo-left-label">Bank (CD) only — parked, then drained</div>
               <div class="headline-sub" style="margin:0 0 2px;">Total wealth created in lifetime</div>
               <div class="headline-big" id="demo-savings-total">–</div>
               <div class="headline-sub" style="margin-top:4px;">Income extracted in lifetime: <b id="demo-savings-extracted">–</b></div>
-              <div class="headline-sub">Same contributions, compounding at today's best available savings/CD rate (~4%), drawn down to fund retirement.</div>
+              <div class="headline-sub" id="demo-left-sub">Same contributions, compounding at today's best available savings/CD rate (~4%), drawn down to fund retirement.</div>
             </div>
           </div>
           <div class="side-results">
@@ -3971,8 +3976,14 @@
   // split for a real profile, which a coarser demo grid could never reproduce no matter how good
   // its ranking was. The parameter is kept (not hardcoded) so a future caller can still trade
   // precision for speed if this ever needs to run reactively instead of once.
+  // wallStreetCorner: the pure qm:1/chunk:0/policy:0 combo this same grid loop already visits —
+  // the Section-1 left card's "Wall Street (401(k) alone)" toggle state reuses this candidate's
+  // own 'naive' (drain-qualified-first) run directly instead of running a second search, since
+  // with chunk/policy both 0 there's nothing else to draw from anyway (see the toggle-card note
+  // at computeDemoComparison() below).
   function demoGridSearch(loanTypeVal, step, switchAgeVal){
     let best = null;
+    let wallStreetCorner = null;
     for (let q=0; q<=10; q+=step){
       for (let c=0; c<=10-q; c+=step){
         const p = 10-q-c;
@@ -3985,11 +3996,12 @@
           for (const ceil of paces){
             const run = simulateStrategy(strat, demoMkInp(a, ceil, loanTypeVal));
             if (!best || demoBetter(run, best.run)) best = { val: run.legacy + run.totalExtracted, fr, run };
+            if (fr.qm === 1 && fr.chunk === 0 && fr.policy === 0 && strat.key === 'naive') wallStreetCorner = run;
           }
         }
       }
     }
-    return best;
+    return { best, wallStreetCorner };
   }
 
   // Runs one (fr, loanType, switchAge) combo through accumulate() → simulateStrategy() across
@@ -4069,9 +4081,15 @@
       // deliberately uses the clean, documented cold-start default instead of trying to replicate
       // that accidental history dependency, which isn't a reasonable target for a standalone,
       // profile-only illustration — reported to Bruce rather than silently chased further.
-      let curLoanType = 'index', curSwitch = DEMO.retireAge, bestOverall = null;
+      let curLoanType = 'index', curSwitch = DEMO.retireAge, bestOverall = null, bestWallStreet = null;
       for (let iter = 0; iter < 4; iter++){
-        const grid = demoGridSearch(curLoanType, 1, curSwitch);
+        const gridResult = demoGridSearch(curLoanType, 1, curSwitch);
+        const grid = gridResult.best;
+        // Same qm:1/chunk:0/policy:0 'naive' corner this grid pass already visited — kept across
+        // every iteration of this loan-type/switch-age refinement loop exactly like bestOverall
+        // is, via the same demoBetter() ranking, rather than only trusting the last iteration.
+        if (gridResult.wallStreetCorner && (!bestWallStreet || demoBetter(gridResult.wallStreetCorner, bestWallStreet)))
+          bestWallStreet = gridResult.wallStreetCorner;
         const other = demoRunAt(grid.fr, curLoanType === 'index' ? 'wash' : 'index', curSwitch);
         const newLoanType = demoBetter(grid.run, other.run) ? curLoanType : (curLoanType === 'index' ? 'wash' : 'index');
         let bestSwitchRun = demoRunAt(grid.fr, newLoanType, null);
@@ -4092,25 +4110,104 @@
       // not a separate recomputation that could drift out of sync with it).
       const toolsExtracted = bestOverall.run.totalExtracted;
 
-      const elSav = document.getElementById('demo-savings-total');
+      // --- Path 1b: "Wall Street (401(k) alone)" — the qm:1/chunk:0/policy:0 corner captured
+      // above out of the SAME blended grid search, not a new search. legacy+totalExtracted come
+      // straight off that run.
+      const wallStreetTotal = bestWallStreet.legacy + bestWallStreet.totalExtracted;
+      const wallStreetExtracted = bestWallStreet.totalExtracted;
+
+      // --- Path 1c: "Insurance (Policy alone)" — does NOT exist in the blended grid above (that
+      // search always keeps qm0 = DEMO.qmBalance fixed, i.e. the $500K always starts in the 401k
+      // regardless of allocation fraction). This is a dedicated one-off: the $500K starts as the
+      // policy's cash value instead (cv0), 100% of the $40K/yr contribution also routes to the
+      // policy (fr.policy=1), run through the same real accumulate()/simulateStrategy() pipeline
+      // across both loan types and every STRATS/CEIL pace, keeping whichever combo wins via the
+      // same demoBetter() ranking used everywhere else in this demo (sustainable-first, not a
+      // raw-dollar Math.max, so a technically-larger but unsustainable run can't win).
+      const insFr = { qm: 0, chunk: 0, policy: 1 };
+      function demoInsuranceAloneRun(loanTypeVal){
+        const pcSplit = demoMkPolCost(DEMO.annualContrib * insFr.policy, DEMO.retireAge);
+        const acc0 = Object.assign({}, demoAcc0(loanTypeVal), { polCost: pcSplit, qm0: 0, cv0: DEMO.qmBalance });
+        const a = accumulate(insFr, acc0);
+        a.pcUsed = pcSplit;
+        let best = null;
+        for (const strat of STRATS){
+          const paces = strat.blend ? CEIL : [CEIL[1]];
+          for (const ceil of paces){
+            const run = simulateStrategy(strat, demoMkInp(a, ceil, loanTypeVal));
+            if (!best || demoBetter(run, best)) best = run;
+          }
+        }
+        return best;
+      }
+      const insIndexRun = demoInsuranceAloneRun('index');
+      const insWashRun = demoInsuranceAloneRun('wash');
+      const bestIns = demoBetter(insIndexRun, insWashRun) ? insIndexRun : insWashRun;
+      const insuranceTotal = bestIns.legacy + bestIns.totalExtracted;
+      const insuranceExtracted = bestIns.totalExtracted;
+
+      // Sanity guard: the whole point of this card is that no single vehicle should beat the
+      // blended "all tools deployed" anchor. If a single-vehicle path ever comes back >= the
+      // blended total, that's a real bug worth surfacing loudly rather than silently displaying —
+      // logged (not thrown) so the rest of the page still renders.
+      [['Bank', savingsTotal], ['Wall Street', wallStreetTotal], ['Insurance', insuranceTotal]].forEach(([name, total]) => {
+        if (!(total < toolsTotal)) console.error('Section 1 demo: single-vehicle "'+name+'" ('+total+') is not less than the blended total ('+toolsTotal+') — investigate.');
+      });
+
+      window.DEMO_LEFT = {
+        bank: { total: savingsTotal, extracted: savExtracted, label: 'Bank (CD) only — parked, then drained' },
+        wallstreet: { total: wallStreetTotal, extracted: wallStreetExtracted, label: 'Wall Street (401(k)) only — invested, then drawn down' },
+        insurance: { total: insuranceTotal, extracted: insuranceExtracted, label: 'Insurance (Policy) only — grown tax-free, then drawn down' }
+      };
+
       const elTools = document.getElementById('demo-tools-total');
-      const elSavX = document.getElementById('demo-savings-extracted');
       const elToolsX = document.getElementById('demo-tools-extracted');
-      if (elSav) elSav.textContent = fmt0.format(savingsTotal);
       if (elTools) elTools.textContent = fmt0.format(toolsTotal);
-      if (elSavX) elSavX.textContent = fmt0.format(savExtracted);
       if (elToolsX) elToolsX.textContent = fmt0.format(toolsExtracted);
+      renderDemoLeft('bank');
     } catch (e){
       console.error('Section 1 demo comparison failed:', e);
       const elSav = document.getElementById('demo-savings-total');
       const elTools = document.getElementById('demo-tools-total');
       const elSavX = document.getElementById('demo-savings-extracted');
       const elToolsX = document.getElementById('demo-tools-extracted');
+      const elSub = document.getElementById('demo-left-sub');
+      const elLabel = document.getElementById('demo-left-label');
       if (elSav) elSav.textContent = '—';
       if (elTools) elTools.textContent = '—';
       if (elSavX) elSavX.textContent = '—';
       if (elToolsX) elToolsX.textContent = '—';
+      if (elSub) elSub.textContent = '—';
+      if (elLabel) elLabel.textContent = '—';
     }
+  }
+
+  // Sub-line copy for each Section-1 left-card toggle state — same illustrative "what if this
+  // money went here instead" framing throughout (stylized single-vehicle comparison, not a claim
+  // about literally rolling over a real account).
+  const DEMO_LEFT_SUBLINE = {
+    bank: "Same contributions, compounding at today's best available savings/CD rate (~4%), drawn down to fund retirement.",
+    wallstreet: "Same contributions, all routed into the 401(k) alone, growing with the market, drawn down to fund retirement.",
+    insurance: "Same contributions, all routed into the policy alone, growing tax-free, drawn down to fund retirement."
+  };
+  // Swaps the Section-1 left card's headline number, income-extracted stat, sub-line, and title
+  // to the given vehicle's ALREADY-COMPUTED numbers (window.DEMO_LEFT, filled once at page load by
+  // computeDemoComparison() above) — plain DOM text updates, no recomputation per click.
+  function renderDemoLeft(vehicle){
+    if (!window.DEMO_LEFT || !window.DEMO_LEFT[vehicle]) return;
+    const d = window.DEMO_LEFT[vehicle];
+    const elTotal = document.getElementById('demo-savings-total');
+    const elExtracted = document.getElementById('demo-savings-extracted');
+    const elSub = document.getElementById('demo-left-sub');
+    const elLabel = document.getElementById('demo-left-label');
+    if (elTotal) elTotal.textContent = fmt0.format(d.total);
+    if (elExtracted) elExtracted.textContent = fmt0.format(d.extracted);
+    if (elSub) elSub.textContent = DEMO_LEFT_SUBLINE[vehicle];
+    if (elLabel) elLabel.textContent = d.label;
+    ['bank','wallstreet','insurance'].forEach(v => {
+      const btn = document.getElementById('btn-demo-'+v);
+      if (btn) btn.classList.toggle('active', v === vehicle);
+    });
   }
 
   // Sex toggle also retargets the COI calibration default (male ~70% / female ~57% of guaranteed
@@ -4961,6 +5058,10 @@
   renderSection3();
   renderSection5();
   computeDemoComparison();
+  ['bank','wallstreet','insurance'].forEach(v => {
+    const btn = document.getElementById('btn-demo-'+v);
+    if (btn) btn.addEventListener('click', () => renderDemoLeft(v));
+  });
 })();
 </script>
 
