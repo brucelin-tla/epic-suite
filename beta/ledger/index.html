@@ -129,6 +129,8 @@
   .headline-big { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; font-size: 36px; font-weight: 700; color: var(--go); line-height: 1.15; }
   .headline-card.risk .headline-big { color: var(--risk); }
   .headline-sub { font-size: 13px; color: var(--ink-soft); margin-top: 8px; max-width: 60ch; margin-left: auto; margin-right: auto; }
+  .value-prop { margin: 14px 0 0; padding: 14px 18px; background: var(--go-soft); border: 1px solid color-mix(in srgb, var(--go) 30%, var(--line)); border-radius: 8px; font-size: 14px; color: var(--ink); max-width: 74ch; line-height: 1.55; }
+  .value-prop b { color: var(--ledger); }
 
   details.details-toggle { margin-top: 12px; }
   details.details-toggle summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--ledger); list-style: none; display: inline-flex; align-items: center; gap: 6px; }
@@ -136,7 +138,7 @@
   details.details-toggle[open] summary::before { content: "▾"; }
   details.details-toggle summary::-webkit-details-marker { display: none; }
 
-  /* ---- Section 3 lock-in wizard ---- */
+  /* ---- Section 5 lock-in wizard ---- */
   .lock-wizard { border: 1px solid var(--line); border-radius: 12px; padding: 4px 16px 4px; margin-bottom: 20px; background: var(--paper-raised); }
   details.lock-step { border-bottom: 1px solid var(--line); padding: 14px 0; }
   details.lock-step:last-of-type { border-bottom: none; }
@@ -502,12 +504,11 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.08-b45</span>
-    <h1>Epic Life Ledger</h1>
-    <p>Four sections, in order: <b>your numbers</b> (income, tax, ages, 401(k), mortgage, property — switch off anything that doesn't apply) — <b>the tools</b> (velocity banking, 0% business credit, the policy, the HELOC) — <b>the optimized plan</b> (ALIS allocates, funds the lifestyle, writes the year-by-year playbook) — then <b>opportunities</b> to push it harder.</p>
-    <details class="details-toggle">
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.08-b46</span>
+    <details class="details-toggle" style="margin-top:4px;">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b46</span><p class="topic-exp" style="margin-top:2px;">New Section 1 — a journey intro that runs before "your numbers": a short tutorial on how the ledger works, an explainer on the real gap in the market this system is built to close, and a real engine-computed example (not a member's own numbers yet) comparing "savings only, parked and drained" against "every EPIC LIFE tool deployed," on one representative profile ($180K income, $40K/yr, age 45 to a plan through 90) — same two functions the member's own plan runs on, not an approximation. Added a two-paragraph narrative to the policy topic on why cash-value life insurance is the engine behind Buy, Borrow, Die, not just a savings vehicle. Every other section moved down one number to make room (old Section 1 → 2, 2 → 3, 3 → 4, 4 → 5) — every in-page cross-reference to a section number was checked and bumped to match; the changelog below keeps its original numbering since it's describing what those sections were called at the time.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b45</span><p class="topic-exp" style="margin-top:2px;">Section 1 restored — it lost its income/tax/ages, 401(k), and mortgage inputs when they moved into the Section&nbsp;3 lock-in wizard last batch; they're back now as live mirrors (edit either copy, both stay in sync), and the wizard's own inputs are untouched. The wizard's step headers now show a collapse arrow next to the title and two buttons at the top right — <b>Edit</b> and <b>Confirm</b> — instead of one button buried at the bottom. The chronic illness rider is now explicitly an <b>optional</b> rider (on by default) with ALIS's own recommendation to include it: real advantage early on, with very little cost carried. Removed every "why one policy replaces two" explanation — the member has only ever known this one AIUL, so that framing served no one. Section&nbsp;2's sandbox now shows its own chronic-illness preview (monthly draw at trigger, total drawn over the horizon, death benefit at the end) computed from the illustrative design projected forward to the real claim age and plan-through age — death benefit at the end is always face plus cash value minus any outstanding loan, interest included. Caught two real bugs in verification: claim age and plan-through age weren't actually recomputing this new preview (silently stale numbers), and a long fallback string was breaking the mobile layout — both fixed before shipping.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b44</span><p class="topic-exp" style="margin-top:2px;">The chronic illness rider is now on by default, locked at its real 1%/mo elected rate (no more 1/2/4% choice — the design elects 1% and can't change it later), and once it triggers it draws every year for the rest of the plan instead of stopping after a fixed "years of need" — the death benefit runs down but never quite to zero, since each draw is a percentage of whatever's left. The Accelerated Death Benefit rider is gone entirely — the chronic illness rider is now the only accelerated-benefit mechanic (most members have never had a policy like this, so there's no reason to model a second rider on top). The increasing-to-level switch is ALIS-only now — no manual age or "never" selector, ALIS always picks it. Removed "The policy's real costs" as its own section. Policy premium now defaults to $0 everywhere (including every age-based preset) — most members are starting from scratch, not funding an existing design. <b>Biggest change: a new "Lock in your plan" wizard at the very start of Section&nbsp;3</b> — go step by step (your numbers → 401(k) → property &amp; mortgage → the AIUL itself, now with its own separate total-premium input, stop age, years in force and claim age) and lock each one in before the plan runs on it. Section&nbsp;2's policy topic is now explicitly just an illustration — play with it all you want, only the tax-reserve-vehicle choice and years-in-force there actually feed the real plan. Mortgage years-paid-in also gained month-level precision.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 7, 2026 — b43</span><p class="topic-exp" style="margin-top:2px;">One policy now does both jobs. The Accumulation IUL carries a built-in <b>chronic illness rider</b> — the separate Protection IUL topic is gone, because this design makes a second policy unnecessary: the same death benefit that clears your debt is also the chronic-illness pool, and because the policy is issued <b>increasing</b> (Option 2), your cash value stacks on top of the face amount — the death benefit and the chronic-illness pool both grow as the cash value grows. New: <b>ALIS picks the year the policy switches from increasing to level</b> (the real trade-off: stay increasing longer and the death benefit keeps growing but the insurance cost keeps riding the full face; switch and the cost shrinks as cash value fills the gap) — shown with the honest dollar difference vs. never switching, and you can override it. Recalibrated everything to six fresh 2026 carrier illustrations of this exact design (both sexes, ages 30/45/60, rider included): bigger death benefit per premium dollar, new target premiums, cost model reproduces all six within 1–7% across every illustrated year (now split by sex — women's charges run genuinely lower). Chronic-illness draws now honestly cap at the IRS per-diem limit ($430/day for 2026, ≈$13,079/mo — the old $30K/mo cap belonged to the retired product) and every draw also reduces cash value proportionately, exactly as the rider actually works. The estate math now uses the real net death benefit (face + stacked cash value − loans − anything the riders drew) instead of just cash value — the "one tool beats all" story, priced honestly. Also fixed from the contract: the overfunding charge stops after policy year 20 (it was being charged forever).</p></div>
@@ -552,15 +553,48 @@
         <div class="changelog-entry"><span class="changelog-date">Jul 5, 2026</span><p class="topic-exp" style="margin-top:2px;">First full build: velocity banking, the real-estate tax break, the tax-reserve policy, and the retirement blend, with a guided step-by-step learning journey.</p></div>
       </div>
     </details>
+    <h1>Epic Life Ledger</h1>
+    <p><b>EPIC LIFE</b> is Team Life Academy's inner circle — <b>L</b>everage, <b>I</b>nsurance, <b>F</b>unding, <b>E</b>quity. This ledger takes the single most powerful tool from each corner of finance — real estate leverage, tax-advantaged insurance, low-cost business funding, and equity growth — and blends them into one integrated financial infrastructure, so your money works harder than it ever could sitting in any one of them alone.</p>
+    <div class="value-prop">A financial planner typically keeps taking <b>1% of your assets</b> every year, for the life of the relationship — and most clients still never see how any of it actually works. This strips that model out: real numbers, fully interactive, built from actual product terms — the same caliber of financial engineering, wide open, at a level of detail most planners never walk a client through, without the fluff. <b>Education, not individualized advice</b> — explore the mechanics here, then bring your real numbers to your EPIC strategist.</div>
   </header>
 
   <div class="sheet">
 
-    <!-- 1. YOUR NUMBERS — ASSETS & VEHICLES -->
+    <!-- 1. THE LEVERAGE GAME -->
     <section class="sec">
       <span class="sec-num">Section 1</span>
-      <h2>Your numbers — assets &amp; vehicles</h2>
-      <p class="sub">Everything the plan is built from: income and tax, ages, the 401(k), and the home mortgage. These mirror the "Lock in your plan" wizard at the start of Section&nbsp;3 — edit either copy, both stay in sync, and the wizard is where you actually lock them in.</p>
+      <h2>The Leverage Game</h2>
+      <p class="sub">Here's how this ledger works. You'll start by filling in some basic information — your numbers. From there, you'll move through the three major sectors of finance, one at a time, and the single most powerful tool from each. You'll play with each tool on its own and see exactly what it does. Then you'll bring them together in the wealth-creation section and watch the effect multiply when they work as one system instead of three separate moves. Finally, you'll stress-test the whole plan against real market history — how likely you are to actually hit your projected goals, and where the blind spots are.</p>
+
+      <div class="topic">
+        <div class="topic-h">The gap in the market</div>
+        <p class="topic-exp">Using OPM — other people's money — is probably the most talked-about concept in finance, popularized by Robert Kiyosaki. But look past the talk and there's a real gap: plenty of people can explain the theory, almost nobody can actually help you execute it. The people who understand a piece of it sell you a course. The people who understand the whole system only work with the ultra-high-net-worth. Everyone in between gets left out. That gap is exactly what the EPIC LIFE System is built to close.</p>
+      </div>
+
+      <div class="topic">
+        <div class="topic-h">See the gap — one realistic example</div>
+        <p class="topic-exp">A representative profile: $180,000/yr income, $40,000/yr deployed, starting at 45, retiring at 65, planning through 90. Same dollars, two roads. <b>This is an illustration, not your plan</b> — you'll build your real one in the sections below.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="headline-card risk">
+              <div class="headline-line">Savings only — parked, then drained</div>
+              <div class="headline-sub" style="margin:0 0 2px;">Total wealth created in lifetime</div>
+              <div class="headline-big" id="demo-savings-total">–</div>
+              <div class="headline-sub" style="margin-top:4px;">Income extracted in lifetime: <b id="demo-savings-extracted">–</b></div>
+              <div class="headline-sub">Same contributions, compounding at today's best available savings/CD rate (~4%), drawn down to fund retirement.</div>
+            </div>
+          </div>
+          <div class="side-results">
+            <div class="headline-card">
+              <div class="headline-line">All EPIC LIFE tools deployed</div>
+              <div class="headline-sub" style="margin:0 0 2px;">Total wealth created in lifetime</div>
+              <div class="headline-big" id="demo-tools-total">–</div>
+              <div class="headline-sub" style="margin-top:4px;">Income extracted in lifetime: <b id="demo-tools-extracted">–</b></div>
+              <div class="headline-sub">Same contributions, routed through the policy, real estate, and velocity banking together.</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div class="topic">
         <div class="topic-h">Income, tax &amp; ages</div>
@@ -586,20 +620,9 @@
         </div>
       </div>
 
-      <div class="topic" data-natopic="qualified">
-        <div class="topic-hrow"><div class="topic-h">The 401(k) / qualified account</div><button type="button" class="toggle-btn na-btn" data-natool="qualified">✓ In the plan</button></div>
-        <p class="topic-exp">Your balance today, plus what the market's assumed to earn.</p>
-        <div class="control"><label>Current balance <span class="val" id="v-qmBalance1">$1,500,000</span></label><input type="range" id="qmBalance1" min="0" max="3000000" step="25000" value="1500000"></div>
-        <div class="control"><label>Stock market return (S&amp;P 500 total) <span class="val" id="v-qmGrowth1">10.02%</span></label><input type="range" id="qmGrowth1" min="4" max="14" step="0.01" value="10.02"></div>
-        <div class="toggle-row" style="flex-wrap:wrap;">
-          <button type="button" class="toggle-btn mkt-preset" data-mkt="10.02">Full record 1928–2025 — 10.02%</button>
-          <button type="button" class="toggle-btn mkt-preset" data-mkt="13.94">Recent era 2011–2025 — 13.94%</button>
-        </div>
-      </div>
-
       <div class="topic" data-natopic="mortgage">
         <div class="topic-hrow"><div class="topic-h">The home mortgage, on schedule</div><button type="button" class="toggle-btn na-btn" data-natool="mortgage">✓ In the plan</button></div>
-        <p class="topic-exp">The mortgage as it stands today — Section&nbsp;2's velocity banking attacks this, and the home's equity backs the HELOC later.</p>
+        <p class="topic-exp">The mortgage as it stands today — Section&nbsp;3's velocity banking attacks this, and the home's equity backs the HELOC later.</p>
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Property value <span class="val" id="v-propValue1">$1,100,000</span></label><input type="range" id="propValue1" min="50000" max="3000000" step="10000" value="1100000"></div>
@@ -612,7 +635,7 @@
             <div class="control"><label>+ Months paid in <span class="val" id="v-monthsPaid1">0 mo</span></label><input type="range" id="monthsPaid1" min="0" max="11" step="1" value="0"></div>
           </div>
         </div>
-        <p class="topic-exp" style="margin-top:6px;">Balance and payoff results show in the "Lock in your plan" wizard, Section&nbsp;3.</p>
+        <p class="topic-exp" style="margin-top:6px;">Balance and payoff results show in the "Lock in your plan" wizard, Section&nbsp;5.</p>
       </div>
 
       <div class="topic">
@@ -624,24 +647,26 @@
       </div>
     </section>
 
-    <!-- 2. RESERVES & TOOLS -->
+    <!-- 2. THE INSURANCE SECTOR -->
     <section class="sec">
       <span class="sec-num">Section 2</span>
-      <h2>Reserves &amp; tools</h2>
-      <p class="sub">The reserves and tools the plan works with, in the order you build them: the Accumulation IUL for the death benefit and the tax-free engine, the rental property for depreciation and cash flow — then velocity banking (with 0% business credit and the HELOC) to kill mortgage interest, funded from the capacity those tools just built. Each one can be switched off if it doesn't apply.</p>
+      <h2>The Insurance Sector</h2>
+      <p class="sub">The single most versatile tool in the whole system — a real death benefit and a tax-free accumulation engine, built into one policy.</p>
 
       <div class="topic" data-natopic="policy">
+        <p class="topic-exp" style="margin-bottom:14px;">Cash value life insurance might be the most versatile tool in this entire system — and the one most people, including most agents, get wrong. The standard pitch stops at living benefits, a death benefit, and a savings vehicle that pays out tax-free in retirement through policy loans. That's real, but it's only the surface.</p>
+        <p class="topic-exp" style="margin-bottom:14px;">Combined with the other tools, this is the engine behind Buy, Borrow, Die: leverage OPM to acquire income-producing assets, then use those assets themselves to access even cheaper OPM. A policy on the person running the operation — sized to the debt tied to that asset — means if something happens to them (death, or an illness or accident that takes them out of the operator's seat), the debt gets wiped out instead of landing on the family or the estate. The Rockefellers are often credited with pioneering this approach — and it's still how serious money protects leveraged wealth today.</p>
         <div class="topic-hrow"><div class="topic-h">The policy — protection and accumulation in one</div><button type="button" class="toggle-btn na-btn" data-natool="policy">✓ In the plan</button></div>
-        <p class="topic-exp">The Accumulation IUL carries the death benefit that clears your debt (see Section&nbsp;3's estate topic) AND grows the tax-free cash value the plan lives on. It's issued <b>increasing</b> (Option&nbsp;2): the death benefit is the face amount <b>plus</b> the cash value, so both the coverage and the chronic-illness pool below grow every year the cash value grows. The increasing-to-level switch is ALIS's call, always — no manual setting.</p>
-        <p class="way-hint show" style="margin-top:2px;">This whole section is a <b>projection only</b>, based on whatever you enter here — it doesn't drive Section&nbsp;3/4's real plan. Only two things here actually carry through: whether you turn on <b>"Use as tax reserve vehicle"</b> below, and <b>years in force</b>. Everything else (the premium amount, crediting story, loan type) is just for exploring what a policy like this would look like.</p>
+        <p class="topic-exp">The Accumulation IUL carries the death benefit that clears your debt (see Section&nbsp;5's estate topic) AND grows the tax-free cash value the plan lives on. It's issued <b>increasing</b> (Option&nbsp;2): the death benefit is the face amount <b>plus</b> the cash value, so both the coverage and the chronic-illness pool below grow every year the cash value grows. The increasing-to-level switch is ALIS's call, always — no manual setting.</p>
+        <p class="way-hint show" style="margin-top:2px;">This whole section is a <b>projection only</b>, based on whatever you enter here — it doesn't drive Section&nbsp;5/6's real plan. Only two things here actually carry through: whether you turn on <b>"Use as tax reserve vehicle"</b> below, and <b>years in force</b>. Everything else (the premium amount, crediting story, loan type) is just for exploring what a policy like this would look like.</p>
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Annual premium into the policy <span class="val" id="v-polPremiumAnnual">$0</span></label><input type="range" id="polPremiumAnnual" min="0" max="100000" step="1000" value="0"></div>
-            <p class="topic-exp" style="margin-top:2px;" id="withholdingInline">Your tax withholding (Section&nbsp;3's lock-in wizard): <b>$0</b> — turn on "Use as tax reserve vehicle" below to add it on top.</p>
+            <p class="topic-exp" style="margin-top:2px;" id="withholdingInline">Your tax withholding (Section&nbsp;5's lock-in wizard): <b>$0</b> — turn on "Use as tax reserve vehicle" below to add it on top.</p>
             <div class="toggle-row">
               <button type="button" class="toggle-btn" id="btn-addWithholding">Use as tax reserve vehicle</button>
             </div>
-            <p class="topic-exp" style="margin-top:6px;" id="addWithholdingNote">Off: the policy runs on just the premium above. On: your current tax withholding (Section&nbsp;3's lock-in wizard) is added on top of it every year, so you can see what redirecting that money — instead of sending it to the IRS all year — actually does to the policy and the tax bill below. <b>This choice carries through to Section 3/4's real plan.</b></p>
+            <p class="topic-exp" style="margin-top:6px;" id="addWithholdingNote">Off: the policy runs on just the premium above. On: your current tax withholding (Section&nbsp;5's lock-in wizard) is added on top of it every year, so you can see what redirecting that money — instead of sending it to the IRS all year — actually does to the policy and the tax bill below. <b>This choice carries through to Section 5/6's real plan.</b></p>
             <div class="control"><label>Crediting rate assumption <span class="val" id="v-credRate">6.40%</span></label><input type="range" id="credRate" min="3" max="9" step="0.01" value="6.40"></div>
             <div class="toggle-row" style="flex-wrap:wrap;">
               <button type="button" class="toggle-btn cred-preset" data-cred="6.40">Conservative — 6.40%</button>
@@ -649,7 +674,7 @@
               <button type="button" class="toggle-btn cred-preset" data-cred="8.56">Last 14 yrs actual — 8.56%</button>
             </div>
             <p class="topic-exp" style="margin-top:6px;"><b>6.40%</b> is what the real 0% floor / 11.65% cap produces if markets average their full 1928–2025 record (~10%/yr) — the defensible default. <b>7.12%</b> is the carrier's current illustrated rate, calibrated to the stronger recent era. <b>8.56%</b> is what the carrier's first IUL actually credited on average, 2011–2025. Pick the story you want the plan built on — the stress test shows the floor/cap's honest implied rate either way.</p>
-            <div class="control"><label>Already have this policy? — years in force <span class="val" id="v-polYears">3 yrs</span> <span class="lbl-sub">Carries through to Section 3/4</span></label><input type="range" id="polYears" min="0" max="20" step="1" value="3"></div>
+            <div class="control"><label>Already have this policy? — years in force <span class="val" id="v-polYears">3 yrs</span> <span class="lbl-sub">Carries through to Section 5/6</span></label><input type="range" id="polYears" min="0" max="20" step="1" value="3"></div>
             <div class="toggle-row">
               <button type="button" class="toggle-btn active" id="btn-autoLoan">ALIS picks the loan</button>
               <button type="button" class="toggle-btn" id="btn-indexLoan">Fixed Index — 5.00% + 0.65% bonus</button>
@@ -694,24 +719,107 @@
         <div style="border-top:1px solid var(--line); margin:18px 0 14px; padding-top:14px;">
           <div class="topic-hrow"><div class="topic-h" style="font-size:.98rem;">Chronic illness rider <span class="lbl-sub">Optional — ALIS recommends including it</span></div><button type="button" class="toggle-btn ltc-btn active" id="btn-ltc">✓ Modeled</button></div>
           <p class="way-hint show" style="margin-top:2px;"><b>Recommended:</b> real advantage early on, with very little cost carried — turn it off below if it doesn't apply.</p>
-          <p class="topic-exp">If a qualifying chronic illness or long-term-care need hits (unable to do 2 of 6 daily-living activities, or severe cognitive impairment), the member draws <b>1% of the current death benefit</b> every month, tax-free — elected at issue and fixed for the life of the policy — and because the policy is increasing, that pool is the face amount plus every dollar of cash value stacked on top. Capped at the IRS per-diem limit ($430/day for 2026 — about $13,079/mo). Once it kicks in, it keeps drawing every year for the rest of the plan — a real need doesn't come with a known end date, so this doesn't pretend one. Because each draw is 1% of whatever's LEFT, the death benefit runs down but never quite to zero — the policy stays in force with a small, genuine death benefit remaining. Real income, not free money: every dollar drawn permanently reduces the death benefit AND proportionately reduces the cash value, exactly as the rider works in the contract. <b>Claim age is set at the start of Section&nbsp;3, in the AIUL lock-in step.</b></p>
+          <p class="topic-exp">If a qualifying chronic illness or long-term-care need hits (unable to do 2 of 6 daily-living activities, or severe cognitive impairment), the member draws <b>1% of the current death benefit</b> every month, tax-free — elected at issue and fixed for the life of the policy — and because the policy is increasing, that pool is the face amount plus every dollar of cash value stacked on top. Capped at the IRS per-diem limit ($430/day for 2026 — about $13,079/mo). Once it kicks in, it keeps drawing every year for the rest of the plan — a real need doesn't come with a known end date, so this doesn't pretend one. Because each draw is 1% of whatever's LEFT, the death benefit runs down but never quite to zero — the policy stays in force with a small, genuine death benefit remaining. Real income, not free money: every dollar drawn permanently reduces the death benefit AND proportionately reduces the cash value, exactly as the rider works in the contract. <b>Claim age is set at the start of Section&nbsp;5, in the AIUL lock-in step.</b></p>
           <div class="side-results">
             <div class="ledger">
               <div class="lline"><span>Monthly draw at trigger <span class="lbl-sub">1% × the death benefit at claim age, capped at the IRS per-diem limit (~$13,079/mo in 2026) — projected from this design, funded at this premium to claim age</span></span><span class="amt" id="s-ltcMonthly">–</span></div>
-              <div class="lline"><span>Drawn over the horizon <span class="lbl-sub">Tax-free — claim age to plan-through age (both set in Section 3's lock-in wizard)</span></span><span class="amt" id="s-ltcTotal">–</span></div>
+              <div class="lline"><span>Drawn over the horizon <span class="lbl-sub">Tax-free — claim age to plan-through age (both set in Section 5's lock-in wizard)</span></span><span class="amt" id="s-ltcTotal">–</span></div>
               <div class="lline total"><span>Death benefit at the end <span class="lbl-sub">Always: original face + cash value − any outstanding loan (interest included) — a small residual, not zero, since the draw is a % of whatever's left</span></span><span class="amt" id="s-ltcDBEnd">–</span></div>
             </div>
             <details class="caveat mini collapsible" id="cav-ltc">
               <summary><span class="mark">!</span><span>Why age 80 — and what this does and doesn't cover</span></summary>
-              <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today. Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>The 1% monthly rate is elected at issue and can't be changed later</b> — this is TLA's illustrated design, not an editable assumption. <b>Once triggered, it runs for the rest of the plan</b> — no "years of need" slider, since a real chronic-illness need doesn't come with a known end date; the draw naturally decays toward (but never quite reaches) zero because it's always 1% of whatever death benefit is still left, so the policy stays genuinely in force. <b>Real rider mechanics modeled:</b> a 90-day elimination period and once-per-12-months payment cadence exist in the contract but are approximated here as annual draws; each draw reduces the death benefit and the cash value proportionately; the IRS per-diem cap ($430/day, 2026, Rev. Proc. 2025-32) binds whenever 1% of the death benefit exceeds ~$13,079/mo. <b>Scope:</b> modeled only during retirement (Section&nbsp;3); a trigger age before retirement currently has no effect. Draws come off the same death benefit the estate math counts on — the trade-off is enforced, not just shown.</p></div>
+              <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today. Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>The 1% monthly rate is elected at issue and can't be changed later</b> — this is TLA's illustrated design, not an editable assumption. <b>Once triggered, it runs for the rest of the plan</b> — no "years of need" slider, since a real chronic-illness need doesn't come with a known end date; the draw naturally decays toward (but never quite reaches) zero because it's always 1% of whatever death benefit is still left, so the policy stays genuinely in force. <b>Real rider mechanics modeled:</b> a 90-day elimination period and once-per-12-months payment cadence exist in the contract but are approximated here as annual draws; each draw reduces the death benefit and the cash value proportionately; the IRS per-diem cap ($430/day, 2026, Rev. Proc. 2025-32) binds whenever 1% of the death benefit exceeds ~$13,079/mo. <b>Scope:</b> modeled only during retirement (Section&nbsp;5); a trigger age before retirement currently has no effect. Draws come off the same death benefit the estate math counts on — the trade-off is enforced, not just shown.</p></div>
             </details>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. THE FUNDING SECTOR -->
+    <section class="sec">
+      <span class="sec-num">Section 3</span>
+      <h2>The Funding Sector</h2>
+      <p class="sub">Low-cost, other-people's-money capacity — 0% business credit and home equity, stacked together through velocity banking against your mortgage interest.</p>
+
+      <div class="topic" data-natopic="bizcredit">
+        <p class="topic-exp" style="margin-bottom:14px;">Most people still haven't figured out that a bank isn't where you deposit your hard-earned money — it's where you go to acquire more of their core product: money. Used strategically, that's how you acquire and create more assets, then level up — from personal banking, to commercial banking, to private banking, where they start taking you to dinner to hand you more money and show you pre-IPO opportunities like SpaceX. This is where three of those tools come in: 0% business credit, a HELOC, and velocity banking — a strategy that attacks your mortgage interest directly and can save hundreds of thousands of dollars over the life of the loan.</p>
+        <div class="topic-hrow"><div class="topic-h">0% business credit — the stacking accelerator</div><button type="button" class="toggle-btn na-btn" data-natool="bizcredit">✓ In the plan</button></div>
+        <p class="topic-exp">When it's on, the first five years of chunks land at the START of each year on 0% business credit (paid down through the year) instead of at the end — the same dollars hit whichever loan they're attacking a year earlier, and every later domino falls sooner. An accelerator on velocity banking, not its own engine.</p>
+      </div>
+
+      <div class="topic" data-natopic="heloc">
+        <div class="topic-hrow"><div class="topic-h" id="veh-heloc-h">The HELOC — the equity harvester</div><button type="button" class="toggle-btn na-btn" data-natool="heloc">✓ In the plan</button></div>
+        <p class="topic-exp">Funds future property down payments, then in retirement covers whatever properties and low-tax qualified money don't. Real terms: a line stays open ~10 years from its first draw. Once that window closes, ALIS refinances the balance into a 30-year fixed loan (a real payment the plan funds), and a fresh line can open against the remaining equity. <b>Requires the mortgage tool to be on</b> — a HELOC borrows against home equity, so it needs an actual home mortgage in the plan.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="control"><label>HELOC rate <span class="val" id="v-helocRate">7.46%</span></label><input type="range" id="helocRate" min="5" max="9" step="0.01" value="7.46"></div>
+            <div class="control"><label>Home value securing the HELOC <span class="val" id="v-reEquity">$1,100,000</span></label><input type="range" id="reEquity" min="0" max="3000000" step="25000" value="1100000"></div>
+            <div class="control"><label>Home appreciation <span class="val" id="v-reGrowth">4.44%</span></label><input type="range" id="reGrowth" min="1" max="6" step="0.01" value="4.44"></div>
+            <div class="control"><label>Max loan-to-value <span class="val" id="v-maxLtv">85%</span></label><input type="range" id="maxLtv" min="70" max="90" step="1" value="85"></div>
+          </div>
+          <div class="side-results">
+            <div class="ledger">
+              <div class="lline"><span>Years it contributes in retirement</span><span class="amt" id="s-helocYears">–</span></div>
+              <div class="lline"><span>Typical annual HELOC draw <span class="lbl-sub">Tax-free</span></span><span class="amt" id="s-helocFirstDraw">–</span></div>
+              <div class="lline"><span>Borrowing cap, first draw year <span class="lbl-sub">Max LTV × appreciated home value</span></span><span class="amt" id="s-helocCap">–</span></div>
+              <div class="lline"><span>Refinance to fixed, if needed <span class="lbl-sub" id="s-helocRefiSub">Fires only when the 10-yr draw window closes with a balance</span></span><span class="amt" id="s-helocRefi">–</span></div>
+              <div class="lline subtotal"><span>Home debt at end of retirement <span class="lbl-sub">HELOC + refinanced fixed + any remaining mortgage</span></span><span class="amt" id="s-helocBalEnd">–</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="topic" data-natopic="velocity">
+        <div class="topic-hrow"><div class="topic-h">Velocity banking — the 0%-financed chunk</div><button type="button" class="toggle-btn na-btn" data-natool="velocity">✓ In the plan</button></div>
+        <p class="topic-exp">A lump-sum extra principal payment against the mortgage locked in at the start of Section&nbsp;5 (or whichever loan carries the highest rate — see Section&nbsp;5's playbook), funded by moving real business expenses onto a 0% card instead of cash. Repeat rounds as later cards season. <b>Requires an actual loan to attack</b> — a home mortgage or an owned rental's own loan; with neither, there's nothing to chunk.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="control"><label>Chunk size <span class="val" id="v-chunk">$100,000</span></label><input type="range" id="chunk" min="0" max="300000" step="5000" value="100000"></div>
+            <div class="control"><label>Applied in month (of year 1) <span class="val" id="v-chunkMonth">Month 6</span></label><input type="range" id="chunkMonth" min="1" max="12" step="1" value="6"></div>
+            <div class="control"><label>Repeat rounds <span class="val" id="v-rounds">1 round</span></label><input type="range" id="rounds" min="1" max="5" step="1" value="1"></div>
+            <div class="control"><label>Months between rounds <span class="val" id="v-gap">12 mo</span></label><input type="range" id="gap" min="6" max="24" step="1" value="12"></div>
+          </div>
+          <div class="side-results">
+            <div class="chartwrap">
+              <canvas id="chart" width="1000" height="200"></canvas>
+              <div class="legend"><span><span class="swatch" style="background:var(--chart-base)"></span> No chunks</span><span><span class="swatch" style="background:var(--chart-accel)"></span> With chunk(s)</span></div>
+            </div>
+            <div class="ledger">
+              <div class="lline"><span>Total chunked in</span><span class="amt" id="s-totalChunked">–</span></div>
+              <div class="lline"><span>New payoff time</span><span class="amt" id="s-newYears">–</span></div>
+              <div class="lline subtotal"><span>Payoff moves up by</span><span class="amt" id="s-monthsSaved">–</span></div>
+              <div class="lline total"><span>Interest saved by chunking</span><span class="amt" id="s-interestSaved">–</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="caveat mini" id="cav-velocity">
+          <span class="mark">!</span>
+          <p>Every chunk still has to get repaid before its card's 0% window closes, from ordinary cash flow.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. THE EQUITY SECTOR -->
+    <section class="sec">
+      <span class="sec-num">Section 4</span>
+      <h2>The Equity Sector</h2>
+      <p class="sub">Ownership — in qualified money and in real estate — and the tax code's own rulebook for cutting a lifetime tax bill down.</p>
+
+      <div class="topic" data-natopic="qualified">
+        <p class="topic-exp" style="margin-bottom:14px;">Ownership — in qualified money and in real estate — and how to use the IRS rulebook itself to shave millions off your lifetime tax bill. Sometimes that even means intentionally paying more in taxes in the early years so you don't have to later. This section looks at real estate investment: one of the most effective levers there is for cutting down what you pay in taxes over a lifetime.</p>
+        <div class="topic-hrow"><div class="topic-h">The 401(k) / qualified account</div><button type="button" class="toggle-btn na-btn" data-natool="qualified">✓ In the plan</button></div>
+        <p class="topic-exp">Your balance today, plus what the market's assumed to earn.</p>
+        <div class="control"><label>Current balance <span class="val" id="v-qmBalance1">$1,500,000</span></label><input type="range" id="qmBalance1" min="0" max="3000000" step="25000" value="1500000"></div>
+        <div class="control"><label>Stock market return (S&amp;P 500 total) <span class="val" id="v-qmGrowth1">10.02%</span></label><input type="range" id="qmGrowth1" min="4" max="14" step="0.01" value="10.02"></div>
+        <div class="toggle-row" style="flex-wrap:wrap;">
+          <button type="button" class="toggle-btn mkt-preset" data-mkt="10.02">Full record 1928–2025 — 10.02%</button>
+          <button type="button" class="toggle-btn mkt-preset" data-mkt="13.94">Recent era 2011–2025 — 13.94%</button>
         </div>
       </div>
 
       <div class="topic" data-natopic="rental">
         <div class="topic-hrow"><div class="topic-h">The rental property — and when to buy it</div><button type="button" class="toggle-btn na-btn" data-natool="rental">✓ In the plan</button></div>
-        <p class="topic-exp">The age you buy it comes first on purpose: it's a <b>later</b> move funded from the HELOC and policy capacity built above, not a day-one purchase. Then the property's own numbers, and which vehicle funds the down payment. Its depreciation write-off is a big deal — the tax picture on the right shows how much lands this year vs. carries forward. <b>Section&nbsp;4 shows three ways to unlock a suspended write-off.</b></p>
+        <p class="topic-exp">The age you buy it comes first on purpose: it's a <b>later</b> move funded from the HELOC and policy capacity built above, not a day-one purchase. Then the property's own numbers, and which vehicle funds the down payment. Its depreciation write-off is a big deal — the tax picture on the right shows how much lands this year vs. carries forward. <b>Section&nbsp;6 shows three ways to unlock a suspended write-off.</b></p>
         <div class="split">
           <div class="side-controls">
             <div class="control"><label>Buy at age <span class="val" id="v-buyAge1">60</span></label><input type="range" id="buyAge1" min="20" max="99" step="1" value="60"></div>
@@ -735,7 +843,7 @@
               <div class="lline"><span>Marginal bracket</span><span class="amt" id="s-bracket">–</span></div>
               <div class="lline"><span>Passive-loss cap status <span class="lbl-sub" id="s-capStatusSub">–</span></span><span class="amt" id="s-capStatus">–</span></div>
               <div class="lline"><span>Usable this year</span><span class="amt" id="s-usableLoss">–</span></div>
-              <div class="lline"><span>Suspended / carried forward <span class="lbl-sub">Shields retirement withdrawals (Section 3), releases fully at sale, or all at once via Section 4's ways</span></span><span class="amt" id="s-suspendedLoss">–</span></div>
+              <div class="lline"><span>Suspended / carried forward <span class="lbl-sub">Shields retirement withdrawals (Section 5), releases fully at sale, or all at once via Section 6's ways</span></span><span class="amt" id="s-suspendedLoss">–</span></div>
               <div class="lline total"><span>Real federal tax savings, Year 1</span><span class="amt" id="s-taxSavings">–</span></div>
             </div>
             <details class="details-toggle">
@@ -756,7 +864,7 @@
 
       <div class="topic">
         <div class="topic-h">The property also pays you rent</div>
-        <p class="topic-exp">Where the property is changes everything: Hawaii's high prices mean low rent-to-value, so depreciation shields almost all the rent (little taxable income); a mainland property yields more rent but more of it is taxable. That rental cash — and the leftover depreciation shield — carry into the retirement blend in Section&nbsp;3.</p>
+        <p class="topic-exp">Where the property is changes everything: Hawaii's high prices mean low rent-to-value, so depreciation shields almost all the rent (little taxable income); a mainland property yields more rent but more of it is taxable. That rental cash — and the leftover depreciation shield — carry into the retirement blend in Section&nbsp;5.</p>
         <div class="split">
           <div class="side-controls">
             <div class="toggle-row">
@@ -790,69 +898,13 @@
         <div id="propCards"></div>
         <button type="button" class="toggle-btn" id="addProp" style="margin-top:10px;">+ Add a future property</button>
       </div>
-
-      <div class="topic" data-natopic="velocity">
-        <div class="topic-hrow"><div class="topic-h">Velocity banking — the 0%-financed chunk</div><button type="button" class="toggle-btn na-btn" data-natool="velocity">✓ In the plan</button></div>
-        <p class="topic-exp">A lump-sum extra principal payment against the mortgage locked in at the start of Section&nbsp;3 (or whichever loan carries the highest rate — see Section&nbsp;3's playbook), funded by moving real business expenses onto a 0% card instead of cash. Repeat rounds as later cards season. <b>Requires an actual loan to attack</b> — a home mortgage or an owned rental's own loan; with neither, there's nothing to chunk.</p>
-        <div class="split">
-          <div class="side-controls">
-            <div class="control"><label>Chunk size <span class="val" id="v-chunk">$100,000</span></label><input type="range" id="chunk" min="0" max="300000" step="5000" value="100000"></div>
-            <div class="control"><label>Applied in month (of year 1) <span class="val" id="v-chunkMonth">Month 6</span></label><input type="range" id="chunkMonth" min="1" max="12" step="1" value="6"></div>
-            <div class="control"><label>Repeat rounds <span class="val" id="v-rounds">1 round</span></label><input type="range" id="rounds" min="1" max="5" step="1" value="1"></div>
-            <div class="control"><label>Months between rounds <span class="val" id="v-gap">12 mo</span></label><input type="range" id="gap" min="6" max="24" step="1" value="12"></div>
-          </div>
-          <div class="side-results">
-            <div class="chartwrap">
-              <canvas id="chart" width="1000" height="200"></canvas>
-              <div class="legend"><span><span class="swatch" style="background:var(--chart-base)"></span> No chunks</span><span><span class="swatch" style="background:var(--chart-accel)"></span> With chunk(s)</span></div>
-            </div>
-            <div class="ledger">
-              <div class="lline"><span>Total chunked in</span><span class="amt" id="s-totalChunked">–</span></div>
-              <div class="lline"><span>New payoff time</span><span class="amt" id="s-newYears">–</span></div>
-              <div class="lline subtotal"><span>Payoff moves up by</span><span class="amt" id="s-monthsSaved">–</span></div>
-              <div class="lline total"><span>Interest saved by chunking</span><span class="amt" id="s-interestSaved">–</span></div>
-            </div>
-          </div>
-        </div>
-        <div class="caveat mini" id="cav-velocity">
-          <span class="mark">!</span>
-          <p>Every chunk still has to get repaid before its card's 0% window closes, from ordinary cash flow.</p>
-        </div>
-      </div>
-
-      <div class="topic" data-natopic="bizcredit">
-        <div class="topic-hrow"><div class="topic-h">0% business credit — the stacking accelerator</div><button type="button" class="toggle-btn na-btn" data-natool="bizcredit">✓ In the plan</button></div>
-        <p class="topic-exp">When it's on, the first five years of chunks land at the START of each year on 0% business credit (paid down through the year) instead of at the end — the same dollars hit whichever loan they're attacking a year earlier, and every later domino falls sooner. An accelerator on velocity banking, not its own engine.</p>
-      </div>
-
-      <div class="topic" data-natopic="heloc">
-        <div class="topic-hrow"><div class="topic-h" id="veh-heloc-h">The HELOC — the equity harvester</div><button type="button" class="toggle-btn na-btn" data-natool="heloc">✓ In the plan</button></div>
-        <p class="topic-exp">Funds future property down payments, then in retirement covers whatever properties and low-tax qualified money don't. Real terms: a line stays open ~10 years from its first draw. Once that window closes, ALIS refinances the balance into a 30-year fixed loan (a real payment the plan funds), and a fresh line can open against the remaining equity. <b>Requires the mortgage tool to be on</b> — a HELOC borrows against home equity, so it needs an actual home mortgage in the plan.</p>
-        <div class="split">
-          <div class="side-controls">
-            <div class="control"><label>HELOC rate <span class="val" id="v-helocRate">7.46%</span></label><input type="range" id="helocRate" min="5" max="9" step="0.01" value="7.46"></div>
-            <div class="control"><label>Home value securing the HELOC <span class="val" id="v-reEquity">$1,100,000</span></label><input type="range" id="reEquity" min="0" max="3000000" step="25000" value="1100000"></div>
-            <div class="control"><label>Home appreciation <span class="val" id="v-reGrowth">4.44%</span></label><input type="range" id="reGrowth" min="1" max="6" step="0.01" value="4.44"></div>
-            <div class="control"><label>Max loan-to-value <span class="val" id="v-maxLtv">85%</span></label><input type="range" id="maxLtv" min="70" max="90" step="1" value="85"></div>
-          </div>
-          <div class="side-results">
-            <div class="ledger">
-              <div class="lline"><span>Years it contributes in retirement</span><span class="amt" id="s-helocYears">–</span></div>
-              <div class="lline"><span>Typical annual HELOC draw <span class="lbl-sub">Tax-free</span></span><span class="amt" id="s-helocFirstDraw">–</span></div>
-              <div class="lline"><span>Borrowing cap, first draw year <span class="lbl-sub">Max LTV × appreciated home value</span></span><span class="amt" id="s-helocCap">–</span></div>
-              <div class="lline"><span>Refinance to fixed, if needed <span class="lbl-sub" id="s-helocRefiSub">Fires only when the 10-yr draw window closes with a balance</span></span><span class="amt" id="s-helocRefi">–</span></div>
-              <div class="lline subtotal"><span>Home debt at end of retirement <span class="lbl-sub">HELOC + refinanced fixed + any remaining mortgage</span></span><span class="amt" id="s-helocBalEnd">–</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
 
     <!-- 3. RETIREMENT & PASSIVE INCOME -->
     <section class="sec">
-      <span class="sec-num">Section 3</span>
-      <h2>Retirement &amp; passive income — the optimized plan</h2>
-      <p class="sub">Set the yearly contribution and pick the goal; ALIS does the rest — allocating the money across the Section&nbsp;2 tools, funding one inflation-adjusted lifestyle from four sources (the properties' cash flow, qualified money, the HELOC, and the policy), and writing the year-by-year playbook. <b>Max legacy</b> leaves the most behind on your chosen floor, <b>Max income</b> finds the biggest lifestyle the plan can sustain, <b>Most of both</b> maximizes total wealth (income kept plus legacy left). Tax isn't the target — ALIS just does whatever's needed to hit your real goal.</p>
+      <span class="sec-num">Section 5</span>
+      <h2>Wealth Creation — the optimized plan</h2>
+      <p class="sub">Set the yearly contribution and pick the goal; ALIS does the rest — allocating the money across the Insurance, Funding, and Equity sector tools (Sections&nbsp;2–4), funding one inflation-adjusted lifestyle from four sources (the properties' cash flow, qualified money, the HELOC, and the policy), and writing the year-by-year playbook. <b>Max legacy</b> leaves the most behind on your chosen floor, <b>Max income</b> finds the biggest lifestyle the plan can sustain, <b>Most of both</b> maximizes total wealth (income kept plus legacy left). Tax isn't the target — ALIS just does whatever's needed to hit your real goal.</p>
 
       <div class="lock-wizard" id="lockWizard">
         <p class="topic-exp" style="margin-top:12px;"><b>Lock in your plan.</b> Go step by step — edit each one to the member's real numbers, then lock it in and move to the next. Tap a step's header any time to reopen and edit it.</p>
@@ -913,7 +965,7 @@
         <details class="lock-step" id="lockStep3">
           <summary><span class="lock-step-title"><span class="lock-step-arrow">▾</span><span class="lock-step-num">3</span>Property &amp; mortgage</span><span class="lock-step-actions"><button type="button" class="toggle-btn lock-edit-btn" data-lock="3">Edit</button><button type="button" class="toggle-btn active lock-confirm-btn" data-lock="3">Confirm</button></span></summary>
           <div class="lock-step-body">
-            <p class="topic-exp">The mortgage as it stands today — Section&nbsp;2's velocity banking attacks this, and the home's equity backs the HELOC later.</p>
+            <p class="topic-exp">The mortgage as it stands today — Section&nbsp;3's velocity banking attacks this, and the home's equity backs the HELOC later.</p>
             <div class="split">
               <div class="side-controls">
                 <div class="control"><label>Property value <span class="val" id="v-propValue">$1,100,000</span></label><input type="range" id="propValue" min="50000" max="3000000" step="10000" value="1100000"></div>
@@ -938,7 +990,7 @@
         <details class="lock-step" id="lockStep4">
           <summary><span class="lock-step-title"><span class="lock-step-arrow">▾</span><span class="lock-step-num">4</span>AIUL — the policy that runs the real plan</span><span class="lock-step-actions"><button type="button" class="toggle-btn lock-edit-btn" data-lock="4">Edit</button><button type="button" class="toggle-btn active lock-confirm-btn" data-lock="4">Confirm</button></span></summary>
           <div class="lock-step-body">
-            <p class="topic-exp">This is the real funding Section&nbsp;3/4 runs on — separate from Section&nbsp;2's illustration above. Total premium, whether it doubles as your tax reserve, when it stops, how long it's been in force, and the age a chronic-illness claim starts.</p>
+            <p class="topic-exp">This is the real funding Section&nbsp;5/6 runs on — separate from Section&nbsp;2's illustration above. Total premium, whether it doubles as your tax reserve, when it stops, how long it's been in force, and the age a chronic-illness claim starts.</p>
             <div class="split">
               <div class="side-controls">
                 <div class="control"><label>Total annual premium <span class="val" id="v-lockPolPremium">$0</span></label><input type="range" id="lockPolPremium" min="0" max="100000" step="1000" value="0"></div>
@@ -953,7 +1005,7 @@
               </div>
               <div class="side-results">
                 <div class="ledger">
-                  <div class="lline total"><span>Total funding this plan runs on <span class="lbl-sub">Premium + tax reserve if selected — this is what Section 3/4 actually uses</span></span><span class="amt" id="s-lockTotalPremium">–</span></div>
+                  <div class="lline total"><span>Total funding this plan runs on <span class="lbl-sub">Premium + tax reserve if selected — this is what Section 5/6 actually uses</span></span><span class="amt" id="s-lockTotalPremium">–</span></div>
                 </div>
               </div>
             </div>
@@ -1109,7 +1161,7 @@
           <div class="alis-rec-why" id="journey-why"></div>
           <button type="button" class="float-cta journey-next" id="journey-next">Next →</button>
         </div>
-        <p class="topic-exp" style="margin-top:16px;">Or flip tools freely — ALIS re-plans with whatever's on. <b>This is the exact same switch as the "✓ In the plan" button on that tool's own topic above</b> — flip it here or there, it's one setting either way. Turning a tool back on doesn't reset it: it picks up your real numbers from Section&nbsp;1/2 (today's mortgage balance, 401(k) balance, or policy cash value) right where they stand, growing forward from there — not from zero. The only time it genuinely starts at $0 is if there was never a real balance to begin with (a 401(k) you haven't opened yet, say) — the plan flags that explicitly wherever it applies, same as any other honest number here.</p>
+        <p class="topic-exp" style="margin-top:16px;">Or flip tools freely — ALIS re-plans with whatever's on. <b>This is the exact same switch as the "✓ In the plan" button on that tool's own topic above</b> — flip it here or there, it's one setting either way. Turning a tool back on doesn't reset it: it picks up your real numbers from where you set them earlier in the plan (today's mortgage balance, 401(k) balance, or policy cash value) right where they stand, growing forward from there — not from zero. The only time it genuinely starts at $0 is if there was never a real balance to begin with (a 401(k) you haven't opened yet, say) — the plan flags that explicitly wherever it applies, same as any other honest number here.</p>
         <div class="toggle-row" id="toolBar">
           <button type="button" class="toggle-btn active" data-tool="velocity">Velocity chunking</button>
           <button type="button" class="toggle-btn active" data-tool="bizcredit">0% biz credit</button>
@@ -1138,8 +1190,8 @@
 
     <!-- 4. OPPORTUNITIES -->
     <section class="sec">
-      <span class="sec-num">Section 4</span>
-      <h2>Opportunities — optimize it harder</h2>
+      <span class="sec-num">Section 6</span>
+      <h2>Risk Management — stress-test &amp; opportunities</h2>
       <p class="sub">What ALIS sees beyond the current plan: tax paid that another write-off could claw back, suspended losses waiting on a qualifying fact, room that could fund another property, and anything the plan flagged. Every number here is a real run of your plan — illustrations to explore, not individual advice.</p>
 
       <div class="topic">
@@ -1280,6 +1332,17 @@
 
 <script>
 (function(){
+  // NOTE (2026-07-09 section reorg): Section 1 ("The Leverage Game") absorbed the old "Your
+  // numbers" section — no longer separate. The old "Reserves & tools" section split into three
+  // standalone sector sections: Section 2 (Insurance), Section 3 (Funding), Section 4 (Equity).
+  // Retirement is now Section 5 ("Wealth Creation"), Opportunities is now Section 6 ("Risk
+  // Management"). Function names were NOT renamed to match (too large a refactor) —
+  // renderSection1() renders mortgage math that now displays in Section 1; renderSection2()
+  // renders BOTH income/tax content (Section 1) AND rental-property content (Section 4);
+  // renderSection3() renders policy content that now displays as Section 2; renderSection5()
+  // (the plan engine) renders both what's displayed as Section 5 AND Section 6's stress
+  // test/opportunities. Go by the DOM's .sec-num badges, not function names, when locating a
+  // section in code.
   const fmt0 = new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0});
   const $ = id => document.getElementById(id);
   // Compact currency for the order-comparison chips ($3.4M, $935K).
@@ -1713,9 +1776,9 @@
   let repActive = false;
 
   const R = { taxSavings: 0, interestSaved: 0, cashValue: 0, monthsSaved: 0, stackingExtraMonths: 0, stackingExtraInterest: 0 };
-  // Shared with Section 4: Section 3's policy inputs, so Phase 3 can grow the same policy forward.
+  // Shared with Section 6: Section 5's policy inputs, so Phase 3 can grow the same policy forward.
   const P = { annualPremium: 0, credRate: 0, polYears: 1, loanType: 'auto', startCV: 0 };
-  // Shared with Section 4: the Section 2 rental property's economics, so the retirement blend can
+  // Shared with Section 6: the Section 4 rental property's economics, so the retirement blend can
   // count its net cash flow and use its depreciation to shield qualified withdrawals from tax.
   const RE = { invPrice: 1100000, invApprec: 0.04, ongoingDep: 0, netRent: 0, taxableRent: 0 };
   let propLocation = 'hawaii';
@@ -1753,7 +1816,7 @@
   // Compound the glide-blended return over a span (deterministic growth + the conversion
   // heuristic's look-ahead to RMD age both need this instead of a flat Math.pow).
   function qmGrow(fromAge, nYrs, mkt){ let f = 1; for (let a = 0; a < nYrs; a++) f *= 1 + qmRet(fromAge + a, mkt); return f; }
-  // Shared with Section 4: the Section 1 mortgage as it stands today (set by renderSection1).
+  // Shared with Section 6: the Section 1 mortgage as it stands today (set by renderSection1).
   let M1 = null;
   // Which retirement strategy / contribution allocation the user is viewing; null = ALIS's pick.
   let viewOrderKey = null;
@@ -1769,7 +1832,7 @@
   let JOURNEY_BASELINE = null;   // snapshot of step 0 (no tools) — the full-picture step diffs against this
 
   // --- Investment properties: scheduled FUTURE purchases, funded from what the plan builds ---
-  // Property #1 is driven by the Section-2 sliders (price, down, rate, yield, location, write-off);
+  // Property #1 is driven by the Section-4 sliders (price, down, rate, yield, location, write-off);
   // extras are compact cards. At each property's purchase age the down payment draws real capacity
   // from the chosen vehicle (HELOC room or a policy loan). If the room isn't there, the purchase
   // honestly fails — recorded and shown, never silently pretended.
@@ -1854,7 +1917,7 @@
     $('v-yearsPaid').textContent = yearsPaid+' yrs';
     $('v-monthsPaid').textContent = monthsPaid+' mo';
     // Section 1's mortgage topic mirrors these same values (regression fix, 2026-07-08 — Section 1
-    // lost its inputs when they moved into the Section-3 wizard; restored as synced mirrors instead
+    // lost its inputs when they moved into the Section-5 wizard; restored as synced mirrors instead
     // of moving them back, so the wizard's already-wired primaries stay untouched).
     $('propValue1').value = propValue; $('v-propValue1').textContent = fmt0.format(propValue);
     $('principal1').value = principal; $('v-principal1').textContent = fmt0.format(principal);
@@ -1902,7 +1965,7 @@
 
     drawChart(baseline, accel);
 
-    // Shared with Section 4's contribution allocator: the mortgage as it stands TODAY.
+    // Shared with Section 5's contribution allocator: the mortgage as it stands TODAY.
     M1 = { curBal, monthlyPay: origPay, ratePct: rate, remYears };
 
     R.interestSaved = interestSaved;
@@ -1960,7 +2023,7 @@
     } else {
       usableLoss = Math.min(year1Deduction, usableAllowance + otherPassive);
       capStatusText = 'Limited by your income';
-      capStatusSub = otherPassive > 0 ? 'Way 3 — other rental income is helping' : 'Section 4 shows three ways to unlock it';
+      capStatusSub = otherPassive > 0 ? 'Way 3 — other rental income is helping' : 'Section 6 shows three ways to unlock it';
     }
     const suspendedLoss = Math.max(year1Deduction - usableLoss, 0);
     $('s-capStatus').textContent = capStatusText;
@@ -2024,7 +2087,7 @@
     R.potentialTaxSavings = potentialTaxSavings;
     R.income = income; R.usableLoss = usableLoss; R.suspendedLoss = suspendedLoss; R.year1Deduction = year1Deduction;
 
-    // ---- Rental income (location-priced) + depreciation shield → exported to Section 4 ----
+    // ---- Rental income (location-priced) + depreciation shield → exported to Section 6 ----
     const grossYield = (+$('grossYield').value)/100;
     const opex = (+$('opex').value)/100;
     const invApprec = (+$('invApprec').value)/100;
@@ -2069,15 +2132,15 @@
     const polYears = +$('polYears').value;
     $('v-polPremiumAnnual').textContent = fmt0.format(basePremium);
     $('withholdingInline').innerHTML = addWithholding
-      ? 'Your tax withholding (Section&nbsp;3 lock-in wizard): <b>'+fmt0.format(withheldAmt)+'</b> — added on top. Total: <b>'+fmt0.format(basePremium+withheldAmt)+'</b>/yr.'
-      : 'Your tax withholding (Section&nbsp;3 lock-in wizard): <b>'+fmt0.format(withheldAmt)+'</b> — turn on "Use as tax reserve vehicle" below to add it on top.';
+      ? 'Your tax withholding (Section&nbsp;5 lock-in wizard): <b>'+fmt0.format(withheldAmt)+'</b> — added on top. Total: <b>'+fmt0.format(basePremium+withheldAmt)+'</b>/yr.'
+      : 'Your tax withholding (Section&nbsp;5 lock-in wizard): <b>'+fmt0.format(withheldAmt)+'</b> — turn on "Use as tax reserve vehicle" below to add it on top.';
     $('btn-addWithholding').classList.toggle('active', addWithholding);
     $('btn-addWithholding').textContent = addWithholding ? '✓ Using as tax reserve vehicle' : 'Use as tax reserve vehicle';
     $('btn-addWithholding2').classList.toggle('active', addWithholding);
     $('btn-addWithholding2').textContent = addWithholding ? '✓ Using as tax reserve vehicle' : 'Use as tax reserve vehicle';
     $('addWithholdingNote').innerHTML = addWithholding
-      ? 'On: <b>'+fmt0.format(withheldAmt)+'</b> of tax withholding (Section&nbsp;3\'s lock-in wizard) is added on top of the premium above every year — that\'s the redirect this policy is built to hold. <b>This choice carries through to Section 3/4\'s real plan.</b>'
-      : 'Off: the policy runs on just the premium above. Turn this on to add your current tax withholding (Section&nbsp;3\'s lock-in wizard) on top and see what redirecting it — instead of sending it to the IRS all year — does to the policy and the tax bill below. <b>This choice carries through to Section 3/4\'s real plan.</b>';
+      ? 'On: <b>'+fmt0.format(withheldAmt)+'</b> of tax withholding (Section&nbsp;5\'s lock-in wizard) is added on top of the premium above every year — that\'s the redirect this policy is built to hold. <b>This choice carries through to Section 5/6\'s real plan.</b>'
+      : 'Off: the policy runs on just the premium above. Turn this on to add your current tax withholding (Section&nbsp;5\'s lock-in wizard) on top and see what redirecting it — instead of sending it to the IRS all year — does to the policy and the tax bill below. <b>This choice carries through to Section 5/6\'s real plan.</b>';
     $('v-credRate').textContent = credRate.toFixed(2)+'%';
     document.querySelectorAll('.cred-preset').forEach(b =>
       b.classList.toggle('active', Math.abs(credRate - parseFloat(b.dataset.cred)) < 0.005));
@@ -2206,7 +2269,7 @@
     $('btn-washLoan').textContent = 'Standard ("wash") loan — '+washCharged(polYears).toFixed(2)+'% cost / '+washCredited(polYears).toFixed(2)+'% credited'+(polYears>=11?' (true wash)':'');
 
     // --- The REAL plan's funding (2026-07-07): a separate premium, locked in at the start of
-    // Section 3 — decoupled from Section 2's illustration above. Only years-in-force and the
+    // Section 5 — decoupled from Section 2's illustration above. Only years-in-force and the
     // tax-reserve-vehicle choice are actually SHARED with Section 2 (Bruce's call); the premium
     // itself, stop age and claim age are fresh inputs entered in the lock-in wizard.
     const lockBasePremium = +$('lockPolPremium').value;
@@ -2229,14 +2292,14 @@
     P.cumPremStart = realCumPrem;
     P.polSt = stReal;
     // Cash value accumulated by retirement start (premiums stop at retirement; it keeps
-    // compounding at crediting from here). This is the policy vehicle's starting cash value in Section 4.
+    // compounding at crediting from here). This is the policy vehicle's starting cash value in Section 5.
     P.startCV = realCashValue;
     $('v-polStart').textContent = fmt0.format(realCashValue);
     renderSection5();
   }
 
 
-  // --- Retirement tax-optimal blend engine (Section 4) ---
+  // --- Retirement tax-optimal blend engine (Section 6) ---
   // Objective: fund one inflation-adjusted lifestyle for the most years at the least lifetime tax.
   // Each year the rental pays first; qualified money is DRIPPED only up to a chosen tax ceiling
   // (the rental's leftover depreciation shields the first dollars); the tax-free HELOC + policy
@@ -2714,7 +2777,7 @@
   // --- Accumulation engine: grows today's balances to retirement under one contribution split ---
   // fr = {qm, chunk, policy} fractions summing to 1. Real mechanics: qualified is pre-tax (refund
   // recycles into next year's pool) but IRS-capped; the policy uses the REAL premium expense charge
-  // schedule (7%/6%/2%, continuing the policy-year count from Section 3); chunks attack the
+  // schedule (7%/6%/2%, continuing the policy-year count from Section 5); chunks attack the
   // Section-1 mortgage (0% stacking lands the first 5 years' chunks before interest accrues); a
   // paid-off mortgage frees its whole P&I into the pool; overflow reroutes to the policy.
   function accumulate(fr, acc){
@@ -2726,9 +2789,9 @@
     props.forEach(p => { if (p.ownedFromStart){ p.owned = true; p.mortBal = p.price*(1-p.downPct); p.mPay = monthlyPayment(p.mortBal, p.ratePct, 30); } });
     let helocBal = 0, helocWindowEndY = null, refiBal = 0, refiPay = 0;
     let polLoan = 0, cvLoanAcct = 0, passiveCarry = 0, shortfall = 0, polService = 0;
-    let cumPrem = acc.cumPrem0 || 0;   // premiums paid before today (Section 3) + each build year's
+    let cumPrem = acc.cumPrem0 || 0;   // premiums paid before today (Section 5) + each build year's
     // Policy DB state (increasing→level switch can fire during the build years too); starts from
-    // Section 3's today-state and is handed on to the retirement engine at the end.
+    // Section 5's today-state and is handed on to the retirement engine at the end.
     const polSt = mkPolState(acc.polSt0);
     const purchases = [];
     const timeline = [];   // year-by-year playbook rows for the accumulation phase
@@ -2954,7 +3017,7 @@
     $('v-currentAge').textContent = currentAge;
     $('v-retireAge').textContent = retireAge;
     $('v-planAge').textContent = planAge;
-    // Retirement age / plan-through age now live ONLY in Section 3 (removed from Section 1 to
+    // Retirement age / plan-through age now live ONLY in Section 5 (removed from Section 1 to
     // declutter, 2026-07-07) — currentAge is still mirrored since it lives in both places.
     $('currentAge2').value = currentAge; $('v-currentAge2').textContent = currentAge;
     $('currentAge1').value = currentAge; $('v-currentAge1').textContent = currentAge;
@@ -2990,12 +3053,12 @@
     $('veh1Row').style.display = buyAge1 <= currentAge ? 'none' : '';
     const propsDef = buildProps(currentAge, planAge);
     // Passive-loss allowance at today's income — how much of a property paper loss offsets W-2
-    // income each working year (mirrors Section 2's cap math; the rest carries forward).
+    // income each working year (mirrors Section 4's cap math; the rest carries forward).
     const magiNow = +$('income').value;
     const allowanceNow = magiNow <= 100000 ? 25000 : magiNow >= 150000 ? 0 : 25000 - (magiNow-100000)*0.5;
 
     // Retirement inputs given one accumulation outcome. Policy year keeps counting from wherever
-    // Section 3's "years accumulated" left off, through every accumulation year, into retirement —
+    // Section 5's "years accumulated" left off, through every accumulation year, into retirement —
     // real premium-charge and Standard-loan rates depend on this running total, not a fresh clock.
     const policyYearAtRetireStart = P.polYears + accYears;
     const mkInp = (a, ceil, spendVal, defs) => ({
@@ -3026,7 +3089,7 @@
                           : optimizeMode === 'income' ? r.totalExtracted
                           : r.legacy + r.totalExtracted;
     // Tools off reshape the starting position too: no mortgage = home owned outright (full HELOC
-    // room, no P&I, no chunk target); no policy = no Section-3 cash value; no 401(k) = no balance.
+    // room, no P&I, no chunk target); no policy = no Section-5 cash value; no 401(k) = no balance.
     const acc0 = {
       years: accYears, currentAge, contribution: annualContrib,
       stacking: TOOLS.bizcredit && TOOLS.velocity, mtr, toolPolicy: TOOLS.policy, toolHeloc: TOOLS.heloc && TOOLS.mortgage,
@@ -3425,7 +3488,7 @@
     $('s-tax').textContent = fmt0.format(chosen.lifetimeTax);
     // Note: s-ltcMonthly/s-ltcTotal/s-ltcDBEnd are Section 2's SANDBOX preview now (written in
     // renderSection3, from the illustrative design) — the real plan's rider draws still show in
-    // Section 3's estate topic (s-ltcCoverage, from chosen.rec.ltc, below).
+    // Section 5's estate topic (s-ltcCoverage, from chosen.rec.ltc, below).
 
     // ---- Properties block ----
     $('s-rentLocSub').textContent = propsDef.length > 1
@@ -3589,7 +3652,7 @@
                    legacy: chosen.legacy, tax: chosen.lifetimeTax, extracted: chosen.totalExtracted,
                    wealth: chosen.legacy + chosen.totalExtracted, spend: todaySpend };
 
-    // ---- Section 4: computed opportunities. Every number is a REAL run of the member's plan —
+    // ---- Section 6: computed opportunities. Every number is a REAL run of the member's plan —
     // illustrations to explore (education), never "you should". Tiles + short lines, not prose.
     (function renderOpps(){
       const el = $('oppsDash'); if (!el) return;
@@ -3626,12 +3689,12 @@
         const newAcl = ACL_PER_FACE * (curFace + dbGap);   // ACL scales linearly with face — same constant as mkPolCost
         const aclGain = Math.max(newAcl - curPc.acl, 0);
         tiles.push({ label:'Death benefit vs. debt gap', val: fmtCompact(dbGap), risk:true });
-        lines.push('<b>'+fmt0.format(dbGap)+'</b> of home'+(reGap>500?' + rental':'')+' debt isn’t covered by the policy’s net death benefit or the property’s own value — it comes straight out of legacy. Buy-borrow-die angle: about <b>'+fmt0.format(Math.round(addPremium/250)*250)+'/yr</b> more into the policy would grow its face by roughly that gap at your age/sex ratio (the cash value then stacks the death benefit even higher while it stays increasing), and would raise the advance contribution limit by about <b>'+fmt0.format(Math.round(aclGain/100)*100)+'/yr</b> — more room to route qualified money in before the overfunding charge kicks in. A later increasing→level switch year (Section 2) also keeps the death benefit growing longer, at a real insurance cost ALIS already prices. Illustration only, not underwriting or advice.');
+        lines.push('<b>'+fmt0.format(dbGap)+'</b> of home'+(reGap>500?' + rental':'')+' debt isn’t covered by the policy’s net death benefit or the property’s own value — it comes straight out of legacy. Buy-borrow-die angle: about <b>'+fmt0.format(Math.round(addPremium/250)*250)+'/yr</b> more into the policy would grow its face by roughly that gap at your age/sex ratio (the cash value then stacks the death benefit even higher while it stays increasing), and would raise the advance contribution limit by about <b>'+fmt0.format(Math.round(aclGain/100)*100)+'/yr</b> — more room to route qualified money in before the overfunding charge kicks in. A later increasing→level switch year (Section 3) also keeps the death benefit growing longer, at a real insurance cost ALIS already prices. Illustration only, not underwriting or advice.');
       }
       allPurch.filter(x => !x.ok).forEach(r => {
         const p = propsDef.find(pp => pp.idx === r.idx); if (!p) return;
         const room = p.vehicle === 'heloc' ? r.roomHeloc : r.roomPolicy;
-        lines.push('Property #'+(r.idx+1)+' doesn’t fit at age '+r.age+' — that '+(p.vehicle==='heloc'?'HELOC':'policy')+' room ('+fmtCompact(room)+') funds up to a <b>'+fmtCompact(room / p.downPct)+'</b> property. Try a later age, more room, or the other vehicle (Section 1).');
+        lines.push('Property #'+(r.idx+1)+' doesn’t fit at age '+r.age+' — that '+(p.vehicle==='heloc'?'HELOC':'policy')+' room ('+fmtCompact(room)+') funds up to a <b>'+fmtCompact(room / p.downPct)+'</b> property. Try a later age, more room, or the other vehicle (Section 4).');
       });
       // What-if: one more property, sized to the room ACTUALLY available 3 years into retirement —
       // a probe run reads the real capacity, then the candidate runs through the full plan.
@@ -3666,7 +3729,7 @@
               if (bought && best2.sustainable){
                 const dWealth = (best2.legacy + best2.totalExtracted) - (optimal.legacy + optimal.totalExtracted);
                 const dTax = best2.lifetimeTax - optimal.lifetimeTax;
-                lines.push('<b>One more property would fit:</b> a ~'+fmtCompact(price)+' mainland rental at age '+probeAge+', 25% down via the '+(useHeloc?'HELOC':'policy')+' — total wealth '+(dWealth>=0?'+':'−')+fmtCompact(Math.abs(dWealth))+', lifetime tax '+(dTax>=0?'+':'−')+fmtCompact(Math.abs(dTax))+'. '+(dWealth > 25000 ? 'Worth a look — add it in Section 1 to make it real.' : 'At your numbers it doesn’t clearly pay — shown so you can see that honestly.'));
+                lines.push('<b>One more property would fit:</b> a ~'+fmtCompact(price)+' mainland rental at age '+probeAge+', 25% down via the '+(useHeloc?'HELOC':'policy')+' — total wealth '+(dWealth>=0?'+':'−')+fmtCompact(Math.abs(dWealth))+', lifetime tax '+(dTax>=0?'+':'−')+fmtCompact(Math.abs(dTax))+'. '+(dWealth > 25000 ? 'Worth a look — add it in Section 4 to make it real.' : 'At your numbers it doesn’t clearly pay — shown so you can see that honestly.'));
                 break;
               }
             }
@@ -3753,6 +3816,303 @@
     };
   }
 
+  // --- Section 1 journey intro: "savings only vs. all tools deployed" demo (2026-07-08) ---
+  // A one-time, page-load-only comparison for the new Section 1 orientation content, built
+  // ENTIRELY from the "established (40s)" AGE_PRESETS bracket (age 45, $180K income, $40K/yr
+  // contribution, retire 65, plan through 90) — NOT the member's own numbers, since this section
+  // runs before they've entered anything. Every input below is an explicit local constant; nothing
+  // reads $() or any live DOM/TOOLS/P/M1/LOAN_RESOLVED state, so this can never be affected by (or
+  // interfere with) the member's real plan built elsewhere on the page.
+  const DEMO = {
+    currentAge: 45, sex: 'male', filingStatus: 'single',
+    // qmBalance is AGE_PRESETS' own real starting 401(k) for this bracket ($500K) — used as the
+    // SHARED starting balance on BOTH paths below (demoAcc0's qm0, and Path 1's savBal in
+    // computeDemoComparison()): a realistic existing-assets starting point this profile already
+    // has today regardless of which strategy they pick going forward, not a free head start one
+    // side gets and the other doesn't.
+    income: 180000, annualContrib: 40000, qmBalance: 500000, qmGrowth: 0.1002,
+    retireAge: 65, planAge: 90, todaySpend: 120000, inflation: 0.03,
+    propValue: 900000, principal: 600000, mortRatePct: 6.43, term: 30, yearsPaid: 5,
+    invPrice: 800000, invRatePct: 7.18, downPct: 0.25, apprec: 0.04, homeApprec: 0.0444,
+    writeOffPct: 0.20, credRate: 0.0640, coiPct: 70, helocRate: 0.0746, maxLtv: 0.85,
+    ltcStartAge: 80, aiulStopAge: 100
+  };
+
+  // Pure parallel of mkPolCost() (line ~1540) — identical math, but takes its inputs as explicit
+  // parameters instead of reading $('currentAge')/$('coiPct') off the live page. Switch age
+  // defaults to DEMO.retireAge but can be overridden (switchAgeOverride, incl. null = "never") —
+  // computeDemoComparison() below runs a small candidate-age search on the winning allocation,
+  // the same evalSwitchAt/candAges pattern ALIS itself uses (line ~3211), instead of hardcoding
+  // one age: a cross-check found real profiles where ALIS's own optimum is "never switch," and
+  // fixing this demo at retireAge alone left a real, measurable (~4-5% on this profile) gap
+  // against what the live page actually shows for the identical inputs.
+  function demoMkPolCost(annualPolPremium, switchAgeOverride){
+    const F = facePerPremium(DEMO.currentAge, DEMO.sex) * Math.max(annualPolPremium, 0);
+    return { faceBase: FACE_BASE_SHARE * F, faceSuppl: (1 - FACE_BASE_SHARE) * F,
+             coiPct: DEMO.coiPct, acl: Math.max(ACL_PER_FACE * F, 1),
+             switchAge: switchAgeOverride !== undefined ? switchAgeOverride : DEMO.retireAge };
+  }
+
+  // The one rental property this preset carries — same shape buildProps() produces, built directly
+  // from DEMO's constants instead of $(). NOI/apprec match the live page's own OUT-OF-BOX rental
+  // defaults exactly (2026-07-08 fix — an earlier draft used generic 7%/35%/flat-1.1%-tax/4.44%
+  // stand-ins that made this standalone preview diverge from what the real page shows for the
+  // identical profile; verified byte-for-dollar against the live page below): a 4.5% gross rental
+  // yield, a 32% operating-expense ratio, and the file's own propertyTax() on its 'hawaii' branch
+  // (Honolulu Residential A tiers) — the page's own default location (propLocation module default,
+  // untouched by AGE_PRESETS for this bracket).
+  const demoGrossRent = DEMO.invPrice * 0.045;
+  const demoOpexAmt = demoGrossRent * 0.32;
+  const demoPropTax = propertyTax(DEMO.invPrice, 'hawaii');
+  const demoNoi0 = demoGrossRent - demoOpexAmt - demoPropTax;
+  const demoDepBonus = DEMO.invPrice * DEMO.writeOffPct;
+  const demoDepOngoing = Math.max(DEMO.invPrice*0.8 - demoDepBonus, 0) / 27.5;
+  // A FUTURE purchase, matching AGE_PRESETS' own "established (40s)" bracket exactly
+  // (buyAgePlus: 8, line ~1693) — bought at age 53, 8 years into the plan, funded by HELOC/policy
+  // capacity the other tools build up first. That's the actual leverage mechanism the new Section
+  // 1 "gap in the market" copy is about — acquire income-producing assets using capacity you
+  // built, not cash you already had — so this demo shouldn't hand the property over for free on
+  // day one. `vehicle: 'heloc'` matches this file's own `veh1` module default (line ~1823);
+  // accumulate() reads it to fund the down payment from real HELOC room when buyAge arrives.
+  // 25% down is a reasonable, common investment-property assumption — it isn't one of AGE_PRESETS'
+  // own fields, but it does match this file's own downPct slider default.
+  const demoPropsDef = [{ idx:0, buyAge: DEMO.currentAge + 8, price: DEMO.invPrice, downPct: DEMO.downPct,
+    ratePct: DEMO.invRatePct, vehicle: 'heloc', noi0: demoNoi0, apprec: DEMO.apprec,
+    depBonus: demoDepBonus, depOngoing: demoDepOngoing, ownedFromStart: false }];
+
+  const demoAccYears = DEMO.retireAge - DEMO.currentAge;   // 20 build years
+  const demoHorizon = DEMO.planAge - DEMO.retireAge;        // 25 retirement years
+  const demoMtr = marginalRatePct(DEMO.income, DEMO.filingStatus)/100;
+  // $180K single sits above the $150K MAGI cutoff, so — same as a real member at this income with
+  // no Way 1/2 election — the depreciation write-off is suspended and carries forward rather than
+  // landing this year; this demo doesn't turn Way 1/2/3 on (no qualifying fact is true "by default"
+  // for a generic illustration).
+  const demoAllowanceNow = DEMO.income >= 150000 ? 0 : 25000;
+
+  // The mortgage as it stands today, replicated exactly via the file's own monthlyPayment() (same
+  // method renderSection1() uses): payment from the ORIGINAL terms, balance amortized forward the
+  // preset's 5 years paid-in.
+  const demoMortPay = monthlyPayment(DEMO.principal, DEMO.mortRatePct, DEMO.term);
+  const demoMortMr = (DEMO.mortRatePct/100)/12;
+  let demoMortBal = DEMO.principal;
+  for (let m=0; m<DEMO.yearsPaid*12 && demoMortBal>0.5; m++){ demoMortBal = demoMortBal*(1+demoMortMr) - demoMortPay; }
+  demoMortBal = Math.max(demoMortBal, 0);
+
+  // Pure parallel of the real acc0 shape (line ~3034) — loanType is the only field that varies
+  // between calls (ALIS tries both real loan types on the winning allocation, below).
+  function demoAcc0(loanTypeVal){
+    return {
+      years: demoAccYears, currentAge: DEMO.currentAge, contribution: DEMO.annualContrib,
+      stacking: true, mtr: demoMtr, toolPolicy: true, toolHeloc: true,
+      qm0: DEMO.qmBalance, // same shared starting balance as the savings-only path — see the note on DEMO.qmBalance above
+      qmGrowth: DEMO.qmGrowth,
+      cv0: 0, credRate: DEMO.credRate, polYearsStart: 0,
+      mortBal: demoMortBal, mortRatePct: DEMO.mortRatePct, mortMonthlyPay: demoMortPay,
+      props: demoPropsDef, homeValue0: DEMO.propValue, maxLtv: DEMO.maxLtv, helocRate: DEMO.helocRate,
+      loanType: loanTypeVal, allowanceNow: demoAllowanceNow, shieldUnlimited: false,
+      polCost: null, cumPrem0: 0, polSt0: null,
+      toolQualified: true, aiulStopAge: DEMO.aiulStopAge
+    };
+  }
+
+  // Pure parallel of mkInp() (line ~3005) — same shape, built entirely from DEMO's constants and
+  // the accumulation-phase result `a`, instead of reading globals (TOOLS/P/M1/LOAN_RESOLVED) or $().
+  function demoMkInp(a, ceil, loanTypeVal){
+    return {
+      todaySpend: DEMO.todaySpend, inflation: DEMO.inflation, qmBalance: a.qmStart, qmGrowth: DEMO.qmGrowth,
+      helocRate: DEMO.helocRate, homeValue: DEMO.propValue, reGrowth: DEMO.homeApprec, maxLtv: DEMO.maxLtv,
+      retireAge: DEMO.retireAge, horizon: demoHorizon, policyYearAtRetireStart: demoAccYears,
+      startCV: a.cvStart, credRate: DEMO.credRate, loanType: loanTypeVal, filingStatus: DEMO.filingStatus,
+      toolHeloc: true, toolPolicy: true,
+      props: demoPropsDef.map(p => {
+        const st = (a.propsState||[]).find(s => s.idx === p.idx) || { owned:false, mortBal:0, mPay:0 };
+        return { idx:p.idx, buyT: p.buyAge - DEMO.retireAge, price:p.price, downPct:p.downPct, ratePct:p.ratePct,
+                 vehicle:p.vehicle, noi0:p.noi0, apprec:p.apprec, depBonus:p.depBonus, depOngoing:p.depOngoing,
+                 owned: st.owned, mortBal: st.mortBal, mPay: st.mPay };
+      }),
+      helocBal0: a.helocBal0||0, helocWindowEnd0: (a.helocWindowEnd0 != null ? a.helocWindowEnd0 : null),
+      refiBal0: a.refiBal0||0, refiMonthlyPay0: a.refiMonthlyPay0||0,
+      loanBal0: a.loanBal0||0, cvLoanAcct0: a.cvLoanAcct0||0, passiveCarry0: a.passiveCarry0||0,
+      mortBalRet: a.mortBalRet, mortRatePct: DEMO.mortRatePct, mortMonthlyPay: demoMortPay,
+      shieldCap: 25000, ceiling: { single: ceil.single, mfj: ceil.mfj },
+      polCost: (a.pcUsed !== undefined ? a.pcUsed : null), cumPrem0: (a.cumPremEnd || 0),
+      polSt0: a.polStEnd || null,
+      ltcOn: true, ltcRatePct: 1, ltcStartAge: DEMO.ltcStartAge
+    };
+  }
+
+  // Quantizes a dollar metric to the same precision the page's own display rounds to ($100K
+  // steps at/above $1M, $1K below) before ranking — exact copy of the real quant() (line ~3058).
+  const demoQuant = v => v >= 1e6 || v <= -1e6 ? Math.round(v/1e5)*1e5 : Math.round(v/1e3)*1e3;
+  // Ranks two simulateStrategy() runs EXACTLY the way the real objSort (line ~3101) does —
+  // replicated in full, not just its sustainable-first primary key (an earlier draft of this
+  // demo skipped the quant()/legacy/years tie-break chain as a disclosed simplification, but a
+  // cross-check against the live page found that among UNSUSTAINABLE candidates — the entire
+  // feasible set for some profiles — that tie-break chain routinely picks a DIFFERENT winning
+  // allocation than "maximize raw legacy+totalExtracted" does, which is a real, provable gap
+  // against what the live page actually shows, not just cosmetic rounding): sustainable beats
+  // unsustainable; then quantized legacy+totalExtracted (modeMetric() for optimizeMode 'both');
+  // then raw legacy; then years funded.
+  function demoBetter(runA, runB){
+    if (runA.sustainable !== runB.sustainable) return runA.sustainable;
+    const qA = demoQuant(runA.legacy + runA.totalExtracted), qB = demoQuant(runB.legacy + runB.totalExtracted);
+    if (qA !== qB) return qA > qB;
+    if (runA.legacy !== runB.legacy) return runA.legacy > runB.legacy;
+    return runA.years > runB.years;
+  }
+
+  // Runs every candidate contribution split (ALL three vehicles: qualified/chunk/policy, in
+  // tenths) through the real accumulate() → simulateStrategy() pipeline, exactly like gridAt()
+  // (line ~3071) does for the member's real plan, ranked via the full demoBetter() above.
+  // Called with step=1 (10% increments, 66 combos × up to 7 strat/pace runs each — still trivial
+  // at page-load, one-time cost): an earlier draft used step=2 (20% increments) to "keep this
+  // fast," but that silently made allocations like 70%/0%/30% impossible to ever select — a
+  // cross-check against the live page found its own step=1 search landing on exactly such a
+  // split for a real profile, which a coarser demo grid could never reproduce no matter how good
+  // its ranking was. The parameter is kept (not hardcoded) so a future caller can still trade
+  // precision for speed if this ever needs to run reactively instead of once.
+  function demoGridSearch(loanTypeVal, step, switchAgeVal){
+    let best = null;
+    for (let q=0; q<=10; q+=step){
+      for (let c=0; c<=10-q; c+=step){
+        const p = 10-q-c;
+        const fr = { qm:q/10, chunk:c/10, policy:p/10 };
+        const pcSplit = demoMkPolCost(DEMO.annualContrib * fr.policy, switchAgeVal);
+        const a = accumulate(fr, Object.assign({}, demoAcc0(loanTypeVal), { polCost: pcSplit }));
+        a.pcUsed = pcSplit;
+        for (const strat of STRATS){
+          const paces = strat.blend ? CEIL : [CEIL[1]];
+          for (const ceil of paces){
+            const run = simulateStrategy(strat, demoMkInp(a, ceil, loanTypeVal));
+            if (!best || demoBetter(run, best.run)) best = { val: run.legacy + run.totalExtracted, fr, run };
+          }
+        }
+      }
+    }
+    return best;
+  }
+
+  // Runs one (fr, loanType, switchAge) combo through accumulate() → simulateStrategy() across
+  // every STRATS/CEIL pace and keeps the demoBetter() winner — the shared building block both the
+  // loan-type and switch-age search stages below use, so they stay byte-for-byte consistent with
+  // demoGridSearch's own per-candidate evaluation.
+  function demoRunAt(fr, loanTypeVal, switchAgeVal){
+    const pcSplit = demoMkPolCost(DEMO.annualContrib * fr.policy, switchAgeVal);
+    const a = accumulate(fr, Object.assign({}, demoAcc0(loanTypeVal), { polCost: pcSplit }));
+    a.pcUsed = pcSplit;
+    let best = null;
+    for (const strat of STRATS){
+      const paces = strat.blend ? CEIL : [CEIL[1]];
+      for (const ceil of paces){
+        const run = simulateStrategy(strat, demoMkInp(a, ceil, loanTypeVal));
+        if (!best || demoBetter(run, best.run)) best = { val: run.legacy + run.totalExtracted, run };
+      }
+    }
+    return best;
+  }
+
+  // One-time computation, run once at page load (see the init calls at the bottom of this script),
+  // for the new Section 1 "see the gap" card. Never allowed to break the rest of the page: any
+  // failure here is caught and logged, leaving the card's honest "—" fallback text in place instead
+  // of throwing.
+  function computeDemoComparison(){
+    try {
+      // --- Path 1: savings only, no tools — the SAME existing $500K balance (DEMO.qmBalance —
+      // real assets this profile already has today, same shared starting point Path 2 below uses
+      // via demoAcc0's qm0) and the SAME annual contribution, just left compounding in a
+      // savings/CD account at today's best available rate (4.00%, Bankrate, July 2026 — not the
+      // ~1.8-2% "national average," which understates what anyone actually shopping around gets),
+      // then drawn down in retirement at the same inflation-adjusted lifestyle. Symmetric on both
+      // sides, so this isolates what redirecting the $40K/yr cashflow through the tools actually
+      // buys, not a head start one side has and the other doesn't.
+      const SAVINGS_RATE = 1.04;
+      let savBal = DEMO.qmBalance;
+      for (let y=0; y<demoAccYears; y++){ savBal = (savBal + DEMO.annualContrib) * SAVINGS_RATE; }
+      let savExtracted = 0;
+      for (let t=0; t<demoHorizon; t++){
+        const draw = DEMO.todaySpend * Math.pow(1+DEMO.inflation, t);
+        const actual = Math.min(draw, savBal);
+        savExtracted += actual;
+        savBal = Math.max(savBal - actual, 0) * SAVINGS_RATE;
+      }
+      const savLegacy = Math.max(savBal, 0);
+      const savingsTotal = savLegacy + savExtracted;
+
+      // --- Path 2: every EPIC LIFE tool deployed — the real accumulate()/simulateStrategy()
+      // engine, the same two functions the member's own plan runs on, on this preset's numbers.
+      // The grid search, loan-type pick, and switch-age pick are mutually dependent — the real
+      // page resolves them the same way: pick an allocation under the CURRENT loan/switch
+      // assumptions, refine loan type on it, refine switch age on it, then (since a different
+      // switch age can change which allocation the grid itself would have preferred) re-run the
+      // grid under the newly-refined assumptions and repeat — re-rendering until nothing changes
+      // (SWITCH_RESOLVED/LOAN_RESOLVED convergence, lines ~3143 and ~3180). A single one-shot pass
+      // (an earlier draft of this demo) can land on a different, lower-scoring allocation than
+      // the live page's own converged pick for the identical inputs — verified by cross-check,
+      // 2026-07-08. Capped at 4 iterations (matches the live page's own re-render behavior in
+      // practice; each iteration is a full step=1 grid search, still trivial at page-load).
+      const switchCandidates = [...new Set([DEMO.retireAge-10, DEMO.retireAge-5, DEMO.retireAge, DEMO.retireAge+5, DEMO.retireAge+10, DEMO.retireAge+15]
+        .filter(a2 => a2 > DEMO.currentAge && a2 < DEMO.planAge))];
+      // Runs the grid → loan-type-refine → switch-age-refine loop to convergence, tracking the
+      // best result seen across EVERY iteration (not just the last) — this alternating search is
+      // coordinate-ascent-style, exactly like the live page's own re-render-until-stable process,
+      // and coordinate ascent can settle at a fixed point that isn't the best point it happened to
+      // pass through along the way. Seeded at DEMO.retireAge — switchAgeEff()'s own documented
+      // cold-start default (line ~1537: SWITCH_RESOLVED===undefined falls back to retireAge) —
+      // the same seed a genuinely fresh page load starts every plan's very first render from.
+      // KNOWN, DELIBERATE LIMITATION (found by cross-check, 2026-07-08): the live page's displayed
+      // number for a given profile can differ from this by roughly the size of one candidate step
+      // (~0.1-0.5% on this profile), because SWITCH_RESOLVED is a PERSISTENT variable that, on the
+      // real page, often carries over from whatever the page's raw DEFAULT slider values (an
+      // unrelated profile) converged to on their own unconditional first render, before a member
+      // ever touches a preset or a slider — i.e. the live page's own answer is not a pure function
+      // of the profile alone, it also depends on prior, unrelated page state. This demo
+      // deliberately uses the clean, documented cold-start default instead of trying to replicate
+      // that accidental history dependency, which isn't a reasonable target for a standalone,
+      // profile-only illustration — reported to Bruce rather than silently chased further.
+      let curLoanType = 'index', curSwitch = DEMO.retireAge, bestOverall = null;
+      for (let iter = 0; iter < 4; iter++){
+        const grid = demoGridSearch(curLoanType, 1, curSwitch);
+        const other = demoRunAt(grid.fr, curLoanType === 'index' ? 'wash' : 'index', curSwitch);
+        const newLoanType = demoBetter(grid.run, other.run) ? curLoanType : (curLoanType === 'index' ? 'wash' : 'index');
+        let bestSwitchRun = demoRunAt(grid.fr, newLoanType, null);
+        let newSwitch = null;
+        for (const sw of switchCandidates){
+          const cand = demoRunAt(grid.fr, newLoanType, sw);
+          if (demoBetter(cand.run, bestSwitchRun.run)){ bestSwitchRun = cand; newSwitch = sw; }
+        }
+        if (!bestOverall || demoBetter(bestSwitchRun.run, bestOverall.run)) bestOverall = bestSwitchRun;
+        const stable = (newLoanType === curLoanType) && (newSwitch === curSwitch);
+        curLoanType = newLoanType; curSwitch = newSwitch;
+        if (stable) break;
+      }
+      const toolsTotal = bestOverall.val;
+      // Income extracted is the same field both headline numbers already sum in: Path 1's own
+      // savExtracted (tracked above), Path 2's bestOverall.run.totalExtracted (whichever loan
+      // type/switch-age combination actually won — same run the headline total itself came from,
+      // not a separate recomputation that could drift out of sync with it).
+      const toolsExtracted = bestOverall.run.totalExtracted;
+
+      const elSav = document.getElementById('demo-savings-total');
+      const elTools = document.getElementById('demo-tools-total');
+      const elSavX = document.getElementById('demo-savings-extracted');
+      const elToolsX = document.getElementById('demo-tools-extracted');
+      if (elSav) elSav.textContent = fmt0.format(savingsTotal);
+      if (elTools) elTools.textContent = fmt0.format(toolsTotal);
+      if (elSavX) elSavX.textContent = fmt0.format(savExtracted);
+      if (elToolsX) elToolsX.textContent = fmt0.format(toolsExtracted);
+    } catch (e){
+      console.error('Section 1 demo comparison failed:', e);
+      const elSav = document.getElementById('demo-savings-total');
+      const elTools = document.getElementById('demo-tools-total');
+      const elSavX = document.getElementById('demo-savings-extracted');
+      const elToolsX = document.getElementById('demo-tools-extracted');
+      if (elSav) elSav.textContent = '—';
+      if (elTools) elTools.textContent = '—';
+      if (elSavX) elSavX.textContent = '—';
+      if (elToolsX) elToolsX.textContent = '—';
+    }
+  }
+
   // Sex toggle also retargets the COI calibration default (male ~70% / female ~57% of guaranteed
   // max, from the six 2026 illustrations) — but only until the agent moves the slider themselves.
   function setSex(s){
@@ -3768,7 +4128,7 @@
   $('btn-sexF').addEventListener('click', () => setSex('female'));
   $('btn-sexM1').addEventListener('click', () => setSex('male'));
   $('btn-sexF1').addEventListener('click', () => setSex('female'));
-  // Section 1's income/tax/ages topic mirrors the Section-3 wizard's — same shared handler.
+  // Section 1's income/tax/ages topic mirrors the Section-5 wizard's — same shared handler.
   function setFilingStatus(fs){
     filingStatus = fs;
     $('btn-single').classList.toggle('active', fs==='single');
@@ -4108,7 +4468,7 @@
     const alisWhy = document.querySelector('#alis-why .takeaway');
     pages.push(
       '<div class="report-page">' +
-        '<div class="rp-eyebrow">Section 3</div>' +
+        '<div class="rp-eyebrow">Section 5</div>' +
         '<h2>The plan built for you</h2>' +
         '<p>ALIS allocates '+fmt0.format(+$('annualContrib').value)+' every year between now and retirement, split '+(frText.join(', ') || 'across the tools in your plan')+'. The goal: <b>'+goalLabel.toLowerCase()+'</b>'+(optimizeMode === 'income' ? '' : ', keeping at least '+fmt0.format(+$('todaySpend').value)+'/yr of lifestyle')+'.</p>' +
         (allocWhy ? '<div class="rp-takeaway">'+allocWhy.innerHTML+'</div>' : '') +
@@ -4120,7 +4480,7 @@
     // ---- 4. Your retirement outcome ----
     pages.push(
       '<div class="report-page">' +
-        '<div class="rp-eyebrow">Sections 3 &amp; 4</div>' +
+        '<div class="rp-eyebrow">Sections 5 &amp; 6</div>' +
         '<h2>Your retirement outcome</h2>' +
         '<p>Sustaining '+fmt0.format(LAST_STATS.spend)+'/yr of lifestyle, inflation-adjusted, here’s what the plan above delivers.</p>' +
         '<div class="rp-stat-grid">' +
@@ -4176,7 +4536,7 @@
     }
 
     // ---- 7. Disclosures — compiled ONLY from text already vetted and shipped in the tool
-    // itself (the two anchor sentences below are copied verbatim from the Section-4 sub-header
+    // itself (the two anchor sentences below are copied verbatim from the Section-6 sub-header
     // and the page footer; the rest are read live off the caveat elements by id) — nothing
     // here is newly written compliance language.
     const disclosureBlocks = [];
@@ -4208,7 +4568,7 @@
     const btn = $('btn-report');
     if (window.EPIC_MC_RESULT){ showReport(); return; }
     // Stress test hasn't been run yet — the report always includes it, so run it first
-    // (same batched runStressTest() the Section-3 button uses) and poll for completion.
+    // (same batched runStressTest() the Section-5 button uses) and poll for completion.
     btn.disabled = true;
     btn.textContent = 'Generating report — running 1,000 market histories…';
     runStressTest();
@@ -4235,7 +4595,7 @@
   $('btn-loc-hi').addEventListener('click', () => applyLocation('hawaii'));
   $('btn-loc-main').addEventListener('click', () => applyLocation('mainland'));
 
-  // One source of truth for tool availability: the Section-3 tool bar AND every per-topic
+  // One source of truth for tool availability: the Section-5 tool bar AND every per-topic
   // "In the plan / Not applicable" button flip the same TOOLS flag and stay in sync.
   // Some tools are modifiers, not peers — they do nothing without a real host to attach to:
   // 0% biz credit only speeds up chunks velocity is already landing (stacking = TOOLS.bizcredit
@@ -4392,10 +4752,10 @@
         tiles.push({ label:'Tax clawed back from it', val: fmtCompact(R.taxSavings) });
       } else if (R.suspendedLoss > 500){
         // Not lost — suspended at this income. Show it as a real, sourced dollar figure waiting to
-        // be unlocked, not a dead $0, and point straight at how (Section 4 already has the 3 ways).
+        // be unlocked, not a dead $0, and point straight at how (Section 6 already has the 3 ways).
         tiles.push({ label:'Potential depreciation — suspended at your income', val: fmtCompact(R.suspendedLoss),
                      sub: 'worth '+fmtCompact(R.potentialTaxSavings)+' in tax if unlocked', subClass:'up' });
-        tiles.push({ label:'How to unlock it', val: 'See Section 4 — 3 qualifying ways' });
+        tiles.push({ label:'How to unlock it', val: 'See Section 6 — 3 qualifying ways' });
       } else {
         tiles.push({ label:'Tax clawed back from it', val: fmtCompact(R.taxSavings||0) });
       }
@@ -4420,7 +4780,7 @@
     $('playbookDetails').open = true;
     $('playbookTopic').scrollIntoView({ behavior:'smooth', block:'start' });
   });
-  // Jump to the Section-3 plan controls (lifestyle, goal, contribution; ages live in Section 1).
+  // Jump to the Section-5 plan controls (lifestyle, goal, contribution; ages live in Section 1).
   $('float-adjust').addEventListener('click', () => {
     $('setPlanTopic').scrollIntoView({ behavior:'smooth', block:'start' });
   });
@@ -4444,14 +4804,14 @@
   document.querySelectorAll('.mkt-preset').forEach(b => b.addEventListener('click', () => {
     $('qmGrowth').value = b.dataset.mkt; renderSection5();
   }));
-  // The tax-reserve-vehicle toggle exists in two places (Section 2 + the Section-3 lock-in
+  // The tax-reserve-vehicle toggle exists in two places (Section 2 + the Section-5 lock-in
   // wizard) — Bruce's call: this is the one Section-2 setting that carries through, so both
   // buttons drive the SAME shared flag and stay in lockstep, same pattern as the goal buttons.
   function setAddWithholding(on){ addWithholding = on; renderSection3(); }
   $('btn-addWithholding').addEventListener('click', () => setAddWithholding(!addWithholding));
   $('btn-addWithholding2').addEventListener('click', () => setAddWithholding(!addWithholding));
-  // Section 2's rider button and Section 3's estate-topic "preserve vs. draw" choice are the SAME
-  // decision, kept in sync (same pattern as the goal buttons) — Section 3 is where the trade-off
+  // Section 2's rider button and Section 5's estate-topic "preserve vs. draw" choice are the SAME
+  // decision, kept in sync (same pattern as the goal buttons) — Section 5 is where the trade-off
   // is actually visible.
   function setRiderButtons(){
     $('btn-ltc').classList.toggle('active', ltcOn);
@@ -4508,10 +4868,13 @@
     $(id).addEventListener('input', () => { presetsDirty = true; }));
   $('btn-agePreset').addEventListener('click', () => { applyAgePresets(); presetsDirty = false; rerenderAll(); });
   $('btn-agePreset1').addEventListener('click', () => { applyAgePresets(); presetsDirty = false; rerenderAll(); });
-  // currentAge is mirrored in THREE places now (Section 1, the Section-3 wizard, and Section 3's
-  // "Set the plan" topic); income/withheld/qmBalance/qmGrowth/the mortgage fields are mirrored
-  // between Section 1 and the wizard (2026-07-08 regression fix — Section 1 lost its inputs when
-  // they moved into the wizard; restored as synced mirrors instead of moving them back).
+  // currentAge is mirrored in THREE places now (Section 1, the Section-5 wizard, and Section 5's
+  // "Set the plan" topic); income/withheld/the mortgage fields are mirrored between Section 1 and
+  // the wizard (2026-07-08 regression fix — Section 1 lost its inputs when they moved into the
+  // wizard; restored as synced mirrors instead of moving them back). qmBalance/qmGrowth mirror
+  // between Section 4 and the wizard — the 401(k)/qualified topic has moved sections twice now
+  // (most recently 2026-07-09, into its own standalone Equity sector), but this mirror list is
+  // entirely ID-based, not section-based, so neither move ever needed a change here.
   [['currentAge2','currentAge'],['currentAge1','currentAge'],['todaySpend2','todaySpend'],['polYears2','polYears'],
    ['income1','income'],['withheld1','withheld'],['qmBalance1','qmBalance'],['qmGrowth1','qmGrowth'],
    ['propValue1','propValue'],['principal1','principal'],['rate1','rate'],['term1','term'],
@@ -4530,7 +4893,7 @@
   let userSpendFloor = +$('todaySpend').value;
   $('todaySpend').addEventListener('input', () => { if (optimizeMode !== 'income') userSpendFloor = +$('todaySpend').value; });
   $('todaySpend2').addEventListener('input', () => { if (optimizeMode !== 'income') userSpendFloor = +$('todaySpend2').value; });
-  // Goal buttons exist in two places (Section 3 + the floating panel) — one shared handler
+  // Goal buttons exist in two places (Section 5 + the floating panel) — one shared handler
   // keeps them, and the plan, in lockstep.
   function setGoal(mode){
     optimizeMode = mode;
@@ -4539,7 +4902,7 @@
     renderSection5();
   }
   document.querySelectorAll('.float-goal, .sec-goal').forEach(btn => btn.addEventListener('click', () => setGoal(btn.dataset.goal)));
-  // The Section-3 contribution slider mirrors the floating panel's — either one drives the plan.
+  // The Section-5 contribution slider mirrors the floating panel's — either one drives the plan.
   $('annualContrib2').addEventListener('input', () => { $('annualContrib').value = $('annualContrib2').value; renderSection5(); });
   // Apply changes: recommit to ALIS's fresh picks with every current input, rebuild + open the playbook.
   $('float-apply').addEventListener('click', () => {
@@ -4563,7 +4926,7 @@
     floatPanel.classList.toggle('show', window.scrollY > 400);
   }, { passive: true });
 
-  // The Section-3 "Lock in your plan" wizard: Confirm locks the step (collapses it, swaps in
+  // The Section-5 "Lock in your plan" wizard: Confirm locks the step (collapses it, swaps in
   // the Edit button) and opens the next one; Edit reopens it. Both buttons sit top-right in the
   // step's header, not the body — a UX affordance only, nothing here gates the engine, which
   // already runs live off whatever's in each field regardless of lock state. Buttons are INSIDE
@@ -4597,6 +4960,7 @@
   renderSection2();
   renderSection3();
   renderSection5();
+  computeDemoComparison();
 })();
 </script>
 

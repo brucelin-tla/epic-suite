@@ -159,7 +159,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
   <a class="back" href="../">← EPIC Suite</a>
   <header>
     <div class="brand"><h1>📊 EPIC Suite — Admin Dashboard</h1><div class="sub">Global view · funnel, commissions & leaderboards across every role</div></div>
-    <span class="demo">Demo data</span>
+    <span class="demo">Real data</span>
   </header>
 
   <div class="metrics" id="metrics"></div>
@@ -188,6 +188,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
       <div class="panel">
         <div class="lbl">🔗 Recent interactions — who's handling + commission</div>
         <div style="overflow-x:auto"><table class="tbl" id="interactions"></table></div>
+        <div class="note">Aulii Mafi is a current EPIC LIFE member being onboarded as a referral partner — his $100 lead-gen commission becomes payable once his partner account is set up, not yet paid. Sharlette Poe &amp; Keolu Poe-Pule (referred by Aulii) have separate onboarding sessions booked for July 22 — commission realizes once those close and the setup fee is collected.</div>
       </div>
       <div class="panel">
         <div class="lbl">💵 Payout tracker — real, by pay cycle</div>
@@ -251,7 +252,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
   </div>
 
   <div class="foot">
-    🔐 <b>Real owner-only access (2026-07-04).</b> Gated by Supabase Auth + a <code>profiles.role='owner'</code> check — not a shared code anymore. Manage who else gets in from the Team panel above. Commission figures elsewhere on this page are still illustrative pending live data wiring.
+    🔐 <b>Real owner-only access (2026-07-04).</b> Gated by Supabase Auth + a <code>profiles.role='owner'</code> check — not a shared code anymore. Manage who else gets in from the Team panel above. Deal/commission data above is real (hand-updated 2026-07-08) — not yet auto-synced; connect Stripe in the sync panels above to automate it.
   </div>
 </div>
 <script>
@@ -387,41 +388,38 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;fl
 const $=id=>document.getElementById(id);
 /* ===== commission model ===== */
 const C={setup:500, leadgen:100, bdr:100, closer3b:100, closerClose:200};
-/* ===== DEMO DATA ===== */
-const CLOSED=7; // closed memberships this month
+/* ===== REAL DATA (hand-updated 2026-07-08 — see notes.md; not yet auto-synced) ===== */
+const CLOSED=2; // closed memberships this month
 const METRICS=[
- {v:'42',l:'Referrals'},{v:'18',l:'Booked'},{v:CLOSED,l:'Closed'},{v:'5',l:'Onboarded'},
- {v:'$3,500',l:'Commissions MTD'},{v:'11',l:'Active partners'}
+ {v:'4',l:'Referrals'},{v:'4',l:'Booked'},{v:CLOSED,l:'Closed'},{v:'2',l:'Onboarding'},
+ {v:'$700',l:'Commissions MTD'},{v:'0',l:'Active partners'}
 ];
-// MTD commission buckets (see notes for reconciliation)
+// MTD commission buckets: Lead gen $100 (Aulii Mafi, pending his partner setup) + BDR $0 (no BDR on
+// either closed deal — both went direct to Bruce) + Closers $600 (Bruce Lin x2) + House $300 (ads
+// lead-gen $100 kept in-house + no-BDR gap $100 x2). Sums to $1,000 = 2 closed x $500 setup fee.
 const CMTD=[
- {b:'$700',s:'Lead gen'},{b:'$500',s:'BDR'},{b:'$2,100',s:'Closers'},{b:'$200',s:'House (warm, no BDR)'}
+ {b:'$100',s:'Lead gen'},{b:'$0',s:'BDR'},{b:'$600',s:'Closers'},{b:'$300',s:'House (warm, no BDR)'}
 ];
 const FUNNEL=[
- {nm:'Referrals',v:42,pct:100,cls:'f1'},{nm:'Booked (Setter)',v:18,pct:43,cls:'f2'},
- {nm:'Closed (Closer)',v:7,pct:39,cls:'f3'},{nm:'Onboarded (CS)',v:5,pct:71,cls:'f4'}
+ {nm:'Referrals',v:4,pct:100,cls:'f1'},{nm:'Booked (Setter)',v:4,pct:100,cls:'f2'},
+ {nm:'Closed (Closer)',v:2,pct:50,cls:'f3'},{nm:'Onboarding (CS)',v:2,pct:100,cls:'f4'}
 ];
 const INTERACTIONS=[
- {ref:'Alicia Grant',by:'Maria Lopez',src:'partner',stage:'join',setter:'Kai Rivera',closer:'Ana Vega',cs:'Renee',plan:'Annual'},
- {ref:'Priya Shah',by:'Maria Lopez',src:'partner',stage:'close',setter:'Mia Tan',closer:'Ana Vega',cs:'—',plan:'Pro'},
- {ref:'Dana Liu',by:'James Cole',src:'partner',stage:'book',setter:'Mia Tan',closer:'Ana Vega',cs:'—',plan:'—'},
- {ref:'Marcus Bell',by:'TLA ads',src:'ads',stage:'close',setter:'Jordan Poe',closer:'Devin Lu',cs:'—',plan:'Monthly'},
- {ref:'Keoni Mahoe',by:'Sofia Reyes',src:'partner',stage:'join',setter:'—',closer:'Devin Lu',cs:'Renee',plan:'Monthly'},
- {ref:'Tom Nguyen',by:'James Cole',src:'partner',stage:'sub',setter:'(triaging)',closer:'—',cs:'—',plan:'—'}
+ {ref:'Mareka Jensen-Madison',by:'TLA ads',src:'ads',stage:'close',setter:'—',closer:'Bruce Lin',cs:'—',plan:'Monthly'},
+ {ref:'Kalani & Kari Kalima',by:'Aulii Mafi',src:'partner',stage:'close',setter:'—',closer:'Bruce Lin',cs:'—',plan:'Monthly'},
+ {ref:'Sharlette Poe',by:'Aulii Mafi',src:'partner',stage:'book',setter:'—',closer:'Bruce Lin',cs:'—',plan:'Monthly (pending)'},
+ {ref:'Keolu Poe-Pule',by:'Aulii Mafi',src:'partner',stage:'book',setter:'—',closer:'Bruce Lin',cs:'—',plan:'Monthly (pending)'}
 ];
-// role leaderboards — commission earned MTD
+// role leaderboards — commission earned MTD. Aulii Mafi: 3 referred, but only 1 (Kalani & Kari) has
+// closed so far — the $100 shown is what's owed on that deal, pending his partner account setup.
 const BOARDS={
- partners:[{nm:'Maria Lopez',d:3,pay:300},{nm:'Sofia Reyes',d:2,pay:200},{nm:'James Cole',d:1,pay:100},{nm:'TLA (ads)',d:1,pay:100}],
- bdrs:[{nm:'Kai Rivera',d:4,pay:400},{nm:'Mia Tan',d:4,pay:400},{nm:'Jordan Poe',d:2,pay:200}],
- closers:[{nm:'Ana Vega (Sr)',d:4,pay:1200},{nm:'Devin Lu',d:3,pay:900}]
+ partners:[{nm:'Aulii Mafi',d:3,pay:100},{nm:'TLA (ads)',d:1,pay:100}],
+ bdrs:[],
+ closers:[{nm:'Bruce Lin',d:2,pay:600}]
 };
 const BOARDMETA={partners:['Top partners / lead gen','sourced'],bdrs:['Top BDRs','qualified bookings'],closers:['Top closers','closed']};
-const BDRQUAL=[
- {nm:'Kai Rivera',booked:6,qual:4,bant:95,noshow:1,verified:400,pending:100},
- {nm:'Mia Tan',booked:5,qual:4,bant:92,noshow:0,verified:400,pending:0},
- {nm:'Jordan Poe',booked:4,qual:2,bant:78,noshow:1,verified:200,pending:0}
-];
-const CSBOARD=[{nm:'Renee Webb',d:3},{nm:'Priya Nair',d:2}];
+const BDRQUAL=[];
+const CSBOARD=[];
 const STLABEL={sub:['Submitted','st-sub'],book:['Booked','st-book'],close:['Closed','st-close'],join:['Joined','st-join']};
 // per-deal commission (closed/joined only)
 function dealComm(i){ if(i.stage!=='close'&&i.stage!=='join') return null;
@@ -440,13 +438,14 @@ $('interactions').innerHTML='<tr><th>Referral</th><th>Source</th><th>Stage</th><
 function renderBoard(key){
   document.querySelectorAll('.lbtab').forEach(t=>t.classList.toggle('on',t.dataset.k===key));
   var meta=BOARDMETA[key];
-  $('leaderboard').innerHTML=BOARDS[key].map((l,i)=>'<div class="lead"><span class="rank'+(i===0?' g':'')+'">'+(i+1)+'</span><div class="who"><b>'+l.nm+'</b><span>'+l.d+' '+meta[1]+'</span></div><span class="pay">$'+l.pay.toLocaleString()+'</span></div>').join('');
+  var list=BOARDS[key];
+  $('leaderboard').innerHTML=list.length?list.map((l,i)=>'<div class="lead"><span class="rank'+(i===0?' g':'')+'">'+(i+1)+'</span><div class="who"><b>'+l.nm+'</b><span>'+l.d+' '+meta[1]+'</span></div><span class="pay">$'+l.pay.toLocaleString()+'</span></div>').join(''):'<div class="note">No '+meta[0].toLowerCase()+' yet.</div>';
 }
 $('lbtabs').innerHTML=Object.keys(BOARDS).map((k,i)=>'<span class="lbtab'+(i===0?' on':'')+'" data-k="'+k+'">'+BOARDMETA[k][0]+'</span>').join('');
 document.querySelectorAll('.lbtab').forEach(t=>t.onclick=()=>renderBoard(t.dataset.k));
 renderBoard('partners');
-$('csboard').innerHTML=CSBOARD.map((l,i)=>'<div class="lead"><span class="rank'+(i===0?' g':'')+'">'+(i+1)+'</span><div class="who"><b>'+l.nm+'</b><span>'+l.d+' onboarded</span></div></div>').join('');
-$('bdrqual').innerHTML='<tr><th>BDR</th><th>Booked</th><th>Qual</th><th>Rate</th><th>BANT match</th><th>No-show</th><th>$ verified</th><th>$ pending</th></tr>'+BDRQUAL.map(function(b){var rate=Math.round(b.qual/b.booked*100);var low=b.bant<85;return '<tr><td><b>'+b.nm+'</b></td><td>'+b.booked+'</td><td>'+b.qual+'</td><td>'+rate+'%</td><td style="font-weight:700;color:'+(low?'#87451D':'#3C7E44')+'">'+b.bant+'%'+(low?' ⚠️':'')+'</td><td>'+b.noshow+'</td><td class="comm">$'+b.verified+'</td><td class="comm pend">'+(b.pending?'$'+b.pending:'—')+'</td></tr>';}).join('');
+$('csboard').innerHTML=CSBOARD.length?CSBOARD.map((l,i)=>'<div class="lead"><span class="rank'+(i===0?' g':'')+'">'+(i+1)+'</span><div class="who"><b>'+l.nm+'</b><span>'+l.d+' onboarded</span></div></div>').join(''):'<div class="note">No completed onboardings yet — 2 currently in progress (Mareka Jensen-Madison, Kalani &amp; Kari Kalima).</div>';
+$('bdrqual').innerHTML='<tr><th>BDR</th><th>Booked</th><th>Qual</th><th>Rate</th><th>BANT match</th><th>No-show</th><th>$ verified</th><th>$ pending</th></tr>'+(BDRQUAL.length?BDRQUAL.map(function(b){var rate=Math.round(b.qual/b.booked*100);var low=b.bant<85;return '<tr><td><b>'+b.nm+'</b></td><td>'+b.booked+'</td><td>'+b.qual+'</td><td>'+rate+'%</td><td style="font-weight:700;color:'+(low?'#87451D':'#3C7E44')+'">'+b.bant+'%'+(low?' ⚠️':'')+'</td><td>'+b.noshow+'</td><td class="comm">$'+b.verified+'</td><td class="comm pend">'+(b.pending?'$'+b.pending:'—')+'</td></tr>';}).join(''):'<tr><td colspan="8" style="text-align:center;color:var(--muted)">No BDR bookings yet — deals are closing direct-to-closer for now.</td></tr>');
 // ── Real suggestions (2026-07-06): epic_suggestions now has an owner-only
 // select+update RLS policy (migration epic_suggestions_owner_read_update) —
 // this used to be a hardcoded SUGGESTIONS demo array with no live read path

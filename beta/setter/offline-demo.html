@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EPIC Setter — Book appointments for the closers</title>
+<title>EPIC Setter — OFFLINE TEST COPY</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:12px;--radius-sm:8px;--font-display:'Playfair Display',Georgia,serif;--font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+:root{--bg:#F6F7FA;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F0F1F5;--border:#E7E8EC;--text:#121826;--text2:#6D717F;--muted:#9EA2AD;--accent:#253984;--gold:#C4A95B;--ink:#121826;--success:#3C7E44;--success-bg:#E1FBE8;--info:#273FA8;--info-bg:#DEE9FC;--warning:#87451D;--warning-bg:#FFFBEC;--warn-badge:#CB7C2E;--warn-badge-bg:#FCF4CB;--red:#87451D;--blue:#273FA8;--radius:12px;--radius-sm:8px;--font-display:Georgia,serif;--font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px}
+body{font-family:var(--font-sans);background:var(--bg);color:var(--text);line-height:1.5;padding:16px;padding-top:40px}
 .wrap{max-width:1080px;margin:0 auto;visibility:hidden}
 a.back{color:var(--text2);font-size:.78rem;text-decoration:none}a.back:hover{color:var(--text)}
 header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);border-radius:var(--radius);margin:8px 0 14px;box-shadow:0 1px 3px rgba(18,24,38,.05)}
@@ -63,7 +61,7 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 .toast.show{opacity:1}
 /* ── mobile-first (Setter is used mostly on phones) ── */
 @media(max-width:640px){
-  body{padding:12px}
+  body{padding:12px;padding-top:40px}
   header{flex-wrap:wrap;padding:11px 13px;gap:8px}
   .brand h1{font-size:1.2rem}.brand .sub{font-size:.78rem}
   .stats{width:100%;gap:6px}.stat{flex:1;padding:7px 4px}.stat b{font-size:1.1rem}
@@ -105,91 +103,144 @@ kbd{font-family:inherit;font-size:.62rem;font-weight:800;background:var(--surfac
 .rm-next button{margin-left:8px;padding:5px 11px;font-size:.74rem;font-weight:800;border-radius:999px;border:none;background:var(--accent);color:#fff;cursor:pointer}
 .rm-note{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);font-size:.82rem;margin-top:8px;font-family:inherit;box-sizing:border-box}
 .rm-badge{font-size:.6rem;font-weight:800;color:var(--warn-badge);background:var(--warn-badge-bg);padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:middle}
+#offlineBanner{position:fixed;top:0;left:0;right:0;z-index:3000;background:#121826;color:#fff;padding:9px 14px;font:700 .76rem -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-align:center;letter-spacing:.2px}
 </style>
 </head>
 <body>
-<!-- ===== EPIC Suite: real member sign-in gate (2026-07-04) — same Supabase
-     magic-link mechanism as EPIC Referral Partner. Blocks this tool until a
-     real session exists; the client-side EPICBETA code below is a build
-     toggle, not identity — this is the actual security layer. Also replaces
-     the interim unauthenticated `setter-queue` Edge Function read (see
-     loadQueue() below): now that there's a real session, the browser reads
-     `prospects` directly — RLS already requires `authenticated`. ===== -->
-<style>
-#epicAuthGate{position:fixed;inset:0;z-index:2000;background:var(--bg,#F6F7FA);display:flex;align-items:center;justify-content:center;padding:18px}
-#epicAuthGate.hidden{display:none}
-.epic-auth-box{background:#fff;border:1px solid #E7E8EC;border-radius:14px;max-width:420px;width:100%;padding:24px;box-shadow:0 12px 40px rgba(18,24,38,.14)}
-.epic-auth-box h2{font-size:1.15rem;margin-bottom:8px;color:#121826}
-.epic-auth-box p{font-size:.85rem;color:#6D717F;margin-bottom:14px;line-height:1.55}
-.epic-auth-box input{width:100%;padding:11px 13px;border-radius:8px;border:1px solid #E7E8EC;font-size:1rem;margin-bottom:10px;box-sizing:border-box}
-.epic-auth-box button{width:100%;padding:12px;border:none;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff}
-.epic-auth-box .epic-gate-btn{display:block;width:100%;padding:12px;border-radius:8px;font-weight:800;font-size:.92rem;cursor:pointer;background:#253984;color:#fff;text-decoration:none;text-align:center;box-sizing:border-box}
-.epic-auth-msg{font-size:.8rem;color:#6D717F;margin-top:10px;min-height:18px}
-#epicSignOut{position:fixed;bottom:10px;right:12px;z-index:1200;font-size:.68rem;color:#9EA2AD;cursor:pointer;text-decoration:underline;background:#fff;padding:4px 9px;border-radius:999px;border:1px solid #E7E8EC}
-</style>
-<div id="epicAuthGate" class="hidden">
-  <div class="epic-auth-box">
-    <div id="epicGateNoSession">
-      <h2>🔐 Sign in required</h2>
-      <p>Sign in once from the EPIC Suite hub — it unlocks every tool your role can reach.</p>
-      <a class="epic-gate-btn" href="../">Go to EPIC Suite hub →</a>
-    </div>
-    <div id="epicGateNoAccess" style="display:none">
-      <h2>🔒 Not unlocked yet</h2>
-      <p id="epicGateNoAccessMsg"></p>
-      <a class="epic-gate-btn" href="../">← Back to EPIC Suite hub</a>
-    </div>
-  </div>
-</div>
-<span id="epicSignOut" style="display:none">sign out</span>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div id="offlineBanner">🧪 OFFLINE TEST COPY — fake prospects &amp; fake content, nothing here touches the live system. Refresh the page to reset.</div>
+<!-- ===== OFFLINE MOCK (2026-07-08) — same window.EPIC_SB interface the real
+     tool expects (from/select/eq/in/order/limit/insert/update/upsert +
+     auth.getSession + functions.invoke), backed by an in-memory fake dataset
+     instead of the real Supabase project. Everything below this — the main
+     app script and the Text Roadmap engine — is copied byte-for-byte from
+     beta/setter/index.html, unmodified, so this test copy runs the exact
+     same UI/logic code that ships. Nothing here persists past a refresh. ===== -->
 <script>
 (function(){
-  // Single sign-in point is the hub now (2026-07-05) — this tool never mints
-  // its own magic link, it only checks an existing session + role rank.
-  // Rank: owner(Admin)=5 > cs(Client Success)=4 > closer=3 > bdr(Setter)=2 >
-  // partner(Referral)=1. Higher rank unlocks this tool AND everything below it.
-  var TOOL_RANK=2; // Setter
-  var ROLE_RANK={owner:5, cs:4, closer:3, bdr:2, partner:1, rep:0};
-  var ROLE_LABEL={owner:'Admin', cs:'Client Success', closer:'Closer', bdr:'Setter', partner:'Referral Partner', rep:'Rep'};
-  var SB=supabase.createClient('https://widdgynledwpqaqndtvz.supabase.co','sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ');
-  window.EPIC_SB=SB;
-  var gate=document.getElementById('epicAuthGate'), wrapEl=null, signOutBtn=document.getElementById('epicSignOut');
-  var noSession=document.getElementById('epicGateNoSession'), noAccess=document.getElementById('epicGateNoAccess');
-  async function myRank(session){
-    if(!session) return -1;
-    var r=await SB.from('profiles').select('role').eq('id',session.user.id).single();
-    var role=r.data&&r.data.role;
-    return (role&&(role in ROLE_RANK))?ROLE_RANK[role]:0;
-  }
-  async function refresh(){
-    wrapEl=wrapEl||document.querySelector('.wrap');
-    var r=await SB.auth.getSession(), session=r.data.session;
-    var rank=await myRank(session);
-    var authorized=rank>=TOOL_RANK;
-    gate.classList.toggle('hidden', authorized);
-    noSession.style.display=session?'none':'';
-    noAccess.style.display=(session&&!authorized)?'':'none';
-    if(session&&!authorized){
-      var need=Object.keys(ROLE_RANK).find(function(k){return ROLE_RANK[k]===TOOL_RANK;});
-      document.getElementById('epicGateNoAccessMsg').textContent="Your role doesn't reach this tool yet — you need "+(ROLE_LABEL[need]||need)+' access or higher.';
+  function uid(){ return 'off-'+Math.random().toString(36).slice(2,10); }
+  function iso(offsetMs){ return new Date(Date.now()+offsetMs).toISOString(); }
+
+  var MOCK_PROSPECTS=[
+    {id:'p1',name:'jordan kealoha',phone:'8085550142',pipeline_stage:'1. New Lead',deal_value:0,last_contact_at:null,priority_score:82,priority_reason:'Filled out the Epic Life quiz — high intent',created_at:iso(-3*3600e3),lead_entered_at:iso(-3*3600e3)},
+    {id:'p2',name:'amara chen',phone:'5035550177',pipeline_stage:'1. New Lead',deal_value:0,last_contact_at:null,priority_score:65,priority_reason:'Downloaded the guide',created_at:iso(-26*3600e3),lead_entered_at:iso(-26*3600e3)},
+    {id:'p3',name:'tevita fifita',phone:'8085550198',pipeline_stage:'1. New Lead',deal_value:0,last_contact_at:null,priority_score:74,priority_reason:'Referred by a member',created_at:iso(-6*3600e3),lead_entered_at:iso(-6*3600e3)},
+    {id:'p4',name:'priya nair',phone:'4155550163',pipeline_stage:'2. Contacted - Need Call back',deal_value:0,last_contact_at:iso(-24*3600e3),priority_score:55,priority_reason:'Asked to call back after 5pm',created_at:iso(-3*86400e3),lead_entered_at:iso(-3*86400e3)},
+    {id:'p5',name:'malia kahale',phone:'8085550121',pipeline_stage:'4 Discovery Call - No Show',deal_value:0,last_contact_at:iso(-2*86400e3),priority_score:48,priority_reason:'No-showed the Discovery Call',created_at:iso(-5*86400e3),lead_entered_at:iso(-5*86400e3)},
+    {id:'p6',name:'diego ramirez',phone:'7025550188',pipeline_stage:'6. Whale - No Show',deal_value:0,last_contact_at:iso(-3*86400e3),priority_score:70,priority_reason:'$50K/mo business — no-showed, high value',created_at:iso(-4*86400e3),lead_entered_at:iso(-4*86400e3)}
+  ];
+
+  var MOCK_CONTENT=[
+    {id:uid(),step:1,category:'hook',title:'Hook: Have you seen this?',body:'Hey {name} — random q, have you seen this before? 👀',media_url:'https://teamlife.ai/webinar-preview.png',follow_up:{yes:"Oh nice — so you already know a bit about it. What stuck out to you?",no:"Ha, all good — that's exactly why I sent it. Takes 2 min, wanna see why it caught my eye?",curious:"Right?? Most people react the same way. Let me send you the quick version."},active:true,sort_order:1},
+    {id:uid(),step:1,category:'hook',title:'Hook: Heard of OPM?',body:"Quick one — you ever heard of OPM (using other people's money to grow instead of your own)? {name}",media_url:null,follow_up:{yes:"Then you'll get this fast — it's basically that, built for business owners like you.",no:"It's one of those things once you see it you can't unsee it. Got 90 seconds?",curious:"Totally fair reaction — let me show you instead of explain it."},active:true,sort_order:2},
+    {id:uid(),step:1,category:'hook',title:'Hook: Velocity/infinite banking?',body:'Hey {name} — are you familiar with velocity banking or infinite banking at all?',media_url:null,follow_up:{yes:"Nice, then this'll click quick — we use a version of that inside EPIC.",no:"No worries, most people haven't — it's not something banks advertise lol.",curious:"Good instinct to be curious — here's the short version."},active:true,sort_order:3},
+    {id:uid(),step:2,category:'story',title:'Personal experience — saved text',body:"Not gonna lie, I was skeptical too at first. But once I actually restructured how my business used credit instead of just my cash, it changed how fast I could move. Wish I'd found this years earlier tbh.",media_url:null,follow_up:null,active:true,sort_order:1},
+    {id:uid(),step:2,category:'testimonial',title:'Member testimonial — pull from testimonial library',body:'"I was drowning in debt payments before EPIC. 8 months later I\'ve got real breathing room and I actually understand my numbers now." — replace with a real member quote from the testimonial content area.',media_url:null,follow_up:null,active:true,sort_order:2},
+    {id:uid(),step:3,category:'vsl',title:'First VSL link',body:"Here's that quick video I mentioned — like 8 min, walks through exactly how it works: {link}",media_url:'https://teamlife.ai/vsl-1',follow_up:null,active:true,sort_order:1},
+    {id:uid(),step:4,category:'product_video',title:'Product overview video',body:"Here's a quick look at exactly what's inside EPIC LIFE and how it all fits together: {link}",media_url:'https://teamlife.ai/videos/product',follow_up:null,active:true,sort_order:1},
+    {id:uid(),step:4,category:'tech_video',title:'How the technology works',body:'Curious how the actual mechanics work behind the scenes? This one breaks it down: {link}',media_url:'https://teamlife.ai/videos/tech',follow_up:null,active:true,sort_order:2},
+    {id:uid(),step:4,category:'comp_video',title:'Compensation / earning potential video',body:"A lot of people ask about this part — here's exactly how the numbers work: {link}",media_url:'https://teamlife.ai/videos/compensation',follow_up:null,active:true,sort_order:3},
+    {id:uid(),step:4,category:'education',title:'Education content',body:'This one\'s more the "why" behind the whole approach — good if you like understanding the reasoning: {link}',media_url:'https://teamlife.ai/education',follow_up:null,active:true,sort_order:4},
+    {id:uid(),step:5,category:'landing_invite',title:'Invite to landing page + AI chat',body:"Take a look at our full page when you get a sec — there's actually an AI on there you can ask anything, no pressure: {link}",media_url:'https://www.teamlifeacademy.com',follow_up:null,active:true,sort_order:1},
+    {id:uid(),step:6,category:'booking_ask',title:'Ask for the call — 3-way / intro script',body:"Honestly at this point I think you should talk to my friend on our team — he goes deeper on this stuff than I can over text. Let's hop on a quick call together, 3-way or Zoom, so you can ask him anything. I've got a couple more questions for you too. What's your week look like?",media_url:null,follow_up:null,active:true,sort_order:1},
+    {id:uid(),step:7,category:'webinar_invite',title:'Invite to next webinar/event',body:"Hey {name} — we've got our next live session coming up, would love to have you on it (or come check us out in person). Want me to send you the details?",media_url:'https://teamlifeacademy.com/webinar',follow_up:null,active:true,sort_order:1}
+  ];
+
+  var DB={
+    prospects: MOCK_PROSPECTS,
+    setter_content: MOCK_CONTENT,
+    setter_roadmap_state: [],
+    setter_roadmap_events: []
+  };
+
+  function eqVal(filters,field){ var f=filters.filter(function(x){return x.m==='eq'&&x.a[0]===field;})[0]; return f?f.a[1]:undefined; }
+
+  function runMock(table,filters,terminal){
+    if(terminal){
+      if(table==='setter_content'){
+        if(terminal.op==='insert'){ var row=Object.assign({id:uid(),active:true,sort_order:0,created_at:iso(0),updated_at:iso(0)},terminal.payload); DB.setter_content.push(row); return {data:[row],error:null}; }
+        if(terminal.op==='update'){ var id=eqVal(filters,'id'); var r=DB.setter_content.filter(function(x){return x.id===id;})[0]; if(r) Object.assign(r,terminal.payload); return {data:r?[r]:[],error:null}; }
+      }
+      if(table==='setter_roadmap_state' && terminal.op==='upsert'){
+        var pid=terminal.payload.prospect_id;
+        var row=DB.setter_roadmap_state.filter(function(x){return x.prospect_id===pid;})[0];
+        if(row) Object.assign(row,terminal.payload); else DB.setter_roadmap_state.push(Object.assign({},terminal.payload));
+        return {data:null,error:null};
+      }
+      if(table==='setter_roadmap_events' && terminal.op==='insert'){
+        var row2=Object.assign({id:uid(),created_at:iso(0)},terminal.payload); DB.setter_roadmap_events.push(row2); return {data:[row2],error:null};
+      }
+      return {data:null,error:null}; // follow_ups/call_logs insert+update: accepted, not persisted (not needed offline)
     }
-    if(wrapEl) wrapEl.style.visibility=authorized?'visible':'hidden';
-    signOutBtn.style.display=session?'':'none';
-    if(authorized && typeof window.onEpicAuthed==='function') window.onEpicAuthed(session);
+    if(table==='prospects') return {data:DB.prospects,error:null};
+    if(table==='follow_ups') return {data:[],error:null};
+    if(table==='bookings') return {data:[],error:null};
+    if(table==='profiles') return {data:{role:'owner'},error:null}; // offline demo always shows owner-only UI too
+    if(table==='setter_content'){
+      var activeOnly=filters.some(function(f){return f.m==='eq'&&f.a[0]==='active'&&f.a[1]===true;});
+      var rows=DB.setter_content.filter(function(r){return activeOnly? r.active!==false : true;});
+      rows=rows.slice().sort(function(a,b){ return (a.step-b.step)||((a.sort_order||0)-(b.sort_order||0)); });
+      return {data:rows,error:null};
+    }
+    if(table==='setter_roadmap_state') return {data:DB.setter_roadmap_state,error:null};
+    if(table==='setter_roadmap_events'){
+      var pid2=eqVal(filters,'prospect_id');
+      var rows2=DB.setter_roadmap_events.filter(function(r){return r.prospect_id===pid2;});
+      rows2=rows2.slice().sort(function(a,b){ return new Date(b.created_at)-new Date(a.created_at); });
+      return {data:rows2.slice(0,30),error:null};
+    }
+    return {data:[],error:null};
   }
-  signOutBtn.onclick=async function(){ await SB.auth.signOut(); refresh(); };
-  SB.auth.onAuthStateChange(function(){ refresh(); });
-  // REAL BUG FIX (2026-07-06): this script tag runs BEFORE <div class="wrap"> further down the
-  // page has been parsed, so this first direct call's querySelector('.wrap') always returned
-  // null -- authorized/gate/sign-out all resolved correctly, but the reveal step silently no-op'd
-  // forever, leaving a permanently blank screen for a real signed-in owner. Deferring to
-  // DOMContentLoaded guarantees .wrap exists before this call runs.
-  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', refresh); } else { refresh(); }
+
+  function fromTable(table){
+    var filters=[], terminal=null;
+    var obj={};
+    ['select','eq','in','not','order','limit','single','match'].forEach(function(m){
+      obj[m]=function(){ filters.push({m:m,a:Array.prototype.slice.call(arguments)}); return obj; };
+    });
+    obj.insert=function(payload){ terminal={op:'insert',payload:payload}; return obj; };
+    obj.update=function(payload){ terminal={op:'update',payload:payload}; return obj; };
+    obj.upsert=function(payload){ terminal={op:'upsert',payload:payload}; return obj; };
+    obj.then=function(resolve){ resolve(runMock(table,filters,terminal)); return obj; };
+    obj.catch=function(){ return obj; };
+    return obj;
+  }
+
+  function fakeSlots(){
+    var out=[];
+    for(var d=1; d<=4; d++){
+      [20,23,1].forEach(function(hUTC){
+        var dt=new Date(Date.now()+d*86400000);
+        dt.setUTCHours(hUTC,0,0,0);
+        out.push(dt.toISOString());
+      });
+    }
+    return out;
+  }
+
+  window.EPIC_SB={
+    auth:{
+      getSession:function(){ return Promise.resolve({data:{session:{user:{id:'offline-demo-user'}}}}); },
+      onAuthStateChange:function(){},
+      signOut:function(){ return Promise.resolve(); }
+    },
+    from:fromTable,
+    functions:{
+      invoke:function(name,opts){
+        if(name==='calendly-availability') return Promise.resolve({data:{ok:true,slots:fakeSlots()},error:null});
+        if(name==='calendly-book'){
+          var body=(opts&&opts.body)||{};
+          var qualified=!!(body.intent && body.bant && body.bant.budget && body.bant.authority);
+          return Promise.resolve({data:{ok:true,booking_id:uid(),qualified:qualified},error:null});
+        }
+        if(name==='calendly-cancel') return Promise.resolve({data:{ok:true},error:null});
+        return Promise.resolve({data:null,error:{message:'not mocked: '+name}});
+      }
+    }
+  };
 })();
 </script>
 <div class="wrap">
-  <a class="back" href="../">← EPIC Suite</a> <button type="button" id="epicSuggBtn" class="epic-sugg-btn" style="display:none">💡 Suggest an improvement</button>
+  <a class="back" href="../">← EPIC Suite</a>
   <header>
     <div class="brand"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><h1>🎯 EPIC Setter</h1><span id="ver">v…</span></div><div class="sub">Book qualified appointments for the closers</div></div>
     <div class="stats">
@@ -944,21 +995,13 @@ renderDates(); renderTabs(); renderQueue(); selectLead(); // loadQueue() itself 
 })();
 </script>
 
-<!-- ===== EPIC Suite: beta toggle + What's new (self-contained) ===== -->
+<!-- ===== EPIC Suite: What's new (self-contained, no beta-toggle/network) ===== -->
 <style>
-#epicChip{position:fixed;top:9px;right:12px;z-index:1200;display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:800;padding:6px 12px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);box-shadow:0 2px 10px rgba(18,24,38,.12);user-select:none;white-space:nowrap}
-#epicChip:hover{border-color:var(--accent);color:var(--text)}
-#epicChip.beta{background:var(--warn-badge-bg);border-color:var(--gold);color:var(--warn-badge);animation:epicPulse 2s ease-in-out infinite}
-@keyframes epicPulse{0%,100%{opacity:1}50%{opacity:.6}}
-body{padding-top:46px}
 .epic-modal{position:fixed;inset:0;z-index:1300;background:rgba(18,24,38,.5);display:flex;align-items:center;justify-content:center;padding:18px}
 .epic-modal.hidden{display:none}
 .epic-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:380px;width:100%;padding:20px;box-shadow:0 12px 40px rgba(18,24,38,.22);text-align:left}
 .epic-box h3{font-size:1.05rem;margin-bottom:6px;color:var(--ink)}
 .epic-box p{font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5}
-.epic-box input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:1rem;letter-spacing:2px;text-align:center;text-transform:uppercase}
-.epic-box input:focus{outline:none;border-color:var(--gold)}
-.epic-err{color:var(--red);font-size:.76rem;margin-top:8px;min-height:16px;text-align:center}
 .epic-row{display:flex;gap:8px;margin-top:14px}
 .epic-row button{flex:1;padding:10px;border:none;border-radius:8px;font-weight:800;font-size:.85rem;cursor:pointer}
 .epic-go{background:var(--gold);color:var(--ink)}.epic-cancel{background:var(--surface2);color:var(--text)}
@@ -970,66 +1013,15 @@ body{padding-top:46px}
 .epicv-entry ul{margin:8px 0 0;padding-left:18px}.epicv-entry li{font-size:.82rem;color:var(--text2);margin-bottom:6px;line-height:1.5}
 #ver{cursor:pointer;font-size:.68rem;padding:3px 10px;border-radius:999px;background:var(--surface);border:1px solid var(--border);color:var(--text2);white-space:nowrap;text-decoration:none}
 #ver:hover{border-color:var(--accent);color:var(--text)}
-#ver.new{color:var(--success);background:var(--success-bg);border-color:transparent;font-weight:700;animation:epicPulse 1.7s ease-in-out infinite}
 </style>
 <script>
 (function(){
-  var CODE='EPICBETA', KEY='epic_mode';
-  var E=window.EPIC=window.EPIC||{};
-  var FILE=/\.html?$/i.test(location.pathname);
-  E.isBeta=function(){ if(/\/beta(\/|$)/.test(location.pathname)) return true; if(FILE){try{return localStorage.getItem(KEY)==='beta'}catch(e){}} return false; };
-  function gotoBeta(){ try{localStorage.setItem(KEY,'beta')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/(live|setter|referral|success)\/$/,'')+'beta/'; }
-  function gotoLive(){ try{localStorage.setItem(KEY,'live')}catch(e){} if(FILE){location.reload();return;} location.href=location.pathname.replace(/beta\/(live\/|setter\/|referral\/|success\/)?$/,''); }
-  var chip=document.createElement('div'); chip.id='epicChip';
-  function paint(){ if(E.isBeta()){chip.className='beta';chip.textContent='🧪 BETA · back to Live';chip.title="You're on the beta build — tap to return to Live";}
-    else{chip.className='';chip.textContent='🟢 Live · try beta';chip.title='Tap to enter the beta preview (code required)';} }
-  paint();
-  var m=document.createElement('div'); m.className='epic-modal hidden';
-  m.innerHTML='<div class="epic-box"><h3>🧪 Try the beta</h3><p>Enter your beta code to preview the newest in-progress build across the EPIC Suite. Switch back to Live anytime from the chip in the corner.</p><input id="epicCodeIn" placeholder="beta code" autocomplete="off" spellcheck="false"><div class="epic-err" id="epicErr"></div><div class="epic-row"><button class="epic-cancel" id="epicCancel">Cancel</button><button class="epic-go" id="epicGo">Unlock beta</button></div></div>';
-  function showM(){m.classList.remove('hidden');var i=m.querySelector('#epicCodeIn');i.value='';m.querySelector('#epicErr').textContent='';setTimeout(function(){i.focus()},30);}
-  function hideM(){m.classList.add('hidden');}
-  function submitM(){var v=(m.querySelector('#epicCodeIn').value||'').trim().toUpperCase();
-    if(v===CODE){gotoBeta();}else{m.querySelector('#epicErr').textContent="That code didn't match. Try again.";}}
-  chip.onclick=function(){ if(E.isBeta()){gotoLive();} else {showM();} };
-  document.body.appendChild(chip); document.body.appendChild(m);
-  m.addEventListener('click',function(e){if(e.target===m)hideM();});
-  m.querySelector('#epicCancel').onclick=hideM; m.querySelector('#epicGo').onclick=submitM;
-  m.querySelector('#epicCodeIn').addEventListener('keydown',function(e){if(e.key==='Enter')submitM();});
-  // ---- What's new (per role) ----
-  var TITLE='EPIC Setter', SEEN='epic_setter_seen';
+  var TITLE='EPIC Setter — offline test copy';
   var NOTES=[
   {v:'1.6.0',d:'2026-07-08',n:[
-   "New 💬 Text Roadmap tab on every prospect — a 7-step SMS nurture sequence (curiosity hook → story → first VSL → deeper content → landing page → ask for the call → next event invite) for leads who aren't ready to book yet. Every step has copy/paste text and a 📲 Text via SMS button that opens YOUR OWN phone's messages app pre-filled — nothing sends automatically. Log what the prospect says and it recommends (never auto-picks) the next step.",
-   "Step 4's content picker shows a 🤖 Recommended pick based on what the prospect actually said in earlier steps (money/comp, how it works, or why) — all options stay visible, it just highlights one.",
-   "Owner-only ⚙️ Manage content panel — add or deactivate any script/link in the roadmap without a code deploy.",
-  ]},
-  {v:'1.5.0',d:'2026-07-07',n:[
-   "Once you've booked a lead's Strategy Session, this page now shows the real appointment time instead of the picker — with ❌ Cancel and 🔁 Reschedule, both real (cancel actually cancels on Calendly; reschedule cancels then lets you pick a fresh slot).",
-  ]},
-  {v:'1.4.0',d:'2026-07-06',n:[
-   "Book the closer appointment is now REAL — it books the actual Discovery Call slot on Miki's live Calendly calendar, no more fake date grid. Pick a real open day/time, confirm, and it creates a real Calendly booking on the spot.",
-   "Removed the fake closer picker (Ana/Marco/Next available were demo names) — Discovery Call only has one real host today.",
-  ]},
-  {v:'1.3.0',d:'2026-07-06',n:[
-   "New tab now sorts strictly by when the lead actually entered the CRM (newest first), automatically — no more relying on AI priority score, which isn't populated yet. Each card shows \"entered Xd ago.\"",
-  ]},
-  {v:'1.2.0',d:'2026-07-06',n:[
-   "Fresh leads are now 3 real filter tabs on the left — New, Callbacks, and No-shows (Discovery/Whale/3B) — instead of one mixed list. Each tab shows a live count.",
-   "Real follow-up tracking: logging Callback or No answer now saves a real due-tomorrow follow-up, and the Callbacks/No-shows tabs sort the most overdue lead first — a 🔴/🟡/📅 due badge shows on the card. A \"due\" counter up top shows how many are overdue right now, so nothing falls through the cracks.",
-   "Every outcome you log (Set / Callback / Not a fit / No answer) now saves a real call record, not just an on-screen tally — the dials/convos/sets counters start at 0 each session instead of a pre-filled demo number.",
-  ]},
-  {v:'1.1.0',d:'2026-07-04',n:[
-   "Real sign-in required (same one-tap email link as Referral Partner) — no more shared beta code for access.",
-   "The queue is now real Sales Hub leads once you're signed in — fresh + needs-follow-up stages, ranked by an AI priority score. Falls back to demo cards only if the live feed can't load.",
-  ]},
-  {v:'1.0.1',d:'2026-07-02',n:[
-   "Optimized for mobile — bigger tap targets, a full-width Log & Next button, and a cleaner one-column layout.",
-  ]},
-  {v:'1.0.0',d:'2026-07-01',n:[
-   "Work the fresh-lead list fast — tap a lead, run the setter talk-track, and quick-qualify (owner / real interest / can afford / tire-kicker) with a live fit meter.",
-   "Book the strategy call straight onto a closer's calendar — pick the closer, a day in the next 2 weeks, and a time; it confirms and lands in the closer's queue.",
-   "Keyboard-first: press 1–4 to set the outcome (set / callback / not a fit / no answer), Enter to log and jump to the next lead.",
-   "New: a version badge + this What's-new panel, and a 🧪 beta preview you can unlock with a code — switch back to Live anytime from the chip in the corner.",
+   "New 💬 Text Roadmap tab on every prospect — a 7-step SMS nurture sequence (curiosity hook → story → first VSL → deeper content → landing page → ask for the call → next event invite) for leads who aren't ready to book yet.",
+   "Step 4's content picker shows a 🤖 Recommended pick based on what the prospect said in earlier steps — all options stay visible, it just highlights one.",
+   "Owner-only ⚙️ Manage content panel — try adding your own script/link here, it's saved to the fake in-memory dataset (gone on refresh).",
   ]},
   ];
   var badge=document.getElementById('ver');
@@ -1039,121 +1031,20 @@ body{padding-top:46px}
     vm.innerHTML='<div class="epic-box epicv-box"><div class="epicv-head"><b>📋 What\'s new — '+TITLE+'</b><span class="epic-x">✕</span></div><div>'+
       NOTES.map(function(p){return '<div class="epicv-entry"><span class="epicv-v">v'+p.v+'</span><span class="epicv-d">'+p.d+'</span><ul>'+p.n.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul></div>';}).join('')+'</div></div>';
     document.body.appendChild(vm);
-    badge.onclick=function(){vm.classList.remove('hidden');try{localStorage.setItem(SEEN,v)}catch(e){}badge.classList.remove('new');};
+    badge.onclick=function(){vm.classList.remove('hidden');};
     vm.querySelector('.epic-x').onclick=function(){vm.classList.add('hidden');};
     vm.addEventListener('click',function(e){if(e.target===vm)vm.classList.add('hidden');});
-    try{if(localStorage.getItem(SEEN)!==v)badge.classList.add('new');}catch(e){}
   }
 })();
 </script>
 
-<!-- ===== EPIC Suite: suggestion box → Supabase (central review) ===== -->
-<style>
-.epic-sugg-btn{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;padding:5px 11px;border-radius:999px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);vertical-align:middle;margin-left:8px}
-.epic-sugg-btn:hover{border-color:var(--accent);color:var(--text)}
-.epic-sugg-ta{width:100%;min-height:120px;padding:11px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:.9rem;font-family:inherit;resize:vertical}
-.epic-sugg-ta:focus{outline:none;border-color:var(--accent)}
-.epic-sugg-ok{background:var(--accent);color:#fff}
-</style>
+<!-- ===== OFFLINE bootstrap — reveal the page and kick off the same
+     onEpicAuthed() flow the real sign-in gate would call, now that both
+     the main app script and the Text Roadmap engine above have loaded. ===== -->
 <script>
 (function(){
-  var SB_URL='https://widdgynledwpqaqndtvz.supabase.co';
-  var SB_KEY='sb_publishable_YTOYoDxjm7MpIuvvSjwOyQ_ToGCW3PQ';
-  var ROLE='EPIC Setter';
-  function say(t){ try{ if(typeof toast==='function'){toast(t);return;} }catch(e){}
-    var d=document.createElement('div'); d.textContent=t;
-    d.style.cssText='position:fixed;left:50%;bottom:64px;transform:translateX(-50%);background:#fff;border:1px solid var(--accent);color:var(--accent);padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:700;z-index:1400;box-shadow:0 4px 16px rgba(18,24,38,.14)';
-    document.body.appendChild(d); setTimeout(function(){d.remove();},2400); }
-  var m=document.createElement('div'); m.className='epic-modal hidden';
-  m.innerHTML='<div class="epic-box"><h3>💡 Share an idea</h3><p>What would make <b>'+ROLE+'</b> better? Your suggestion goes straight to Bruce for review.</p><textarea class="epic-sugg-ta" id="epicSuggTa" placeholder="An idea, a bug, or something confusing…"></textarea><div class="epic-err" id="epicSuggErr"></div><div class="epic-row"><button class="epic-cancel" id="epicSuggCancel">Cancel</button><button class="epic-go epic-sugg-ok" id="epicSuggSend">Send to Bruce</button></div></div>';
-  function show(){ m.classList.remove('hidden'); var t=m.querySelector('#epicSuggTa'); t.value=''; m.querySelector('#epicSuggErr').textContent=''; setTimeout(function(){t.focus();},30); }
-  function hide(){ m.classList.add('hidden'); }
-  function send(){
-    var ta=m.querySelector('#epicSuggTa'); var txt=(ta.value||'').trim();
-    if(txt.length<3){ m.querySelector('#epicSuggErr').textContent='Add a little more detail.'; return; }
-    var b=m.querySelector('#epicSuggSend'); b.disabled=true; b.textContent='Sending…';
-    var meta={ page:location.pathname, mode:(window.EPIC&&EPIC.isBeta&&EPIC.isBeta())?'beta':'live' };
-    fetch(SB_URL+'/rest/v1/epic_suggestions',{method:'POST',headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({role:ROLE,text:txt,meta:meta})})
-    .then(function(r){ if(r.ok){ hide(); say('💡 Thanks! Sent to Bruce for review.'); } else { m.querySelector('#epicSuggErr').textContent='Could not send ('+r.status+'). Try again.'; } })
-    .catch(function(){ m.querySelector('#epicSuggErr').textContent='Network error — try again.'; })
-    .finally(function(){ b.disabled=false; b.textContent='Send to Bruce'; });
-  }
-  if(!(window.EPIC&&EPIC.isBeta&&EPIC.isBeta())) return;   // 💡 suggestion box is beta-only
-  var btn=document.getElementById('epicSuggBtn');
-  if(btn){ btn.style.display=''; } else { btn=document.createElement('button'); btn.id='epicSuggBtn'; btn.className='epic-sugg-btn'; btn.textContent='💡 Suggestion'; btn.style.cssText='position:fixed;left:12px;bottom:14px;z-index:1200'; document.body.appendChild(btn); }
-  btn.onclick=show;
-  document.body.appendChild(m);
-  m.addEventListener('click',function(e){ if(e.target===m) hide(); });
-  m.querySelector('#epicSuggCancel').onclick=hide; m.querySelector('#epicSuggSend').onclick=send;
-})();
-</script>
-
-<!-- role leaderboard + your commission (demo) -->
-<script>
-(function(){var w=document.querySelector('.wrap');if(!w)return;
-var TITLE='🏆 Top BDRs — booking commission this month';
-var YOU='You: $200 earned · 2 bookings closed · $100 per qualified booking that closes';
-var B=[{n:'Kai Rivera',s:'2 booked→closed',p:'$200'},{n:'Mia Tan',s:'2 booked→closed',p:'$200'},{n:'Jordan Poe',s:'1 booked→closed',p:'$100'}];
-var p=document.createElement('div');p.className='panel';p.style.marginTop='12px';
-p.innerHTML='<div class="lbl">'+TITLE+'</div>'+B.map(function(l,i){return '<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)"><span style="width:20px;height:20px;border-radius:50%;'+(i===0?'background:#FCF4CB;color:#CB7C2E':'background:var(--surface2);color:var(--text2)')+';display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800">'+(i+1)+'</span><div style="flex:1;min-width:0"><b style="font-size:.85rem">'+l.n+'</b> <span style="font-size:.66rem;color:var(--text2)">· '+l.s+'</span></div><span style="font-weight:800;color:#3C7E44">'+l.p+'</span></div>';}).join('')+'<div style="margin-top:9px;font-size:.76rem;color:#CB7C2E;font-weight:700">'+YOU+'</div>';
-w.appendChild(p);})();
-</script>
-
-<!-- ===== EPIC Suite: update prompt — compares embedded SUITE_BUILD vs the deploy's
-     version.json and prompts the rep to refresh past stale cache. Bump SUITE_BUILD
-     in every tool on every release (it's the suite build, not this tool's version). ===== -->
-<script>
-(function(){
-  var SUITE_BUILD='1.48.0'; /*suite-build*/
-  var FILE=location.protocol==='file:';
-  var REL=FILE?'version.json':'../live/version.json';
-  var bar=null;
-  function show(v){
-    if(bar) return;
-    bar=document.createElement('div');
-    bar.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;align-items:center;justify-content:center;gap:10px;padding:11px 14px;background:#DEE9FC;border-top:1px solid #273FA8;color:#273FA8;font:700 .85rem system-ui,sans-serif;box-shadow:0 -2px 10px rgba(18,24,38,.08)';
-    bar.appendChild(document.createTextNode('🔄 New version available.'));
-    var b=document.createElement('button'); b.textContent='Update now';
-    b.style.cssText='background:#253984;color:#fff;border:0;border-radius:999px;padding:7px 16px;font:800 .8rem system-ui;cursor:pointer';
-    b.onclick=function(){ location.replace(location.pathname+'?v='+encodeURIComponent(v)); };
-    var x=document.createElement('span'); x.textContent='✕'; x.title='dismiss';
-    x.style.cssText='cursor:pointer;opacity:.7;padding:0 6px';
-    x.onclick=function(){ bar.remove(); bar=null; };
-    bar.appendChild(b); bar.appendChild(x); document.body.appendChild(bar);
-  }
-  async function check(){
-    try{
-      var r=await fetch(REL+'?t='+Date.now(),{cache:'no-store'});
-      if(!r.ok) return; var j=await r.json();
-      if(j&&j.v&&j.v!==SUITE_BUILD) show(j.v);
-    }catch(e){}
-  }
-  check(); setInterval(check,60000);
-  document.addEventListener('visibilitychange',function(){ if(!document.hidden) check(); });
-})();
-</script>
-<!-- ===== EPIC Suite: load-failure safety net (2026-07-06) — the sign-in check
-     above fails CLOSED (page stays blank until authorized), which is correct
-     for security but meant a real failure (CDN blocked, network hiccup, an
-     unexpected error before the gate ever resolves) left a permanently blank
-     white screen with no explanation. This shows a real, actionable message
-     instead if neither the gate nor the page ever appears. ===== -->
-<script>
-(function(){
-  setTimeout(function(){
-    var wrapEl=document.querySelector('.wrap');
-    var gate=document.getElementById('epicAuthGate');
-    var wrapHidden=wrapEl && getComputedStyle(wrapEl).visibility==='hidden';
-    var gateHidden=gate ? gate.classList.contains('hidden') : true;
-    if(wrapHidden && gateHidden && !document.getElementById('epicLoadFail')){
-      var d=document.createElement('div');
-      d.id='epicLoadFail';
-      d.style.cssText='position:fixed;inset:0;z-index:2600;background:rgba(18,24,38,.94);color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;font:600 .95rem -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
-      d.innerHTML='<div>⚠️ Couldn’t load — check your connection and try again.<br><button type="button" style="margin-top:14px;padding:10px 22px;border:none;border-radius:8px;font-weight:800;cursor:pointer;background:#fff;color:#121826">Reload</button></div>';
-      d.querySelector('button').onclick=function(){ location.reload(); };
-      document.body.appendChild(d);
-    }
-  }, 7000);
+  var w=document.querySelector('.wrap'); if(w) w.style.visibility='visible';
+  if(typeof window.onEpicAuthed==='function') window.onEpicAuthed();
 })();
 </script>
 </body>
