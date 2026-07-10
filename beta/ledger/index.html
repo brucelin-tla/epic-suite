@@ -504,10 +504,11 @@
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.08-b46</span>
+    <span class="eyebrow">Team Life Academy · Interactive Ledger</span><span class="ledger-version" id="ledgerVersion">v2026.07.09-b47</span>
     <details class="details-toggle" style="margin-top:4px;">
       <summary>What's changed</summary>
       <div class="changelog">
+        <div class="changelog-entry"><span class="changelog-date">Jul 9, 2026 — b47</span><p class="topic-exp" style="margin-top:2px;">New topic at the end of Section&nbsp;2: <b>"The 10-pay design — fund it for a decade, income for life."</b> Set an annual premium and how many years you'll pay it; the engine solves the maximum level tax-free income the policy can pay from the very next year through age 120 on policy loans, using the same real contract costs and loan mechanics as everything else on this page — plus the chronic-illness pool at 80, the age it hits the rider's $3,000,000 cap, and the honest per-diem reality of the monthly check. It rides the shared age, sex, crediting rate, and loan type, so flipping any of those re-solves the story. Calibrated against a real 2026 carrier illustration of this exact design ($50K/yr, 10 years, issued at 46) and tuned to sit <b>slightly conservative, never over</b>: solved income about 6% under the carrier's own answer, build-up within ~2.4%, chronic-illness pool hitting its cap at the same age their illustration shows — because this topic will sit next to real illustrations at close time, and reading high there is the worst direction to be wrong. Loaned collateral credits 1.10 points below the unloaned rate (the illustration's own paired assumption), and the income solves to the policy's own limits — the real design carries the carrier's overloan protection rider, which is what makes that safe. Also required, not optional: the same solved income re-run at 6.40% and at the carrier's own 5.20% alternate check — if it fails before 120, it shows the failure age in red, because rate assumption is everything (at 5.20% ours fails at the same age the carrier's own alternate page shows).</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b46</span><p class="topic-exp" style="margin-top:2px;">New Section 1 — a journey intro that runs before "your numbers": a short tutorial on how the ledger works, an explainer on the real gap in the market this system is built to close, and a real engine-computed example (not a member's own numbers yet) comparing "savings only, parked and drained" against "every EPIC LIFE tool deployed," on one representative profile ($180K income, $40K/yr, age 45 to a plan through 90) — same two functions the member's own plan runs on, not an approximation. Added a two-paragraph narrative to the policy topic on why cash-value life insurance is the engine behind Buy, Borrow, Die, not just a savings vehicle. Every other section moved down one number to make room (old Section 1 → 2, 2 → 3, 3 → 4, 4 → 5) — every in-page cross-reference to a section number was checked and bumped to match; the changelog below keeps its original numbering since it's describing what those sections were called at the time.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b45</span><p class="topic-exp" style="margin-top:2px;">Section 1 restored — it lost its income/tax/ages, 401(k), and mortgage inputs when they moved into the Section&nbsp;3 lock-in wizard last batch; they're back now as live mirrors (edit either copy, both stay in sync), and the wizard's own inputs are untouched. The wizard's step headers now show a collapse arrow next to the title and two buttons at the top right — <b>Edit</b> and <b>Confirm</b> — instead of one button buried at the bottom. The chronic illness rider is now explicitly an <b>optional</b> rider (on by default) with ALIS's own recommendation to include it: real advantage early on, with very little cost carried. Removed every "why one policy replaces two" explanation — the member has only ever known this one AIUL, so that framing served no one. Section&nbsp;2's sandbox now shows its own chronic-illness preview (monthly draw at trigger, total drawn over the horizon, death benefit at the end) computed from the illustrative design projected forward to the real claim age and plan-through age — death benefit at the end is always face plus cash value minus any outstanding loan, interest included. Caught two real bugs in verification: claim age and plan-through age weren't actually recomputing this new preview (silently stale numbers), and a long fallback string was breaking the mobile layout — both fixed before shipping.</p></div>
         <div class="changelog-entry"><span class="changelog-date">Jul 8, 2026 — b44</span><p class="topic-exp" style="margin-top:2px;">The chronic illness rider is now on by default, locked at its real 1%/mo elected rate (no more 1/2/4% choice — the design elects 1% and can't change it later), and once it triggers it draws every year for the rest of the plan instead of stopping after a fixed "years of need" — the death benefit runs down but never quite to zero, since each draw is a percentage of whatever's left. The Accelerated Death Benefit rider is gone entirely — the chronic illness rider is now the only accelerated-benefit mechanic (most members have never had a policy like this, so there's no reason to model a second rider on top). The increasing-to-level switch is ALIS-only now — no manual age or "never" selector, ALIS always picks it. Removed "The policy's real costs" as its own section. Policy premium now defaults to $0 everywhere (including every age-based preset) — most members are starting from scratch, not funding an existing design. <b>Biggest change: a new "Lock in your plan" wizard at the very start of Section&nbsp;3</b> — go step by step (your numbers → 401(k) → property &amp; mortgage → the AIUL itself, now with its own separate total-premium input, stop age, years in force and claim age) and lock each one in before the plan runs on it. Section&nbsp;2's policy topic is now explicitly just an illustration — play with it all you want, only the tax-reserve-vehicle choice and years-in-force there actually feed the real plan. Mortgage years-paid-in also gained month-level precision.</p></div>
@@ -734,6 +735,36 @@
             <details class="caveat mini collapsible" id="cav-ltc">
               <summary><span class="mark">!</span><span>Why age 80 — and what this does and doesn't cover</span></summary>
               <div class="caveat-body"><p><b>Age 80 default is sourced, not guessed:</b> per Northwestern Mutual, "the vast majority of long-term care insurance claims happen after age 80"; nursing-home admission averages ~age 80; ASPE puts lifetime LTC risk at 56% for someone turning 65 today. Individual risk varies enormously — this is a population statistic, not a prediction for one member. <b>The 1% monthly rate is elected at issue and can't be changed later</b> — this is TLA's illustrated design, not an editable assumption. <b>Once triggered, it runs for the rest of the plan</b> — no "years of need" slider, since a real chronic-illness need doesn't come with a known end date; the draw naturally decays toward (but never quite reaches) zero because it's always 1% of whatever death benefit is still left, so the policy stays genuinely in force. <b>Real rider mechanics modeled:</b> a 90-day elimination period and once-per-12-months payment cadence exist in the contract but are approximated here as annual draws; each draw reduces the death benefit and the cash value proportionately; the IRS per-diem cap ($430/day, 2026, Rev. Proc. 2025-32) binds whenever 1% of the death benefit exceeds ~$13,079/mo. <b>Scope:</b> modeled only during retirement (Section&nbsp;5); a trigger age before retirement currently has no effect. Draws come off the same death benefit the estate math counts on — the trade-off is enforced, not just shown.</p></div>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div class="topic">
+        <div class="topic-h">The 10-pay design — fund it for a decade, income for life</div>
+        <p class="topic-exp">Fund the policy hard for a set number of years, then never pay another dollar — from the very next year it pays a level, tax-free income through age 120 on policy loans, while the chronic-illness pool above peaks right around the age most claims actually happen. This mirrors a real 2026 carrier illustration of this exact design (issued at 46, $50,000/yr for 10 years). Education, not advice — the solve below is this page's engine, not a quote.</p>
+        <p class="way-hint show" style="margin-top:2px;">Runs on the <b>shared inputs above</b>: your age and Male/Female from Section&nbsp;1, plus the crediting rate and loan type from the policy topic — flip any of those and watch this solve change. A projection for exploring the design; it feeds nothing into Section&nbsp;5/6's real plan.</p>
+        <div class="split">
+          <div class="side-controls">
+            <div class="control"><label>Annual premium <span class="val" id="v-tpPremium">$50,000</span></label><input type="range" id="tpPremium" min="10000" max="100000" step="1000" value="50000"></div>
+            <div class="control"><label>Premium years <span class="val" id="v-tpYears">10 yrs</span></label><input type="range" id="tpYears" min="5" max="20" step="1" value="10"></div>
+            <p class="topic-exp" style="margin-top:6px;" id="tpTimeline">–</p>
+          </div>
+          <div class="side-results">
+            <div class="ledger">
+              <div class="lline total"><span>Tax-free income, every year <span class="lbl-sub" id="s-tpIncomeSub">–</span></span><span class="amt" id="s-tpIncome">–</span></div>
+              <div class="lline"><span>Total tax-free income through 120 <span class="lbl-sub" id="s-tpTotalIncomeSub">–</span></span><span class="amt" id="s-tpTotalIncome">–</span></div>
+              <div class="lline"><span>Total premium paid <span class="lbl-sub" id="s-tpTotalPremSub">–</span></span><span class="amt" id="s-tpTotalPrem">–</span></div>
+              <div class="lline subtotal"><span>Cash value when premiums stop <span class="lbl-sub">End of the last premium year — the income phase lives on this</span></span><span class="amt" id="s-tpCV">–</span></div>
+              <div class="lline"><span>Death benefit at income start <span class="lbl-sub">Frozen level (Option&nbsp;1) here — the real design flips increasing→level exactly when income begins</span></span><span class="amt" id="s-tpDB">–</span></div>
+              <div class="lline"><span>Chronic-illness pool at 80 <span class="lbl-sub" id="s-tpCIPoolSub">–</span></span><span class="amt" id="s-tpCIPool">–</span></div>
+              <div class="lline"><span>Monthly chronic-illness check at 80 <span class="lbl-sub">1% of the pool, capped at the IRS per-diem limit (~$13,079/mo in 2026) — the cap is why a $3,000,000 pool doesn't mean $30,000 checks</span></span><span class="amt" id="s-tpCIMonthly">–</span></div>
+              <div class="lline risk" id="tpStress640"><span>Same income re-run at 6.40% <span class="lbl-sub">The Conservative preset — what the long-run floor/cap record supports</span></span><span class="amt" id="s-tpStress640">–</span></div>
+              <div class="lline risk" id="tpStress520"><span>Same income re-run at 5.20% <span class="lbl-sub">The carrier's own alternate-assumptions check — their illustration shows its $52,002 income lapsing around age 68 at this rate. Rate assumption is everything.</span></span><span class="amt" id="s-tpStress520">–</span></div>
+            </div>
+            <details class="caveat mini collapsible" id="cav-tenpay">
+              <summary><span class="mark">!</span><span>Calibrated against a real illustration — slightly conservative on purpose</span></summary>
+              <div class="caveat-body"><p>The reference: a real 2026 John Hancock AIUL&nbsp;26 illustration — female&nbsp;46, Standard non-smoker, $50,000/yr for 10 years, Fixed Index loans, income solved from year&nbsp;11 through age&nbsp;120. Against it, this solver runs <b>deliberately a touch conservative</b>: solved income $48,834 vs the carrier's $52,002 (about 6% under, never over), cash value at the end of year&nbsp;10 within ~2.4%, the chronic-illness pool at 80 within ~1.2% ($2.84M vs their $2.87M) and hitting its $3,000,000 cap at 81 — the same age their illustration shows. Loaned collateral credits 1.10 points below the unloaned rate, the illustration's own paired assumption (7.12% unloaned vs its 6.02% Fixed Index Loan Assumed Rate), and the income solves to the policy's own limits rather than an artificial buffer — the real design includes the carrier's overloan protection rider, which is exactly what makes a solve-to-limit income design safe from lapsing. One cross-check that fell out for free: re-run this solver's income at the carrier's own 5.20% alternate rate and it fails at 68 — the same age their Alternate Assumptions page shows. A real illustration from the carrier is still the number a real design prints; this is the same story, told a hair under it.</p></div>
             </details>
           </div>
         </div>
@@ -1714,6 +1745,135 @@
     return coi + faceCharge + accCharge;
   }
 
+  // --- "The 10-pay design" showcase engine (Section 2) — pure parallels, zero DOM reads ---
+  // Mirrors a real 2026-07-09 John Hancock AIUL 26 illustration: female 46, Standard NonSmoker,
+  // Hawaii — $50,000/yr × 10 years, DB Option 2 (increasing) flipped to Option 1 (level) at
+  // income start, Fixed Index loans (5.00% charged / 6.02% assumed credited on loaned collateral,
+  // interest borrowed), solved level tax-free income $52,002/yr from policy year 11 through 120.
+  // CALIBRATION (2026-07-09, this exact profile): build-up matches — cash value end of year 10
+  // $626,821 vs the illustration's $641,886 (−2.4%), CI pool hits its $3M cap at 78 vs 81.
+  // The income solve is deliberately calibrated SLIGHTLY CONSERVATIVE vs the carrier's own
+  // $52,002 (Bruce's call, 2026-07-09): this topic sits next to real carrier illustrations at
+  // close time, and reading high there is the worst direction to be wrong. The page engine's
+  // single-bucket Fixed Index simplification (full crediting + 0.65% bonus on loaned collateral)
+  // solved ~19% HIGH here ($61,688), so tenPaySim's income phase carries two scoped, sourced
+  // departures — documented inline below — and the engine's own loan mechanics everywhere else
+  // on the page are untouched (that page-wide question stays open as a separate decision).
+  // Face sizing: THIS design carries less face per premium dollar than the engine's full-pay
+  // FACE_RATIO table (illustration: $900,863 face on $50K/yr = 18.02× at F46 vs the table's
+  // 25.15× same age/sex — a limited-pay design needs less guideline face). Under the guideline
+  // premium test the LEVEL guideline doesn't depend on how many years you actually pay, so the
+  // ratio holds CONSTANT across the premium-years slider — single-anchor calibration (F46),
+  // age/sex shape borrowed from the engine's six-illustration table. The reference design's
+  // 7-pay MEC limit was $64,498 vs the $50,000 premium — comfortably non-MEC.
+  const TENPAY_FACE_FACTOR = (900863/50000) / 25.1466;   // ≈ 0.7165
+  const TENPAY_END_AGE = 120;
+  // The chronic-illness rider's POOL maximum — $3,000,000, sourced from the same illustration's
+  // rider page (the per-diem cap is separate: 1% × a $3M pool = $30K/mo, but IRS per-diem caps
+  // the actual check at ~$13,079/mo).
+  const TENPAY_CI_POOL_CAP = 3000000;
+  // Fixed Index loaned-collateral spread, THIS topic only: the reference illustration's own
+  // paired assumptions are 7.12% on unloaned segments vs a 6.02% "Fixed Index Loan Assumed
+  // Rate" on loaned collateral — a 1.10-point spread. tenPaySim credits loaned collateral at
+  // (unloaned rate − this spread), floored at 0, with NO 0.65% bonus on top, so the honesty
+  // re-runs stay coherent (6.40% unloaned → 5.30% loaned; 5.20% → 4.10%).
+  const TENPAY_INDEX_LOAN_SPREAD = 0.011;
+  // Pure parallel of mkPolCost() (the demoMkPolCost pattern) — same fields, inputs explicit.
+  function tenPayPolCost(age0, sexV, coiPctV, annualPremium, incomeStartAge){
+    const F = facePerPremium(age0, sexV) * TENPAY_FACE_FACTOR * Math.max(annualPremium, 0);
+    return { faceBase: FACE_BASE_SHARE * F, faceSuppl: (1 - FACE_BASE_SHARE) * F,
+             coiPct: coiPctV, acl: Math.max(ACL_PER_FACE * F, 1),
+             switchAge: incomeStartAge };   // Option 2 → 1 exactly at income start, the real design's flip
+  }
+  // One full life of the design: fund `payYears` years EXACTLY as accumulate()'s policy path
+  // does (premium expense charge off the top → contract chassis via policyCosts + admin →
+  // crediting), then draw a LEVEL annual policy-loan income from the next year through age 120
+  // in simulateStrategy()'s exact policy-loan ORDER (accrue at the real loan rate → draw →
+  // costs + crediting, incl. the wash-loan Loan Account transfer). Two scoped, sourced
+  // departures from the page engine apply in the income phase ONLY (2026-07-09, Bruce's call —
+  // see the calibration note above):
+  // (1) Never-lapse rule: the real 10-pay design carries the carrier's Overloan Protection
+  //     Rider (listed in the reference illustration's coverage summary) — the actual real-world
+  //     lapse protection for a solve-to-limit income design. So this solve runs to the POLICY'S
+  //     limits, mirroring the carrier's solve-to-the-last-dollar: it fails only when the loan
+  //     would exceed the cash value itself (net policy value < 0 — the policy is gone). The
+  //     Ledger's 90% POLICY_DRAW_MAX guard is NOT applied here; it deliberately stays in force
+  //     everywhere else on the page (it's the Ledger's own conservative rule for the member's
+  //     blended plan, where outside cash exists to service a loan).
+  // (2) Fixed Index loaned-collateral crediting: (unloaned rate − TENPAY_INDEX_LOAN_SPREAD),
+  //     floored at 0, NO 0.65% bonus — see the constant's sourcing note above. The engine's
+  //     single-bucket simplification solved ~19% high vs the carrier's own income; this
+  //     calibrates ~5% low (conservative). Wash mechanics are unchanged — they were already
+  //     the engine's real wash math.
+  function tenPaySim(o){
+    // o = { age0, sex, coiPct, premium, payYears, credPct, loanKind ('index'|'wash'), income }
+    const incomeStartAge = o.age0 + o.payYears;
+    const pc = tenPayPolCost(o.age0, o.sex, o.coiPct, o.premium, incomeStartAge);
+    const st = mkPolState(null);
+    const cr = o.credPct/100;
+    let cvFree = 0, cvLoanAcct = 0, loanBal = 0, cumPrem = 0;
+    const out = { sustainable: true, failAge: null, incomeStartAge, incomeYears: 0,
+                  cvAtFundingEnd: 0, dbAtIncomeStart: 0, ciPoolAt80: 0, ciCapAge: null };
+    for (let t = 0; o.age0 + t <= TENPAY_END_AGE; t++){
+      const age = o.age0 + t, policyYear = t + 1;
+      if (policyYear === o.payYears + 1)
+        out.dbAtIncomeStart = Math.max(policyDB(pc, st, age, cvFree + cvLoanAcct) - loanBal, 0);
+      if (policyYear <= o.payYears){
+        // accumulate()'s policy path (its exact cost/crediting order and arguments)
+        cumPrem += o.premium;
+        const net = o.premium * (1 - premChargePct(policyYear));
+        const costs = policyCosts(pc, age, policyYear, cvFree + net + cvLoanAcct, cumPrem, st);
+        cvFree = Math.max((cvFree + net) * (1 + cr) - POLICY_ADMIN_ANNUAL - costs, 0);
+        if (cvLoanAcct > 0.5) cvLoanAcct *= (1 + washCredited(policyYear)/100);
+        if (policyYear === o.payYears) out.cvAtFundingEnd = cvFree + cvLoanAcct;
+      } else {
+        // simulateStrategy()'s policy-loan ORDER: accrue → draw → costs/credit
+        if (loanBal > 0.5){
+          const chg = o.loanKind === 'index' ? INDEX_LOAN_RATE : washCharged(policyYear);
+          loanBal *= (1 + chg/100);
+        }
+        // Solve-to-limit (Overloan Protection Rider design — departure (1) above): the ceiling
+        // is the net policy value itself, not 90% of CV.
+        const room = (cvFree + cvLoanAcct) - loanBal;
+        if (room < o.income - 0.01){ out.sustainable = false; out.failAge = age; break; }
+        if (o.loanKind === 'wash'){ cvFree -= o.income; cvLoanAcct += o.income; }
+        loanBal += o.income;
+        out.incomeYears++;
+        const costs = policyCosts(pc, age, policyYear, cvFree + cvLoanAcct, cumPrem, st);
+        if (o.loanKind === 'index'){
+          // Departure (2): loaned collateral credits (cr − spread, floored at 0), no bonus;
+          // the unloaned remainder keeps the full rate. Single bucket, split by loan balance.
+          const loaned = Math.min(Math.max(loanBal, 0), cvFree);
+          const crLoaned = Math.max(cr - TENPAY_INDEX_LOAN_SPREAD, 0);
+          cvFree = Math.max(cvFree + (cvFree - loaned) * cr + loaned * crLoaned - POLICY_ADMIN_ANNUAL - costs, 0);
+        } else {
+          cvFree = Math.max(cvFree * (1 + cr) - POLICY_ADMIN_ANNUAL - costs, 0);
+          if (cvLoanAcct > 0.5) cvLoanAcct *= (1 + washCredited(policyYear)/100);
+        }
+        // Alive-to-120 hard floor: if this year's charges/interest pushed the loan past the
+        // remaining cash value, the policy is gone — fail honestly rather than carry a negative.
+        if (loanBal > cvFree + cvLoanAcct){ out.sustainable = false; out.failAge = age; break; }
+      }
+      // Chronic-illness pool = the policy's CURRENT gross death benefit, capped at the rider's
+      // $3,000,000 pool maximum. Tracked at every age; 80 is the sourced typical claim age.
+      const pool = Math.min(policyDB(pc, st, age, cvFree + cvLoanAcct), TENPAY_CI_POOL_CAP);
+      if (out.ciCapAge === null && pool >= TENPAY_CI_POOL_CAP - 0.5) out.ciCapAge = age;
+      if (age === 80) out.ciPoolAt80 = pool;
+    }
+    return out;
+  }
+  // Binary-search the maximum level annual income tenPaySim() sustains through age 120.
+  // hi = the whole funding-end cash value (the first draw can never exceed the net policy
+  // value, which is at most the CV); 40 bisections converge far below $1.
+  function tenPaySolve(o){
+    let lo = 0, hi = Math.max(tenPaySim(Object.assign({}, o, { income: 0 })).cvAtFundingEnd, 1000);
+    for (let i = 0; i < 40; i++){
+      const mid = (lo + hi) / 2;
+      if (tenPaySim(Object.assign({}, o, { income: mid })).sustainable) lo = mid; else hi = mid;
+    }
+    return Math.floor(lo);
+  }
+
   let filingStatus = 'single';
   let sex = 'male';   // drives the age/sex face-ratio + target-premium tables (insured's sex, not filing status)
   let loanType = 'auto';        // 'auto' = ALIS runs both loan types on the plan and keeps the winner
@@ -2300,7 +2460,61 @@
     // compounding at crediting from here). This is the policy vehicle's starting cash value in Section 5.
     P.startCV = realCashValue;
     $('v-polStart').textContent = fmt0.format(realCashValue);
+    renderTenPay();   // the 10-pay showcase shares this render path's inputs (age, sex, crediting, loan type, COI)
     renderSection5();
+  }
+
+  // --- Section 2: "The 10-pay design" showcase — solve + paint ---
+  // Hooked into renderSection3 (above) rather than parallel listeners, so every shared input it
+  // reads (currentAge, the Male/Female toggle, credRate + presets, the loan-type buttons, coiPct)
+  // re-solves it through the exact same path that repaints the policy topic — no drift. Only its
+  // own two sliders (tpPremium/tpYears) call it directly. READ-ONLY with respect to the rest of
+  // the page: it reads shared inputs, writes nothing shared.
+  function renderTenPay(){
+    const prem = +$('tpPremium').value, payYears = +$('tpYears').value;
+    const age0 = +$('currentAge').value, credRate = +$('credRate').value;
+    const dispLoan = loanType === 'auto' ? LOAN_RESOLVED : loanType;
+    $('v-tpPremium').textContent = fmt0.format(prem);
+    $('v-tpYears').textContent = payYears + ' yrs';
+    const startAge = age0 + payYears;
+    $('tpTimeline').innerHTML = 'Premiums run age <b>' + age0 + '–' + (startAge - 1) + '</b> (' + payYears +
+      ' years, ' + fmt0.format(prem * payYears) + ' total in); the level income starts the very next year, at <b>' +
+      startAge + '</b>, and runs through <b>120</b>.';
+    const o = { age0, sex, coiPct: +$('coiPct').value, premium: prem, payYears, credPct: credRate, loanKind: dispLoan };
+    const income = tenPaySolve(o);
+    const sim = tenPaySim(Object.assign({}, o, { income }));
+    $('s-tpIncome').textContent = fmt0.format(income) + '/yr';
+    $('s-tpIncomeSub').textContent = 'Max level policy-loan income from ' + startAge + ' through 120 at ' +
+      credRate.toFixed(2) + '% crediting, ' + (loanType === 'auto' ? '(ALIS pick) ' : '') +
+      (dispLoan === 'index'
+        ? 'Fixed Index loan — loaned collateral credits 1.10pts lower (' + Math.max(credRate - 1.10, 0).toFixed(2) + '%), the carrier\'s own paired assumption'
+        : 'Standard ("wash") loan') +
+      ' — solved to the policy\'s own limits, never lapsing before 120; this design includes the carrier\'s overloan protection rider';
+    $('s-tpTotalIncome').textContent = fmt0.format(income * sim.incomeYears);
+    $('s-tpTotalIncomeSub').textContent = sim.incomeYears + ' years × ' + fmt0.format(income) + ' — all of it policy loans, none of it taxable income';
+    $('s-tpTotalPrem').textContent = fmt0.format(prem * payYears);
+    $('s-tpTotalPremSub').textContent = payYears + ' years × ' + fmt0.format(prem) + ' — then not another dollar in';
+    $('s-tpCV').textContent = fmt0.format(Math.round(sim.cvAtFundingEnd));
+    $('s-tpDB').textContent = fmt0.format(Math.round(sim.dbAtIncomeStart));
+    $('s-tpCIPool').textContent = fmt0.format(Math.round(sim.ciPoolAt80));
+    $('s-tpCIPoolSub').textContent = sim.ciCapAge !== null
+      ? 'The current death benefit, capped at the rider\'s $3,000,000 pool maximum — hits that cap at age ' + sim.ciCapAge
+      : 'The current death benefit, capped at the rider\'s $3,000,000 pool maximum — never reaches the cap by 120';
+    $('s-tpCIMonthly').textContent = fmt0.format(Math.round(Math.min(sim.ciPoolAt80 * (ltcRatePct/100), CI_PER_DIEM_MONTHLY))) + '/mo';
+    // The honesty check, required: the SAME solved income re-run at the Conservative 6.40%
+    // (only shown when a higher rate is selected) and at the carrier's own 5.20% alternate —
+    // mirroring the real illustration's Alternate Assumptions page, where the 7.12%-solved
+    // income lapses the policy around age 68 at 5.20%.
+    const show640 = credRate > 6.45;
+    $('tpStress640').style.display = show640 ? '' : 'none';
+    if (show640){
+      const s640 = tenPaySim(Object.assign({}, o, { income, credPct: 6.40 }));
+      $('s-tpStress640').textContent = s640.sustainable ? 'still holds to 120' : 'fails at age ' + s640.failAge;
+      $('tpStress640').classList.toggle('risk', !s640.sustainable);
+    }
+    const s520 = tenPaySim(Object.assign({}, o, { income, credPct: 5.20 }));
+    $('s-tpStress520').textContent = s520.sustainable ? 'still holds to 120' : 'fails at age ' + s520.failAge;
+    $('tpStress520').classList.toggle('risk', !s520.sustainable);
   }
 
 
@@ -3749,7 +3963,7 @@
     })();
 
     window.EPIC_DEBUG = { chosen, chosenAlloc, results, propsDef, switchPick, switchAgeUsed: switchAgeEff() };
-    window.EPIC_DEBUG_FN = { simulateStrategy, accumulate, washCharged, washCredited, premChargePct, federalTax, STRATS, policyCosts, policyDB, mkPolState, coiMaxRate, dbFactor, eqShare, qmRet, qmGrow, BOND_MEAN, BOND_SD };
+    window.EPIC_DEBUG_FN = { simulateStrategy, accumulate, washCharged, washCredited, premChargePct, federalTax, STRATS, policyCosts, policyDB, mkPolState, coiMaxRate, dbFactor, eqShare, qmRet, qmGrow, BOND_MEAN, BOND_SD, tenPayPolCost, tenPaySim, tenPaySolve };
     // --- Stress-test pack: everything the on-demand Monte Carlo needs to replay the CHOSEN plan
     // (and its honest no-policy counterpart) under random market paths. Rebuilt every render so it
     // always reflects the current sliders. The MC runner itself lives outside this closure.
@@ -4895,6 +5109,10 @@
     renderPropCards(); renderSection5();
   });
   ['polPremiumAnnual','credRate','polYears','withheld','lockPolPremium'].forEach(id => $(id).addEventListener('input', renderSection3));
+  // The 10-pay showcase's own two sliders re-solve just that topic; every input it SHARES
+  // (age, sex, crediting, loan type, COI) already routes through renderSection3, which calls
+  // renderTenPay itself — same render path, no parallel wiring to drift.
+  ['tpPremium','tpYears'].forEach(id => $(id).addEventListener('input', renderTenPay));
   document.querySelectorAll('.cred-preset').forEach(b => b.addEventListener('click', () => {
     $('credRate').value = b.dataset.cred; renderSection3();
   }));
